@@ -6,22 +6,22 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/14 15:41:48 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/22 18:43:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	allocate_environment(t_env *enviroment, int size, t_memories *memories)
+int	allocate_environment(t_env *environment, int size, t_memories *memories)
 {
-	enviroment->key = (char **)calloc(size + 1, sizeof(char *));
-	enviroment->value = (char **)calloc(size + 1, sizeof(char *));
-	if (!enviroment->key || !enviroment->value)
+	environment->pairs = (t_key_value *)calloc(size + 1, sizeof(t_key_value));
+	if (!environment->pairs)
 	{
 		return (1);
 	}
-	add_memory(memories, enviroment->key);
-	add_memory(memories, enviroment->value);
+	environment->size = 0;
+	environment->capacity = size;
+	add_memory(memories, environment->pairs);
 	return (0);
 }
 
@@ -62,14 +62,14 @@ char	*allocate_user_input(t_memories *memories)
 	return (input);
 }
 
-void	copy_environment_to_list(char **env, t_env_node **env_list,
-t_memories *memories)
+void	copy_environment_to_struct(char **env, t_env *environment,
+	t_memories *memories)
 {
 	int		i;
 	char	*key;
-	char	*value_copy;
-	char	*key_copy;
 	char	*value;
+	char	*key_copy;
+	char	*value_copy;
 
 	i = 0;
 	while (env[i])
@@ -82,56 +82,68 @@ t_memories *memories)
 			value_copy = strdup(value);
 			add_memory(memories, key_copy);
 			add_memory(memories, value_copy);
-			add_or_update_env_var(env_list, key_copy, value_copy);
+			add_or_update_env_var(environment, key_copy, value_copy, memories);
 		}
 		i++;
 	}
 }
 
-void	add_or_update_env_var(t_env_node **head, char *key, char *value)
+void	add_or_update_env_var(t_env *env, const char *key,
+	const char *value, t_memories *memories)
 {
-	t_env_node	*current;
-	t_env_node	*new_node;
+	int	i;
 
-	current = *head;
-	while (current)
+	i = 0;
+	while (i < env->size)
 	{
-		if (strcmp(current->key, key) == 0)
+		if (strcmp(env->pairs[i].key, key) == 0)
 		{
-			free(current->value);
-			current->value = strdup(value);
+			free(env->pairs[i].value);
+			env->pairs[i].value = strdup(value);
+			add_memory(memories, env->pairs[i].value);
 			return ;
 		}
-		current = current->next;
+		i++;
 	}
-	new_node = (t_env_node *)malloc(sizeof(t_env_node));
-	new_node->key = strdup(key);
-	new_node->value = strdup(value);
-	new_node->next = *head;
-	*head = new_node;
+	if (env->size >= env->capacity)
+	{
+		env->capacity *= 2;
+		env->pairs = realloc(env->pairs, env->capacity * sizeof(t_key_value));
+		if (!env->pairs)
+		{
+			printf("Error: Failed to expand environment.\n");
+			exit(EXIT_FAILURE);
+		}
+		add_memory(memories, env->pairs);
+	}
+	env->pairs[env->size].key = strdup(key);
+	env->pairs[env->size].value = strdup(value);
+	add_memory(memories, env->pairs[env->size].key);
+	add_memory(memories, env->pairs[env->size].value);
+	env->size++;
 }
 
-void	unset_env_var(t_env_node **head, char *key)
+void	unset_env_var(t_env *env, const char *key)
 {
-	t_env_node	*current;
-	t_env_node	*previous;
+	int	i;
+	int	j;
 
-	current = *head;
-	previous = NULL;
-	while (current)
+	i = 0;
+	while (i < env->size)
 	{
-		if (strcmp(current->key, key) == 0)
+		if (strcmp(env->pairs[i].key, key) == 0)
 		{
-			if (previous)
-				previous->next = current->next;
-			else
-				*head = current->next;
-			free(current->key);
-			free(current->value);
-			free(current);
+			free(env->pairs[i].key);
+			free(env->pairs[i].value);
+			j = i;
+			while (j < env->size - 1)
+			{
+				env->pairs[j] = env->pairs[j + 1];
+				j++;
+			}
+			env->size--;
 			return ;
 		}
-		previous = current;
-		current = current->next;
+		i++;
 	}
 }
