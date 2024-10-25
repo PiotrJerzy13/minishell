@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/14 16:40:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/23 12:47:01 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,25 +30,6 @@ t_command	*init_command_node(void)
 	new_node->next = NULL;
 	return (new_node);
 }
-
-// void	add_command_node(t_command **head, t_command *new_node)
-// {
-// 	t_command	*current;
-
-// 	if (!*head)
-// 	{
-// 		*head = new_node;
-// 	}
-// 	else
-// 	{
-// 		current = *head;
-// 		while (current->next)
-// 		{
-// 			current = current->next;
-// 		}
-// 		current->next = new_node;
-// 	}
-// }
 
 void	add_command_node(t_command **head, t_command *new_command)
 {

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/22 17:23:29 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/23 13:13:13 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,3 +105,10 @@ void	unset_env_var(t_env *env, const char *key);
 void	print_env(t_env *env);
 void	free_env(t_env *env);
 void	export_env_var(t_env *env, char *input);
+int		bui_echo(void);
+int		bui_cd(void);
+int		bui_pwd(void);
+int		bui_export(void);
+int		bui_unset(void);
+int		bui_env(void);
+int		bui_exit(void);
