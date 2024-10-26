@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/23 12:47:01 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:19:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,17 +72,69 @@ void	free_command_list(t_command *head)
 void	parse_input_to_commands(t_command **command_list, t_memories *memories)
 {
 	char		*input;
-	t_command	*new_command;
 	char		*token;
+	t_command	*new_command;
+	int			i;
 
+	i = 0;
 	input = allocate_user_input(memories);
 	token = strtok(input, " ");
-	while (token)
+	if (token)
 	{
 		new_command = init_command_node();
 		new_command->command = strdup(token);
 		add_memory(memories, new_command->command);
+		new_command->args = (char **)malloc(sizeof(char *)
+				* (strlen(input) / 2 + 2));
+		add_memory(memories, new_command->args);
+		new_command->args[i++] = strdup(token);
+		while ((token = strtok(NULL, " ")) != NULL)
+		{
+			new_command->args[i] = strdup(token);
+			add_memory(memories, new_command->args[i]);
+			i++;
+		}
+		new_command->args[i] = NULL;
 		add_command_node(command_list, new_command);
-		token = strtok(NULL, " ");
+	}
+}
+
+void	execute_commands(t_command *command_list, t_env *environment,
+	t_memories *memories)
+{
+	t_command		*current_command;
+	t_builtin_ptr	builtin;
+	pid_t			pid;
+	int				status;
+
+	(void)environment;
+	(void)memories;
+	current_command = command_list;
+	while (current_command)
+	{
+		builtin = get_builtin(current_command->command);
+		if (builtin)
+		{
+			builtin(current_command->args);
+		}
+		else
+		{
+			pid = fork();
+			if (pid == 0)
+			{
+				execvp(current_command->command, current_command->args);
+				perror("execvp");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid < 0)
+			{
+				perror("fork");
+			}
+			else
+			{
+				waitpid(pid, &status, 0);
+			}
+		}
+		current_command = current_command->next;
 	}
 }

@@ -6,13 +6,14 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/14 16:07:31 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/25 16:30:53 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	init_memories(t_memories *memories)
+void	init_memories(t_memories *memories,
+	t_env *environment, int env_capacity)
 {
 	memories->capacity = 10;
 	memories->size = 0;
@@ -22,6 +23,16 @@ void	init_memories(t_memories *memories)
 		printf("Error: Failed to initialize memory tracking system.\n");
 		exit(EXIT_FAILURE);
 	}
+	environment->pairs = (t_key_value *)malloc(env_capacity
+			* sizeof(t_key_value));
+	if (!environment->pairs)
+	{
+		printf("Error: Failed to allocate memory for environment.\n");
+		exit(EXIT_FAILURE);
+	}
+	environment->size = 0;
+	environment->capacity = env_capacity;
+	add_memory(memories, environment->pairs);
 }
 
 void	add_memory(t_memories *memories, void *ptr)

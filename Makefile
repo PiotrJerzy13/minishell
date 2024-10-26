@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 OBJDIR = ./bin
-SRCS = main.c struck_pair.c enviroment.c memories.c commands.c token.c token_helper.c enviroment2.c
+SRCS = main.c enviroment.c memories.c commands.c token.c token_helper.c enviroment2.c copy_enviroment.c builtin.c
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
 # Name of the executable
@@ -28,9 +28,8 @@ clean:
 # Full clean including object files and the executable
 fclean: clean
 	rm -f $(TARGET)
-	@if [ -d $(OBJDIR) ]; then find $(OBJDIR) -type d -exec rmdir {} +; fi
+	rm -rf $(OBJDIR)
 
-# A rule to recompile the program
 re: fclean all
 
 .PHONY: all clean fclean re

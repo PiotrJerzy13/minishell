@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/25 13:26:56 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/25 18:23:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@ int	main(int argc, char **argv, char **env)
 	char		*input;
 	t_memories	memories;
 	t_token		*token_list;
+	t_env		copied_env;
 
 	(void)argc;
 	(void)argv;
-	token_list = NULL;
 	command_list = NULL;
-	init_memories(&memories);
-	init_env(&environment, 10, &memories);
+	token_list = NULL;
+	init_memories(&memories, &environment, 10);
 	copy_environment_to_struct(env, &environment, &memories);
 	while (1)
 	{
@@ -38,14 +38,19 @@ int	main(int argc, char **argv, char **env)
 		}
 		else if (strncmp(input, "export", 6) == 0)
 		{
-			export_env_var(&environment, input + 7);
+			export_env_var(&environment, input + 7, &memories);
+		}
+		else if (strncmp(input, "deep_copy_env", 13) == 0)
+		{
+			copied_env = deep_copy_env(&environment, &memories);
+			free_env(&copied_env);
 		}
 		else
 		{
-			parse_input(token_list, &command_list, &memories);
+			parse_input_to_commands(&command_list, &memories);
 			execute_commands(command_list, &environment, &memories);
+			free_command_list(command_list);
 		}
-		free_all_memories(&memories);
 	}
 	return (0);
 }
