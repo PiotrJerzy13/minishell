@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 09:48:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 11:23:15 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,14 +90,17 @@ void			add_memory(t_memories *memories, void *ptr);
 void			free_all_memories(t_memories *memories);
 char			*allocate_user_input(t_memories *memories);
 
-void			parse_input_to_commands(t_command **command_list,
-					t_memories *memories);
+void			parse_input_to_commands(t_token *token_list,
+					t_command **command_list, t_memories *memories);
 void			add_command_node(t_command **head, t_command *new_command);
 void			free_command_list(t_command *head);
-void			tokenize_input(char *input, t_token **token_list);
+void			tokenize_input(char *input, t_token **token_list,
+					t_memories *memories);
 void			skip_spaces(char **input);
-void			handle_special_characters(char **input, t_token **token_list);
-t_token			*init_token(char *value, t_token_type type);
+void			handle_special_characters(char **input, t_token **token_list,
+					t_memories *memories);
+t_token			*init_token(char *value, t_token_type type,
+					t_memories *memories);
 void			add_token(t_token **token_list, t_token *new_token);
 char			*handle_quoted_string(char **input);
 

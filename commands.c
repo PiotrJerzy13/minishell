@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 09:56:58 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 13:31:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,33 +68,54 @@ void	free_command_list(t_command *head)
 		free(tmp);
 	}
 }
-void	parse_input_to_commands(t_command **command_list, t_memories *memories)
-{
-	char		*input;
-	char		*token;
-	t_command	*new_command;
-	int			i;
 
-	i = 0;
-	input = allocate_user_input(memories);
-	token = strtok(input, " ");
-	if (token)
+void	parse_input_to_commands(t_token *token_list, t_command **command_list,
+	t_memories *memories)
+{
+	t_command	*current_command;
+	t_token		*current_token;
+	int			arg_count;
+
+	current_command = NULL;
+	current_token = token_list;
+	while (current_token)
 	{
-		new_command = init_command_node();
-		new_command->command = strdup(token);
-		add_memory(memories, new_command->command);
-		new_command->args = (char **)malloc(sizeof(char *)
-				* (strlen(input) / 2 + 2));
-		add_memory(memories, new_command->args);
-		new_command->args[i++] = strdup(token);
-		while ((token = strtok(NULL, " ")) != NULL)
+		if (current_token->type == TOKEN_COMMAND)
 		{
-			new_command->args[i] = strdup(token);
-			add_memory(memories, new_command->args[i]);
-			i++;
+			current_command = malloc(sizeof(t_command));
+			add_memory(memories, current_command);
+			current_command->command = strdup(current_token->value);
+			add_memory(memories, current_command->command);
+			current_command->args = malloc(sizeof(char *) * 10);
+			add_memory(memories, current_command->args);
+			current_command->is_pipe = 0;
+			current_command->input_redirect = NULL;
+			current_command->output_redirect = NULL;
+			current_command->next = NULL;
+			arg_count = 0;
+			add_command_node(command_list, current_command);
 		}
-		new_command->args[i] = NULL;
-		add_command_node(command_list, new_command);
+		else if (current_token->type == TOKEN_ARGUMENT && current_command)
+		{
+			current_command->args[arg_count] = strdup(current_token->value);
+			add_memory(memories, current_command->args[arg_count]);
+			arg_count++;
+			current_command->args[arg_count] = NULL;
+		}
+		else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
+		{
+			current_token = current_token->next;
+			current_command->input_redirect = strdup(current_token->value);
+			add_memory(memories, current_command->input_redirect);
+		}
+		else if (current_token->type == TOKEN_OUTPUT_REDIRECT
+			&& current_command)
+		{
+			current_token = current_token->next;
+			current_command->output_redirect = strdup(current_token->value);
+			add_memory(memories, current_command->output_redirect);
+		}
+		current_token = current_token->next;
 	}
 }
 
@@ -112,7 +133,6 @@ void	execute_commands(t_command *command_list, t_env *environment,
 	while (current_command)
 	{
 		builtin = NULL;
-		// builtin = get_builtin(current_command->command);
 		if (builtin)
 		{
 			builtin(current_command->args);
@@ -132,7 +152,7 @@ void	execute_commands(t_command *command_list, t_env *environment,
 			}
 			else
 			{
-				// waitpid(pid, &status, 0);
+				waitpid(pid, &status, 0);
 			}
 		}
 		current_command = current_command->next;
