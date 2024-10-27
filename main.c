@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 14:15:44 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 17:02:40 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,37 @@ int	main(int argc, char **argv, char **env)
 		else if (strncmp(input, "export", 6) == 0)
 		{
 			export_env_var(&environment, input + 7, &memories);
+		}
+		else if (strncmp(input, "unset", 5) == 0)
+		{
+			unset_env_var(&environment, input + 6);
+		}
+		else if (strcmp(input, "pwd") == 0)
+		{
+			bui_pwd();
+		}
+		else if (strncmp(input, "cd", 2) == 0)
+		{
+			args = parse_echo_args(input, &arg_count);
+			if (args)
+			{
+				bui_cd(args);
+				i = 0;
+				while (i < arg_count)
+				{
+					free(args[i]);
+					i++;
+				}
+				free(args);
+			}
+		}
+		else if (strncmp(input, "exit", 4) == 0)
+		{
+			args = parse_echo_args(input, &arg_count);
+			if (args)
+			{
+				bui_exit(args);
+			}
 		}
 		else
 		{

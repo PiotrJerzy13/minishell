@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 11:23:15 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 17:01:38 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,9 @@ void			print_env(t_env *env);
 void			free_env(t_env *env);
 void			export_env_var(t_env *env, char *input, t_memories *memories);
 int				bui_echo(char **args);
-extern int		bui_cd(void);
-extern int		bui_pwd(void);
-extern int		bui_export(void);
-extern int		bui_unset(void);
-extern int		bui_env(void);
-extern int		bui_exit(void);
+int				bui_cd(char **args);
+int				bui_pwd(void);
+int				bui_exit(char **args);
 void			execute_commands(t_command *command_list, t_env *environment,
 					t_memories *memories);
 t_builtin_ptr	get_builtin(const char *command);
