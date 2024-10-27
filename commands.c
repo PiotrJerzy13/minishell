@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/25 19:19:28 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 09:52:19 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ void	free_command_list(t_command *head)
 		free(tmp);
 	}
 }
-
 void	parse_input_to_commands(t_command **command_list, t_memories *memories)
 {
 	char		*input;
@@ -112,7 +111,8 @@ void	execute_commands(t_command *command_list, t_env *environment,
 	current_command = command_list;
 	while (current_command)
 	{
-		builtin = get_builtin(current_command->command);
+		builtin = NULL;
+		// builtin = get_builtin(current_command->command);
 		if (builtin)
 		{
 			builtin(current_command->args);
