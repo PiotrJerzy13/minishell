@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 09:52:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 09:56:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void	execute_commands(t_command *command_list, t_env *environment,
 			}
 			else
 			{
-				waitpid(pid, &status, 0);
+				// waitpid(pid, &status, 0);
 			}
 		}
 		current_command = current_command->next;
