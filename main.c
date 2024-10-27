@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 17:02:40 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:14:05 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,76 @@ char	**parse_echo_args(char *input, int *arg_count)
 	return (args);
 }
 
+int	handle_builtin(char *input, t_env *environment, t_memories *memories)
+{
+	int		arg_count;
+	char	**args;
+	int		i;
+
+	i = 0;
+	if (strncmp(input, "echo", 4) == 0)
+	{
+		args = parse_echo_args(input + 5, &arg_count);
+		if (args)
+		{
+			bui_echo(args);
+			while (i < arg_count)
+			{
+				free(args[i]);
+				i++;
+			}
+			free(args);
+		}
+		return (1);
+	}
+	else if (strcmp(input, "env") == 0)
+	{
+		print_env(environment);
+		return (1);
+	}
+	else if (strncmp(input, "export", 6) == 0)
+	{
+		export_env_var(environment, input + 7, memories);
+		return (1);
+	}
+	else if (strncmp(input, "unset", 5) == 0)
+	{
+		unset_env_var(environment, input + 6);
+		return (1);
+	}
+	else if (strcmp(input, "pwd") == 0)
+	{
+		bui_pwd();
+		return (1);
+	}
+	else if (strncmp(input, "cd", 2) == 0)
+	{
+		args = parse_echo_args(input, &arg_count);
+		if (args)
+		{
+			i = 0;
+			bui_cd(args);
+			while (i < arg_count)
+			{
+				free(args[i]);
+				i++;
+			}
+			free(args);
+		}
+		return (1);
+	}
+	else if (strncmp(input, "exit", 4) == 0)
+	{
+		args = parse_echo_args(input, &arg_count);
+		if (args)
+		{
+			bui_exit(args);
+		}
+		return (1);
+	}
+	return (0);
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	t_command	*command_list;
@@ -63,79 +133,35 @@ int	main(int argc, char **argv, char **env)
 	char		*input;
 	t_memories	memories;
 	t_token		*token_list;
-	int			arg_count;
-	char		**args;
-	int 		i;
 
 	(void)argc;
 	(void)argv;
-	i = 0;
 	command_list = NULL;
 	token_list = NULL;
+	if (initialize_shell() == -1)
+	{
+		fprintf(stderr, "Failed to initialize shell environment\n");
+		return (EXIT_FAILURE);
+	}
 	init_memories(&memories, &environment, 10);
 	copy_environment_to_struct(env, &environment, &memories);
 	while (1)
 	{
-		printf("minishell> ");
-		input = allocate_user_input(&memories);
-		if (strncmp(input, "echo", 4) == 0)
+		input = readline("minishell> ");
+		if (input == NULL)
 		{
-			args = parse_echo_args(input + 5, &arg_count);
-			if (args)
+			printf("exit\n");
+			break ;
+		}
+		if (*input)
+		{
+			if (handle_builtin(input, &environment, &memories) == 0)
 			{
-				bui_echo(args);
-				while (i < arg_count)
-				{
-					free(args[i]);
-					i++;
-				}
-				free(args);
+				parse_input_to_commands(token_list, &command_list, &memories);
+				execute_commands(command_list, &environment, &memories);
 			}
 		}
-		else if (strcmp(input, "env") == 0)
-		{
-			print_env(&environment);
-		}
-		else if (strncmp(input, "export", 6) == 0)
-		{
-			export_env_var(&environment, input + 7, &memories);
-		}
-		else if (strncmp(input, "unset", 5) == 0)
-		{
-			unset_env_var(&environment, input + 6);
-		}
-		else if (strcmp(input, "pwd") == 0)
-		{
-			bui_pwd();
-		}
-		else if (strncmp(input, "cd", 2) == 0)
-		{
-			args = parse_echo_args(input, &arg_count);
-			if (args)
-			{
-				bui_cd(args);
-				i = 0;
-				while (i < arg_count)
-				{
-					free(args[i]);
-					i++;
-				}
-				free(args);
-			}
-		}
-		else if (strncmp(input, "exit", 4) == 0)
-		{
-			args = parse_echo_args(input, &arg_count);
-			if (args)
-			{
-				bui_exit(args);
-			}
-		}
-		else
-		{
-			parse_input_to_commands(token_list, &command_list, &memories);
-			execute_commands(command_list, &environment, &memories);
-		}
+		free(input);
 		token_list = NULL;
 	}
 	free_all_memories(&memories);

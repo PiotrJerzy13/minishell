@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 17:01:38 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 18:43:14 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <ctype.h>
+#include <termios.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 
 #define INITIAL_CAPACITY 128
 
@@ -122,3 +127,4 @@ void			execute_commands(t_command *command_list, t_env *environment,
 					t_memories *memories);
 t_builtin_ptr	get_builtin(const char *command);
 t_env			deep_copy_env(t_env *source_env, t_memories *memories);
+int				initialize_shell(void);

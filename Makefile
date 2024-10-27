@@ -1,19 +1,20 @@
 # Compiler and flags
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror
+LDFLAGS = -lreadline  # Link with the readline library
 OBJDIR = ./bin
-SRCS = main.c enviroment.c memories.c commands.c token.c token_helper.c enviroment2.c copy_enviroment.c builtin.c
+SRCS = main.c enviroment.c memories.c commands.c token.c token_helper.c enviroment2.c copy_enviroment.c builtin.c signals.c
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
 # Name of the executable
-TARGET = Minishell
+TARGET = minishell
 
 # Default rule to compile the program
 all: $(TARGET)
 
 # Link the object files to create the executable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
 # Compile .c files into .o object files in the OBJDIR
 $(OBJDIR)/%.o: %.c
@@ -33,3 +34,4 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+
