@@ -6,18 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 18:30:45 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 19:19:56 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:46:41 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	ignore_signals(int signum, siginfo_t *info, void *context)
-{
-	(void)signum;
-	(void)info;
-	(void)context;
-}
 
 void	handle_sigint(int signum, siginfo_t *info, void *context)
 {
@@ -30,29 +23,27 @@ void	handle_sigint(int signum, siginfo_t *info, void *context)
 	rl_redisplay();
 }
 
-int	setup_signal_handler(int signal, void (*handler)(int, siginfo_t *, void *))
-{
-	struct sigaction	action;
-
-	sigemptyset(&action.sa_mask);
-	action.sa_sigaction = handler;
-	action.sa_flags = SA_SIGINFO | SA_RESTART;
-	if (sigaction(signal, &action, NULL) == -1)
-	{
-		perror("sigaction error");
-		return (-1);
-	}
-	return (0);
-}
-
 int	initialize_shell(void)
 {
-	struct termios	term;
+	struct sigaction	sa_quit;
+	struct sigaction	sa_int;
+	struct termios		term;
 
-	if (setup_signal_handler(SIGINT, handle_sigint) == -1)
+	sigemptyset(&sa_int.sa_mask);
+	sa_int.sa_sigaction = handle_sigint;
+	sa_int.sa_flags = SA_SIGINFO | SA_RESTART;
+	if (sigaction(SIGINT, &sa_int, NULL) == -1)
+	{
+		perror("Failed to set up SIGINT handler");
 		return (-1);
-	if (setup_signal_handler(SIGQUIT, ignore_signals) == -1)
+	}
+	sigemptyset(&sa_quit.sa_mask);
+	sa_quit.sa_handler = SIG_IGN;
+	sa_quit.sa_flags = 0;
+	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
+	{
 		return (-1);
+	}
 	if (tcgetattr(STDIN_FILENO, &term) == -1)
 		return (-1);
 	term.c_lflag &= ~ECHOCTL;
