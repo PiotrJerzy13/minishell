@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 12:27:16 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:59:22 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,6 @@ int	bui_cd(char **args)
 		return (1);
 	}
 	return (0);
-}
-
-char	*remove_quotes(char *str)
-{
-	int		len;
-	char	*unquoted;
-
-	len = strlen(str);
-	if ((str[0] == '"' && str[len - 1] == '"')
-		|| (str[0] == '\'' && str[len - 1] == '\''))
-	{
-		unquoted = strndup(str + 1, len - 2);
-		return (unquoted);
-	}
-	return (strdup(str));
 }
 
 int	bui_echo(char **args)

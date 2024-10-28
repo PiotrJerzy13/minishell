@@ -6,13 +6,13 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/22 18:45:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 18:00:24 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_env	deep_copy_env(t_env *source_env, t_memories *memories)
+t_env	deep_copy_env(t_env const *source_env, t_memories *memories)
 {
 	t_env	new_env;
 	int		i;
@@ -46,19 +46,6 @@ t_env	shallow_copy_env(t_env *source_env)
 	new_env.capacity = source_env->capacity;
 	new_env.pairs = source_env->pairs;
 	return (new_env);
-}
-
-void	init_env(t_env *env, int initial_capacity, t_memories *memories)
-{
-	env->pairs = (t_key_value *)malloc(initial_capacity * sizeof(t_key_value));
-	if (!env->pairs)
-	{
-		printf("Error: Failed to allocate memory for environment.\n");
-		exit(EXIT_FAILURE);
-	}
-	env->size = 0;
-	env->capacity = initial_capacity;
-	add_memory(memories, env->pairs);
 }
 
 void	add_or_update_env_var(t_env *env, const char *key,
@@ -99,9 +86,9 @@ void	add_or_update_env_var(t_env *env, const char *key,
 void	copy_environment_to_struct(char **env, t_env *environment,
 		t_memories *memories)
 {
-	int		i;
-	char	*key;
-	char	*value;
+	int			i;
+	char const	*key;
+	char const	*value;
 
 	i = 0;
 	while (env[i])

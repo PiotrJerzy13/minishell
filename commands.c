@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 17:43:16 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:59:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,29 +44,6 @@ void	add_command_node(t_command **head, t_command *new_command)
 	while (current->next)
 		current = current->next;
 	current->next = new_command;
-}
-
-void	free_command_list(t_command *head)
-{
-	t_command	*tmp;
-	int			i;
-
-	while (head)
-	{
-		tmp = head;
-		head = head->next;
-		free(tmp->command);
-		if (tmp->args)
-		{
-			i = 0;
-			while (tmp->args[i])
-				free(tmp->args[i++]);
-			free(tmp->args);
-		}
-		free(tmp->input_redirect);
-		free(tmp->output_redirect);
-		free(tmp);
-	}
 }
 
 void	parse_input_to_commands(t_token *token_list, t_command **command_list,
@@ -167,7 +144,6 @@ void	execute_commands(t_command *command_list)
 				close(pipefd[1]);
 			}
 			printf("Executing command: %s\n", current_command->command);
-			i = 0;
 			while (current_command->args[i])
 			{
 				printf("Arg[%d]: %s\n", i, current_command->args[i]);

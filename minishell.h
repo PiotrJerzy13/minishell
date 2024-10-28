@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 17:22:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:58:45 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,24 +109,25 @@ void			handle_special_characters(char **input, t_token **token_list,
 					t_memories *memories);
 t_token			*init_token(char *value, t_token_type type,
 					t_memories *memories);
-void			add_token(t_token **token_list, t_token *new_token);
+void			add_token(t_token **head, t_token *new_token);
 char			*handle_quoted_string(char **input);
 
 void			init_env(t_env *env, int initial_capacity,
 					t_memories *memories);
-void			copy_environment_to_struct(char **env, t_env *env_struct,
+void			copy_environment_to_struct(char **env, t_env *environment,
 					t_memories *memories);
 void			add_or_update_env_var(t_env *env, const char *key,
 					const char *value, t_memories *memories);
 void			unset_env_var(t_env *env, const char *key);
 void			print_env(t_env *env);
 void			free_env(t_env *env);
-void			export_env_var(t_env *env, char *input, t_memories *memories);
+void			export_env_var(t_env *environment, char *input,
+					t_memories *memories);
 int				bui_echo(char **args);
 int				bui_cd(char **args);
 int				bui_pwd(void);
 int				bui_exit(char **args);
 void			execute_commands(t_command *command_list);
 t_builtin_ptr	get_builtin(const char *command);
-t_env			deep_copy_env(t_env *source_env, t_memories *memories);
+t_env			deep_copy_env(t_env const *source_env, t_memories *memories);
 int				initialize_shell(void);

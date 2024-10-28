@@ -6,25 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 15:41:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/22 18:49:57 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 18:01:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	free_env(t_env *env)
-{
-	int	i;
-
-	i = 0;
-	while (i < env->size)
-	{
-		free(env->pairs[i].key);
-		free(env->pairs[i].value);
-		i++;
-	}
-	free(env->pairs);
-}
 
 void	export_env_var(t_env *environment, char *input, t_memories *memories)
 {
