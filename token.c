@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 14:02:37 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:22:12 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,25 +89,28 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories)
 			{
 				add_token(token_list, init_token(token, TOKEN_ARGUMENT,
 						memories));
+				printf("Tokenized quoted argument: %s\n", token);
 				free(token);
 			}
 		}
 		else
 		{
 			start = input;
-			while (*input && !isspace(*input) && *input != '|' && *input != '<'
-				&& *input != '>')
+			while (*input && !isspace(*input) && *input != '|' && *input
+				!= '<' && *input != '>')
 				input++;
 			if (input > start)
 			{
 				token = strndup(start, input - start);
 				add_token(token_list, init_token(token, TOKEN_COMMAND,
 						memories));
+				printf("Tokenized command/argument: %s\n", token);
 				free(token);
 			}
 			handle_special_characters(&input, token_list, memories);
 		}
 	}
+	printf("Tokenization complete.\n");
 }
 
 void	handle_special_characters(char **input, t_token **token_list,

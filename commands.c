@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 13:45:53 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:43:16 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,24 +79,21 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	current_command = NULL;
 	current_token = token_list;
 	arg_count = 0;
+	printf("Starting parse_input_to_commands...\n");
 	while (current_token)
 	{
 		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
 		{
-			current_command = malloc(sizeof(t_command));
+			printf("Initializing new command node.\n");
+			current_command = init_command_node();
 			add_memory(memories, current_command);
-			current_command->command = strdup(current_token->value);
-			add_memory(memories, current_command->command);
+			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
-			current_command->args[0] = strdup(current_token->value);
-			add_memory(memories, current_command->args[0]);
-			arg_count = 1;
-			current_command->is_pipe = 0;
-			current_command->input_redirect = NULL;
-			current_command->output_redirect = NULL;
-			current_command->next = NULL;
-			add_command_node(command_list, current_command);
+			printf("Args array initialized.\n");
+			current_command->command = strdup(current_token->value);
+			add_memory(memories, current_command->command);
+			current_command->args[arg_count++] = strdup(current_token->value);
 			printf("Parsed command: %s\n", current_command->command);
 		}
 		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type
@@ -108,92 +105,73 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 				current_command->args[arg_count]);
 			arg_count++;
 		}
-		else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
+		else if (current_token->type == TOKEN_PIPE && current_command)
 		{
-			current_token = current_token->next;
-			if (current_token)
-			{
-				current_command->input_redirect = strdup(current_token->value);
-				add_memory(memories, current_command->input_redirect);
-				printf("Parsed input redirection: %s\n",
-					current_command->input_redirect);
-			}
-		}
-		else if ((current_token->type == TOKEN_OUTPUT_REDIRECT
-				|| current_token->type == TOKEN_APPEND_OUTPUT_REDIRECT)
-			&& current_command)
-		{
-			current_token = current_token->next;
-			if (current_token)
-			{
-				current_command->output_redirect = strdup(current_token->value);
-				add_memory(memories, current_command->output_redirect);
-				current_command->is_pipe = (current_token->type
-						== TOKEN_APPEND_OUTPUT_REDIRECT);
-				printf("Parsed output redirection: %s (append: %d)\n",
-					current_command->output_redirect, current_command->is_pipe);
-			}
+			current_command->is_pipe = 1;
+			printf("Encountered pipe. Setting is_pipe for current command.\n");
+			current_command->args[arg_count] = NULL;
+			printf("Final command args array null-terminated for command: %s\n",
+				current_command->command);
+			current_command = NULL;
+			arg_count = 0;
 		}
 		current_token = current_token->next;
 	}
 	if (current_command && arg_count < 10)
 	{
 		current_command->args[arg_count] = NULL;
+		printf("Final command args array null-terminated for command: %s\n",
+			current_command->command);
 	}
+	printf("Parsing complete.\n");
 }
 
 void	execute_commands(t_command *command_list)
-{
+	{
 	t_command	*current_command;
 	pid_t		pid;
 	int			status;
+	int			pipefd[2];
+	int			in_fd;
 	int			i;
-	int			fd;
-	int			open_flags;
 
-	i = 0;
 	current_command = command_list;
+	in_fd = STDIN_FILENO;
+	printf("Starting command execution...\n");
 	while (current_command)
 	{
-		printf("Executing command: %s\n", current_command->command);
-		while (current_command->args[i])
+		i = 0;
+		if (current_command->is_pipe)
 		{
-			printf("Arg[%d]: %s\n", i, current_command->args[i]);
-			i++;
+			if (pipe(pipefd) == -1)
+			{
+				perror("pipe");
+				exit(EXIT_FAILURE);
+			}
+			printf("Created a pipe for command: %s\n",
+				current_command->command);
 		}
 		pid = fork();
 		if (pid == 0)
 		{
-			if (current_command->input_redirect)
+			printf("In child process for command: %s\n",
+				current_command->command);
+			if (in_fd != STDIN_FILENO)
 			{
-				fd = open(current_command->input_redirect, O_RDONLY);
-				if (fd < 0)
-				{
-					perror("open input");
-					exit(EXIT_FAILURE);
-				}
-				dup2(fd, STDIN_FILENO);
-				close(fd);
+				dup2(in_fd, STDIN_FILENO);
+				close(in_fd);
 			}
-			if (current_command->output_redirect)
+			if (current_command->is_pipe)
 			{
-				open_flags = O_WRONLY | O_CREAT;
-				if (current_command->is_pipe)
-				{
-					open_flags |= O_APPEND;
-				}
-				else
-				{
-					open_flags |= O_TRUNC;
-				}
-				fd = open(current_command->output_redirect, open_flags, 0644);
-				if (fd < 0)
-				{
-					perror("open output");
-					exit(EXIT_FAILURE);
-				}
-				dup2(fd, STDOUT_FILENO);
-				close(fd);
+				dup2(pipefd[1], STDOUT_FILENO);
+				close(pipefd[1]);
+			}
+			printf("Executing command: %s\n", current_command->command);
+			i = 0;
+			while (current_command->args[i])
+			{
+				printf("Arg[%d]: %s\n", i, current_command->args[i]);
+				i++;
 			}
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
@@ -208,8 +186,22 @@ void	execute_commands(t_command *command_list)
 		}
 		else
 		{
+			printf("In parent process, waiting for child: %s\n",
+				current_command->command);
 			waitpid(pid, &status, 0);
+			if (current_command->is_pipe)
+			{
+				close(pipefd[1]);
+				in_fd = pipefd[0];
+			}
+			else
+			{
+				in_fd = STDIN_FILENO;
+			}
+			printf("Process for command %s finished with status %d\n",
+				current_command->command, status);
+			current_command = current_command->next;
 		}
-		current_command = current_command->next;
 	}
+	printf("Command execution complete.\n");
 }

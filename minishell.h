@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 13:27:34 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 17:22:41 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_command
 	int					is_pipe;
 	char				*input_redirect;
 	char				*output_redirect;
+	int					append_mode;
 	int					append_output;
 	struct s_command	*next;
 }	t_command;
@@ -97,7 +98,8 @@ void			free_all_memories(t_memories *memories);
 char			*allocate_user_input(t_memories *memories);
 
 void			parse_input_to_commands(t_token *token_list,
-					t_command **command_list, t_memories *memories);
+					t_command **command_list,
+					t_memories *memories);
 void			add_command_node(t_command **head, t_command *new_command);
 void			free_command_list(t_command *head);
 void			tokenize_input(char *input, t_token **token_list,
