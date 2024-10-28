@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 12:54:08 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 13:45:53 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,13 +99,40 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_command_node(command_list, current_command);
 			printf("Parsed command: %s\n", current_command->command);
 		}
-		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type == TOKEN_COMMAND) && current_command)
+		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type
+				== TOKEN_COMMAND) && current_command)
 		{
 			current_command->args[arg_count] = strdup(current_token->value);
 			add_memory(memories, current_command->args[arg_count]);
 			printf("Parsed argument %d: %s\n", arg_count,
 				current_command->args[arg_count]);
 			arg_count++;
+		}
+		else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
+		{
+			current_token = current_token->next;
+			if (current_token)
+			{
+				current_command->input_redirect = strdup(current_token->value);
+				add_memory(memories, current_command->input_redirect);
+				printf("Parsed input redirection: %s\n",
+					current_command->input_redirect);
+			}
+		}
+		else if ((current_token->type == TOKEN_OUTPUT_REDIRECT
+				|| current_token->type == TOKEN_APPEND_OUTPUT_REDIRECT)
+			&& current_command)
+		{
+			current_token = current_token->next;
+			if (current_token)
+			{
+				current_command->output_redirect = strdup(current_token->value);
+				add_memory(memories, current_command->output_redirect);
+				current_command->is_pipe = (current_token->type
+						== TOKEN_APPEND_OUTPUT_REDIRECT);
+				printf("Parsed output redirection: %s (append: %d)\n",
+					current_command->output_redirect, current_command->is_pipe);
+			}
 		}
 		current_token = current_token->next;
 	}
@@ -121,6 +148,8 @@ void	execute_commands(t_command *command_list)
 	pid_t		pid;
 	int			status;
 	int			i;
+	int			fd;
+	int			open_flags;
 
 	i = 0;
 	current_command = command_list;
@@ -135,6 +164,37 @@ void	execute_commands(t_command *command_list)
 		pid = fork();
 		if (pid == 0)
 		{
+			if (current_command->input_redirect)
+			{
+				fd = open(current_command->input_redirect, O_RDONLY);
+				if (fd < 0)
+				{
+					perror("open input");
+					exit(EXIT_FAILURE);
+				}
+				dup2(fd, STDIN_FILENO);
+				close(fd);
+			}
+			if (current_command->output_redirect)
+			{
+				open_flags = O_WRONLY | O_CREAT;
+				if (current_command->is_pipe)
+				{
+					open_flags |= O_APPEND;
+				}
+				else
+				{
+					open_flags |= O_TRUNC;
+				}
+				fd = open(current_command->output_redirect, open_flags, 0644);
+				if (fd < 0)
+				{
+					perror("open output");
+					exit(EXIT_FAILURE);
+				}
+				dup2(fd, STDOUT_FILENO);
+				close(fd);
+			}
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
 				perror("execvp");

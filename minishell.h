@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 12:00:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 13:27:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_command
 	int					is_pipe;
 	char				*input_redirect;
 	char				*output_redirect;
+	int					append_output;
 	struct s_command	*next;
 }	t_command;
 
