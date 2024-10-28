@@ -1,0 +1,7 @@
+Makefile
+file.txt
+lib
+main.c
+main.o
+minishell
+shell

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 18:43:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 12:00:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,7 @@ int				bui_echo(char **args);
 int				bui_cd(char **args);
 int				bui_pwd(void);
 int				bui_exit(char **args);
-void			execute_commands(t_command *command_list, t_env *environment,
-					t_memories *memories);
+void			execute_commands(t_command *command_list);
 t_builtin_ptr	get_builtin(const char *command);
 t_env			deep_copy_env(t_env *source_env, t_memories *memories);
 int				initialize_shell(void);

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 13:31:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/28 12:54:08 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,10 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 
 	current_command = NULL;
 	current_token = token_list;
+	arg_count = 0;
 	while (current_token)
 	{
-		if (current_token->type == TOKEN_COMMAND)
+		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
 		{
 			current_command = malloc(sizeof(t_command));
 			add_memory(memories, current_command);
@@ -88,72 +89,66 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_memory(memories, current_command->command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
+			current_command->args[0] = strdup(current_token->value);
+			add_memory(memories, current_command->args[0]);
+			arg_count = 1;
 			current_command->is_pipe = 0;
 			current_command->input_redirect = NULL;
 			current_command->output_redirect = NULL;
 			current_command->next = NULL;
-			arg_count = 0;
 			add_command_node(command_list, current_command);
+			printf("Parsed command: %s\n", current_command->command);
 		}
-		else if (current_token->type == TOKEN_ARGUMENT && current_command)
+		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type == TOKEN_COMMAND) && current_command)
 		{
 			current_command->args[arg_count] = strdup(current_token->value);
 			add_memory(memories, current_command->args[arg_count]);
+			printf("Parsed argument %d: %s\n", arg_count,
+				current_command->args[arg_count]);
 			arg_count++;
-			current_command->args[arg_count] = NULL;
-		}
-		else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
-		{
-			current_token = current_token->next;
-			current_command->input_redirect = strdup(current_token->value);
-			add_memory(memories, current_command->input_redirect);
-		}
-		else if (current_token->type == TOKEN_OUTPUT_REDIRECT
-			&& current_command)
-		{
-			current_token = current_token->next;
-			current_command->output_redirect = strdup(current_token->value);
-			add_memory(memories, current_command->output_redirect);
 		}
 		current_token = current_token->next;
 	}
+	if (current_command && arg_count < 10)
+	{
+		current_command->args[arg_count] = NULL;
+	}
 }
 
-void	execute_commands(t_command *command_list, t_env *environment,
-	t_memories *memories)
+void	execute_commands(t_command *command_list)
 {
-	t_command		*current_command;
-	t_builtin_ptr	builtin;
-	pid_t			pid;
-	int				status;
+	t_command	*current_command;
+	pid_t		pid;
+	int			status;
+	int			i;
 
-	(void)environment;
-	(void)memories;
+	i = 0;
 	current_command = command_list;
 	while (current_command)
 	{
-		builtin = NULL;
-		if (builtin)
+		printf("Executing command: %s\n", current_command->command);
+		while (current_command->args[i])
 		{
-			builtin(current_command->args);
+			printf("Arg[%d]: %s\n", i, current_command->args[i]);
+			i++;
 		}
-		else
+		pid = fork();
+		if (pid == 0)
 		{
-			pid = fork();
-			if (pid == 0)
+			if (execvp(current_command->command, current_command->args) == -1)
 			{
-				execvp(current_command->command, current_command->args);
 				perror("execvp");
 				exit(EXIT_FAILURE);
 			}
-			else if (pid < 0)
-			{
-				perror("fork");
-			}
-			else
-			{
-				waitpid(pid, &status, 0);
-			}
+		}
+		else if (pid < 0)
+		{
+			perror("fork");
+			return ;
+		}
+		else
+		{
+			waitpid(pid, &status, 0);
 		}
 		current_command = current_command->next;
 	}
