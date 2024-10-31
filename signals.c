@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 18:30:45 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/27 19:46:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/31 14:06:36 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,25 @@ void	handle_sigint(int signum, siginfo_t *info, void *context)
 	rl_redisplay();
 }
 
-int	initialize_shell(void)
+void	toggle_sigquit(int enable_default)
 {
 	struct sigaction	sa_quit;
+
+	sigemptyset(&sa_quit.sa_mask);
+	if (enable_default)
+	{
+		sa_quit.sa_handler = SIG_DFL;
+	}
+	else
+	{
+		sa_quit.sa_handler = SIG_IGN;
+	}
+	sa_quit.sa_flags = 0;
+	sigaction(SIGQUIT, &sa_quit, NULL);
+}
+
+int	initialize_shell(void)
+{
 	struct sigaction	sa_int;
 	struct termios		term;
 
@@ -37,13 +53,7 @@ int	initialize_shell(void)
 		perror("Failed to set up SIGINT handler");
 		return (-1);
 	}
-	sigemptyset(&sa_quit.sa_mask);
-	sa_quit.sa_handler = SIG_IGN;
-	sa_quit.sa_flags = 0;
-	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
-	{
-		return (-1);
-	}
+	toggle_sigquit(0);
 	if (tcgetattr(STDIN_FILENO, &term) == -1)
 		return (-1);
 	term.c_lflag &= ~ECHOCTL;

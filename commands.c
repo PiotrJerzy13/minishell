@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 17:59:58 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/31 13:53:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,20 +104,18 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 }
 
 void	execute_commands(t_command *command_list)
-	{
+{
 	t_command	*current_command;
 	pid_t		pid;
 	int			status;
 	int			pipefd[2];
 	int			in_fd;
-	int			i;
 
 	current_command = command_list;
 	in_fd = STDIN_FILENO;
 	printf("Starting command execution...\n");
 	while (current_command)
 	{
-		i = 0;
 		if (current_command->is_pipe)
 		{
 			if (pipe(pipefd) == -1)
@@ -131,6 +129,7 @@ void	execute_commands(t_command *command_list)
 		pid = fork();
 		if (pid == 0)
 		{
+			signal(SIGQUIT, SIG_DFL);
 			printf("In child process for command: %s\n",
 				current_command->command);
 			if (in_fd != STDIN_FILENO)
@@ -142,12 +141,6 @@ void	execute_commands(t_command *command_list)
 			{
 				dup2(pipefd[1], STDOUT_FILENO);
 				close(pipefd[1]);
-			}
-			printf("Executing command: %s\n", current_command->command);
-			while (current_command->args[i])
-			{
-				printf("Arg[%d]: %s\n", i, current_command->args[i]);
-				i++;
 			}
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
@@ -162,9 +155,12 @@ void	execute_commands(t_command *command_list)
 		}
 		else
 		{
-			printf("In parent process, waiting for child: %s\n",
-				current_command->command);
 			waitpid(pid, &status, 0);
+			if (WIFSIGNALED(status) && WTERMSIG(status) == SIGQUIT)
+			{
+				printf("Process for command %s was terminated by SIGQUIT\n",
+					current_command->command);
+			}
 			if (current_command->is_pipe)
 			{
 				close(pipefd[1]);
@@ -174,8 +170,6 @@ void	execute_commands(t_command *command_list)
 			{
 				in_fd = STDIN_FILENO;
 			}
-			printf("Process for command %s finished with status %d\n",
-				current_command->command, status);
 			current_command = current_command->next;
 		}
 	}

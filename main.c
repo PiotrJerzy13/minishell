@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/28 16:39:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/10/31 15:36:05 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,7 @@ int	main(int argc, char **argv, char **env)
 		fprintf(stderr, "Failed to initialize shell environment\n");
 		return (EXIT_FAILURE);
 	}
+	signal(SIGQUIT, SIG_IGN);
 	init_memories(&memories, &environment, 10);
 	copy_environment_to_struct(env, &environment, &memories);
 	while (1)
@@ -161,10 +162,11 @@ int	main(int argc, char **argv, char **env)
 				parse_input_to_commands(token_list, &command_list, &memories);
 				execute_commands(command_list);
 			}
+			command_list = NULL;
+			token_list = NULL;
 		}
 		free(input);
-		token_list = NULL;
 	}
-	free_all_memories(&memories);
+	// free_all_memories(&memories);
 	return (0);
 }
