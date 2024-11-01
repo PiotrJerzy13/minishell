@@ -6,11 +6,22 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:29:02 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:08:12 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The add_or_update_env_var function is used to add or update an environment
+// variable in the t_env structure. If the key already exists, the value is
+// updated. If the key does not exist, a new key-value pair is added.
+// The unset_env_var function is used to remove an environment variable from the
+// t_env structure. The key is used to identify the variable to remove.
+// The export_env_var function is used to parse the input string and add
+// an environment variable. The input string should be in the format "export KEY
+// VALUE". If the key already exists, the value is updated.
+// The print_env function is used to print the environment variables.
+// Check is the free correctly used in the unset_env_var function.
 
 void	unset_env_var(t_env *env, const char *key)
 {

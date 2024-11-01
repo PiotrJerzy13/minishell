@@ -6,11 +6,19 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:28:34 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:08:19 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The deep_copy_env function creates a deep copy of the environment.
+// The shallow_copy_env function creates a shallow copy of the environment.
+// We are not using them but maybe we will use them when we will work on running
+// the minishell in minisheel. If we create a new variable inside the minishell
+// minishell it should not be created in the first one. 
+// copy_environment_to_struct function copies the environment variables from the
+// enviroment to the t_env structure. it crates key value pairs.
 
 t_env	deep_copy_env(t_env const *source_env, t_memories *memories)
 {

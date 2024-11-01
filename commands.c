@@ -6,11 +6,41 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 13:53:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:00:59 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The init_command_node function allocates memory for a new command.
+// It should put it to memories struckt. Have to modified it.
+// The add_command_node function is used to build a linked list of commands.
+// ls -l | grep "txt" | wc -l  add command node for each command.
+// The parse_input_to_commands function is used to parse the input tokens
+// lots of printf for debugging.Will be removed.
+// Tokenization: The input string is split into tokens, and each token is
+// assigned a type from e_token_type based on its role (e.g., commands,
+// arguments, pipes, redirections).
+// Building s_command Nodes: For each new command (marked by TOKEN_COMMAND 
+// or TOKEN_PIPE), a new s_command node is created and populated with arguments 
+// and redirection tokens. The is_pipe flag in s_command is set when encounter
+// TOKEN_PIPE, indicating that the current command’s output should pipe into the
+// next command.
+//  execute_commands iterates over the s_command linked list. It uses the fields
+// in each s_command node (command name, arguments, redirections) to execute eac
+// command, handling pipes and redirections as specified in the struct.
+// pid_t pid: Stores the process ID of the child process created by fork()
+// int status: Stores the exit status of the child process
+// int pipefd[2]: Stores the file descriptors for the pipe
+// int in_fd: Stores the file descriptor for the input of the current command
+// dup2(oldfd, newfd): This function duplicates oldfd to newfd, closing newfd
+// The execvp() function is used to execute the command specified in the first
+// replacing the current process image with a new one
+// The waitpid() function is used to wait for the child process to finish
+// The WIFSIGNALED macro checks if the child process was terminated by a signal
+// The WTERMSIG macro returns the signal number that terminated the child proces
+// The close() function is used to close the file descriptors for the pipe
+// signal(SIGQUIT, SIG_DFL) is used to set the signal handler for SIGQUIT to the
 
 t_command	*init_command_node(void)
 {
@@ -112,7 +142,7 @@ void	execute_commands(t_command *command_list)
 	int			in_fd;
 
 	current_command = command_list;
-	in_fd = STDIN_FILENO;
+	in_fd = 0;
 	printf("Starting command execution...\n");
 	while (current_command)
 	{
@@ -132,14 +162,14 @@ void	execute_commands(t_command *command_list)
 			signal(SIGQUIT, SIG_DFL);
 			printf("In child process for command: %s\n",
 				current_command->command);
-			if (in_fd != STDIN_FILENO)
+			if (in_fd != 0)
 			{
-				dup2(in_fd, STDIN_FILENO);
+				dup2(in_fd, 0);
 				close(in_fd);
 			}
 			if (current_command->is_pipe)
 			{
-				dup2(pipefd[1], STDOUT_FILENO);
+				dup2(pipefd[1], 1);
 				close(pipefd[1]);
 			}
 			if (execvp(current_command->command, current_command->args) == -1)
@@ -168,7 +198,7 @@ void	execute_commands(t_command *command_list)
 			}
 			else
 			{
-				in_fd = STDIN_FILENO;
+				in_fd = 0;
 			}
 			current_command = current_command->next;
 		}

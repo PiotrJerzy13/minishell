@@ -6,11 +6,19 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:30:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:08:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The init_memories function initializes the memory tracking system.
+// The add_memory function is used to add a memory allocation to the tracking
+// system. If the system is full, it is expanded.
+// The free_all_memories function is used to free all memory allocations tracked
+// by the system.
+// The allocate_user_input function is used to allocate memory for user input.
+// The input is tracked by the memory system.
 
 void	init_memories(t_memories *memories,
 	t_env *environment, int env_capacity)

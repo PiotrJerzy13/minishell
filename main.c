@@ -6,11 +6,21 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:36:05 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:21:14 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The parse_echo_args function is used to parse the arguments for the echo
+// command. It splits the input string into tokens based on spaces and quotes.
+// The tokens are stored in an array of strings, which is returned by the funct
+// The parse_echo_args function also updates the arg_count variable with the
+// number of arguments parsed.
+// The handle_builtin function is used to handle built-in commands like echo,
+// env, export, unset, pwd, cd, and exit. If the input matches a built-in comman
+// the corresponding function is called. The function returns 1 if the command
+// a built-in command and 0 otherwise.
 
 char	**parse_echo_args(char *input, int *arg_count)
 {
@@ -167,6 +177,6 @@ int	main(int argc, char **argv, char **env)
 		}
 		free(input);
 	}
-	// free_all_memories(&memories);
+	free_all_memories(&memories);
 	return (0);
 }

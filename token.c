@@ -6,11 +6,28 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:30:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:20:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// init_token function allocates memory for a new token and initializes its val
+// and type fields. The value is copied using strdup to ensure that the token
+// has its own copy of the string. The token is added to the memory tracking
+// system using the add_memory function.
+// add_token function is used to add a new token to the end of a linked list of
+// tokens. If the list is empty, the new token is set as the head of the list.
+// tokenize_input function is used to split the input string into tokens. It
+// iterates over the input string, skipping leading spaces, and calls
+// handle_special_characters when it encounters special characters like pipes or
+// redirections. If the character is a quote, it calls get_quoted_token to parse
+// the quoted string. Otherwise, it reads the token until it encounters a space
+// or special character. The token is then added to the token list.
+// handle_special_characters function is used to handle special characters like
+// pipes, input redirections, and output redirections. It adds the corresponding
+// token to the token list and advances the input pointer to the next character.
+// Handle_special is called by tokenize_input not working for > and >>
 
 t_token	*init_token(char *value, t_token_type type, t_memories *memories)
 {

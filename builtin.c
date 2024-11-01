@@ -6,11 +6,18 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 14:56:30 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/01 17:35:11 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// The chdir function in C is used to change the current working directory
+// of the calling process.
+// Error handling not implemented using perror() function.
+// Using atoi() and other build function for example strlen strcmp.
+// The getcwd function in C is used to obtain the current working directory.
+// Do we want to use whole Libft functions or just some of them?
 
 int	bui_cd(char **args)
 {
@@ -51,13 +58,13 @@ int	bui_echo(char **args)
 	}
 	while (args[i])
 	{
-		write(STDOUT_FILENO, args[i], strlen(args[i]));
+		write(1, args[i], strlen(args[i]));
 		if (args[i + 1])
-			write(STDOUT_FILENO, " ", 1);
+			write(1, " ", 1);
 		i++;
 	}
 	if (newline)
-		write(STDOUT_FILENO, "\n", 1);
+		write(1, "\n", 1);
 	return (0);
 }
 
