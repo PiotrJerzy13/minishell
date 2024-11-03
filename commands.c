@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 12:42:28 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 21:20:51 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 		{
 			printf("Initializing new command node.\n");
 			current_command = init_command_node(memories);
-			add_memory(memories, current_command);
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
@@ -104,22 +103,19 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			current_command->args[arg_count++] = strdup(current_token->value);
 			printf("Parsed command: %s\n", current_command->command);
 		}
-		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type
-				== TOKEN_COMMAND) && current_command)
+		else if ((current_token->type == TOKEN_ARGUMENT
+				|| current_token->type == TOKEN_COMMAND) && current_command)
 		{
-			current_command->args[arg_count] = strdup(current_token->value);
-			add_memory(memories, current_command->args[arg_count]);
-			printf("Parsed argument %d: %s\n", arg_count,
-				current_command->args[arg_count]);
-			arg_count++;
+			current_command->args[arg_count++] = strdup(current_token->value);
+			add_memory(memories, current_command->args[arg_count - 1]);
+			printf("Parsed argument %d: %s\n", arg_count - 1,
+				current_command->args[arg_count - 1]);
 		}
 		else if (current_token->type == TOKEN_PIPE && current_command)
 		{
 			current_command->is_pipe = 1;
 			printf("Encountered pipe. Setting is_pipe for current command.\n");
 			current_command->args[arg_count] = NULL;
-			printf("Final command args array null-terminated for command: %s\n",
-				current_command->command);
 			current_command = NULL;
 			arg_count = 0;
 		}
@@ -173,6 +169,8 @@ void	execute_commands(t_command *command_list)
 				dup2(pipefd[1], 1);
 				close(pipefd[1]);
 			}
+			if (pipefd[0])
+				close(pipefd[0]);
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
 				perror("execvp");
