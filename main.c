@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 13:17:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 15:17:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,13 @@ char	**parse_echo_args(char *input, int *arg_count, t_memories *memories)
 			if (*input == quote_char)
 			{
 				token = strndup(start, input - start);
+				if (!token)
+				{
+					printf("Error: Failed to allocate memory for token.\n");
+					free_all_memories(memories);
+					exit(EXIT_FAILURE);
+				}
+				add_memory(memories, token);
 				input++;
 			}
 			else
@@ -178,11 +185,11 @@ int	main(int argc, char **argv, char **env)
 				parse_input_to_commands(token_list, &command_list, &memories);
 				execute_commands(command_list);
 			}
-			command_list = NULL;
-			token_list = NULL;
 		}
 		free(input);
 	}
 	free_all_memories(&memories);
+	command_list = NULL;
+	token_list = NULL;
 	return (0);
 }

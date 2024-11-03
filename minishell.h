@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/10/31 15:30:39 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 14:58:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ void			parse_input_to_commands(t_token *token_list,
 					t_memories *memories);
 void			add_command_node(t_command **head, t_command *new_command);
 void			free_command_list(t_command *head);
+void			free_token_list(t_token *head);
 void			tokenize_input(char *input, t_token **token_list,
 					t_memories *memories);
 void			skip_spaces(char **input);
