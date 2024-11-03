@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 15:09:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 17:10:20 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,25 +43,38 @@ void	init_memories(t_memories *memories,
 	add_memory(memories, environment->pairs);
 }
 
+int	is_in_memories(t_memories *memories, void *ptr)
+{
+	int	i;
+
+	i = 0;
+	while (i < memories->size)
+	{
+		if (memories->allocations[i] == ptr)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 void	add_memory(t_memories *memories, void *ptr)
 {
-	void	**new_allocations;
-
-	if (!ptr)
+	if (is_in_memories(memories, ptr))
+	{
+		printf("Warning: Pointer %p is already in memories.\n", ptr);
 		return ;
+	}
 	if (memories->size >= memories->capacity)
 	{
 		memories->capacity *= 2;
-		new_allocations = (void **)realloc(memories->allocations,
+		memories->allocations = realloc(memories->allocations,
 				memories->capacity * sizeof(void *));
-		if (!new_allocations)
+		if (!memories->allocations)
 		{
-			printf("Error: Failed to expand memory tracking array.\n");
+			printf("Error: Failed to expand memory tracking.\n");
 			exit(EXIT_FAILURE);
 		}
-		memories->allocations = new_allocations;
 	}
-	memories->allocations[memories->size++] = ptr;
 }
 
 void	free_all_memories(t_memories *memories)

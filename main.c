@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 15:17:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:42:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,7 @@ int	main(int argc, char **argv, char **env)
 		}
 		if (*input)
 		{
+			add_history(input);
 			if (handle_builtin(input, &environment, &memories) == 0)
 			{
 				tokenize_input(input, &token_list, &memories);
