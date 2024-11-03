@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:21:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 13:17:14 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 // the corresponding function is called. The function returns 1 if the command
 // a built-in command and 0 otherwise.
 
-char	**parse_echo_args(char *input, int *arg_count)
+char	**parse_echo_args(char *input, int *arg_count, t_memories *memories)
 {
 	char	**args;
 	char	*token;
@@ -31,6 +31,12 @@ char	**parse_echo_args(char *input, int *arg_count)
 
 	*arg_count = 0;
 	args = malloc(sizeof(char *) * 20);
+	if (!args)
+	{
+		printf("Error: Failed to allocate memory for args array.\n");
+		exit(EXIT_FAILURE);
+	}
+	add_memory(memories, args);
 	while (*input)
 	{
 		while (*input && isspace(*input))
@@ -75,7 +81,7 @@ int	handle_builtin(char *input, t_env *environment, t_memories *memories)
 	i = 0;
 	if (strncmp(input, "echo", 4) == 0)
 	{
-		args = parse_echo_args(input + 5, &arg_count);
+		args = parse_echo_args(input + 5, &arg_count, memories);
 		if (args)
 		{
 			bui_echo(args);
@@ -110,7 +116,7 @@ int	handle_builtin(char *input, t_env *environment, t_memories *memories)
 	}
 	else if (strncmp(input, "cd", 2) == 0)
 	{
-		args = parse_echo_args(input, &arg_count);
+		args = parse_echo_args(input, &arg_count, memories);
 		if (args)
 		{
 			i = 0;
@@ -126,7 +132,7 @@ int	handle_builtin(char *input, t_env *environment, t_memories *memories)
 	}
 	else if (strncmp(input, "exit", 4) == 0)
 	{
-		args = parse_echo_args(input, &arg_count);
+		args = parse_echo_args(input, &arg_count, memories);
 		if (args)
 		{
 			bui_exit(args);

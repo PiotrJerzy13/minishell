@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:00:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 12:42:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@
 // The close() function is used to close the file descriptors for the pipe
 // signal(SIGQUIT, SIG_DFL) is used to set the signal handler for SIGQUIT to the
 
-t_command	*init_command_node(void)
+t_command	*init_command_node(t_memories *memories)
 {
 	t_command	*new_node;
 
@@ -52,6 +52,7 @@ t_command	*init_command_node(void)
 		printf("Error: Failed to allocate memory for command node.\n");
 		exit(EXIT_FAILURE);
 	}
+	add_memory(memories, new_node);
 	new_node->command = NULL;
 	new_node->args = NULL;
 	new_node->is_pipe = 0;
@@ -92,7 +93,7 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
 		{
 			printf("Initializing new command node.\n");
-			current_command = init_command_node();
+			current_command = init_command_node(memories);
 			add_memory(memories, current_command);
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
