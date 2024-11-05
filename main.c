@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 21:00:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 15:22:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,54 +105,253 @@ void	handle_output_redirection(t_command *command)
 	}
 }
 
-int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
-{
-	int	result;
+// int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
+// {
+// 	int	result;
 
-	result = 0;
-	if (strcmp(command->command, "echo") == 0)
-	{
-		bui_echo(command->args + 1);
-		result = 1;
-	}
-	else if (strcmp(command->command, "env") == 0)
-	{
-		print_env(environment);
-		result = 1;
-	}
-	else if (strcmp(command->command, "export") == 0)
-	{
-		if (command->args[1] != NULL)
-		{
-			export_env_var(environment, command->args[1], memories);
-		}
-		result = 1;
-	}
-	else if (strcmp(command->command, "unset") == 0)
-	{
-		if (command->args[1] != NULL)
-		{
-			unset_env_var(environment, command->args[1]);
-		}
-		result = 1;
-	}
-	else if (strcmp(command->command, "pwd") == 0)
-	{
-		bui_pwd();
-		result = 1;
-	}
-	else if (strcmp(command->command, "cd") == 0)
-	{
-		bui_cd(command->args + 1);
-		result = 1;
-	}
-	else if (strcmp(command->command, "exit") == 0)
-	{
-		bui_exit(command->args + 1);
-		result = -1;
-	}
-	return (result);
+// 	result = 0;
+// 	if (strcmp(command->command, "echo") == 0)
+// 	{
+// 		bui_echo(command->args + 1);
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "env") == 0)
+// 	{
+// 		print_env(environment);
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "export") == 0)
+// 	{
+// 		if (command->args[1] != NULL)
+// 		{
+// 			export_env_var(environment, command->args[1], memories);
+// 		}
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "unset") == 0)
+// 	{
+// 		if (command->args[1] != NULL)
+// 		{
+// 			unset_env_var(environment, command->args[1]);
+// 		}
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "pwd") == 0)
+// 	{
+// 		bui_pwd();
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "cd") == 0)
+// 	{
+// 		bui_cd(command->args + 1);
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "exit") == 0)
+// 	{
+// 		bui_exit(command->args + 1);
+// 		result = -1;
+// 	}
+// 	return (result);
+// }
+
+// int handle_builtin(t_command *command, t_env *environment, t_memories *memories)
+// {
+//     int result = 0;
+//     int saved_stdout = -1; // To save original STDOUT if redirection is applied
+//     int fd = -1;
+
+//     // Check if output redirection is set
+//     if (command->output_redirect)
+//     {
+//         // Open the file in the specified mode (append or truncate)
+//         if (command->append_mode)
+//             fd = open(command->output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
+//         else
+//             fd = open(command->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+//         if (fd == -1)
+//         {
+//             perror("open failed in handle_builtin");
+//             return 1;
+//         }
+
+//         // Save original STDOUT and redirect output
+//         saved_stdout = dup(STDOUT_FILENO);
+//         if (dup2(fd, STDOUT_FILENO) == -1)
+//         {
+//             perror("dup2 failed in handle_builtin");
+//             close(fd);
+//             return 1;
+//         }
+//         close(fd);
+//     }
+
+//     // Execute the built-in command
+//     if (strcmp(command->command, "echo") == 0)
+//     {
+//         bui_echo(command->args + 1); // Call echo without the command itself in args
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "env") == 0)
+//     {
+//         print_env(environment);
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "export") == 0)
+//     {
+//         if (command->args[1] != NULL)
+//         {
+//             export_env_var(environment, command->args[1], memories);
+//         }
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "unset") == 0)
+//     {
+//         if (command->args[1] != NULL)
+//         {
+//             unset_env_var(environment, command->args[1]);
+//         }
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "pwd") == 0)
+//     {
+//         bui_pwd();
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "cd") == 0)
+//     {
+//         bui_cd(command->args + 1);
+//         result = 1;
+//     }
+//     else if (strcmp(command->command, "exit") == 0)
+//     {
+//         bui_exit(command->args + 1);
+//         result = -1;
+//     }
+
+//     // Restore original STDOUT if redirection was applied
+//     if (saved_stdout != -1)
+//     {
+//         dup2(saved_stdout, STDOUT_FILENO);
+//         close(saved_stdout);
+//     }
+
+//     return result;
+// }
+int handle_builtin(t_command *command, t_env *environment, t_memories *memories)
+{
+    int result = 0;
+    int saved_stdout = -1; // To save original STDOUT if output redirection is applied
+    int saved_stdin = -1;  // To save original STDIN if input redirection is applied
+    int fd_in = -1, fd_out = -1;
+
+    // Check if input redirection is set
+    if (command->input_redirect)
+    {
+        fd_in = open(command->input_redirect, O_RDONLY);
+        if (fd_in == -1)
+        {
+            perror("open failed in handle_builtin for input redirection");
+            return 1;
+        }
+
+        // Save original STDIN and redirect input
+        saved_stdin = dup(STDIN_FILENO);
+        if (dup2(fd_in, STDIN_FILENO) == -1)
+        {
+            perror("dup2 failed in handle_builtin for input redirection");
+            close(fd_in);
+            return 1;
+        }
+        close(fd_in);
+    }
+
+    // Check if output redirection is set
+    if (command->output_redirect)
+    {
+        if (command->append_mode)
+            fd_out = open(command->output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        else
+            fd_out = open(command->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+        if (fd_out == -1)
+        {
+            perror("open failed in handle_builtin for output redirection");
+            return 1;
+        }
+
+        // Save original STDOUT and redirect output
+        saved_stdout = dup(STDOUT_FILENO);
+        if (dup2(fd_out, STDOUT_FILENO) == -1)
+        {
+            perror("dup2 failed in handle_builtin for output redirection");
+            close(fd_out);
+            return 1;
+        }
+        close(fd_out);
+    }
+
+    // Execute the built-in command
+    if (strcmp(command->command, "echo") == 0)
+    {
+        bui_echo(command->args + 1);
+        result = 1;
+    }
+    else if (strcmp(command->command, "env") == 0)
+    {
+        print_env(environment);
+        result = 1;
+    }
+    else if (strcmp(command->command, "export") == 0)
+    {
+        if (command->args[1] != NULL)
+        {
+            export_env_var(environment, command->args[1], memories);
+        }
+        result = 1;
+    }
+    else if (strcmp(command->command, "unset") == 0)
+    {
+        if (command->args[1] != NULL)
+        {
+            unset_env_var(environment, command->args[1]);
+        }
+        result = 1;
+    }
+    else if (strcmp(command->command, "pwd") == 0)
+    {
+        bui_pwd();
+        result = 1;
+    }
+    else if (strcmp(command->command, "cd") == 0)
+    {
+        bui_cd(command->args + 1);
+        result = 1;
+    }
+    else if (strcmp(command->command, "exit") == 0)
+    {
+        bui_exit(command->args + 1);
+        result = -1;
+    }
+
+    // Restore original STDIN if input redirection was applied
+    if (saved_stdin != -1)
+    {
+        dup2(saved_stdin, STDIN_FILENO);
+        close(saved_stdin);
+    }
+
+    // Restore original STDOUT if output redirection was applied
+    if (saved_stdout != -1)
+    {
+        dup2(saved_stdout, STDOUT_FILENO);
+        close(saved_stdout);
+    }
+
+    return result;
 }
+
+
 
 int	main(int argc, char **argv, char **env)
 {

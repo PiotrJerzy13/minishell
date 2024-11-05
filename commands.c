@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 14:45:25 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 15:19:19 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,58 +77,142 @@ void	add_command_node(t_command **head, t_command *new_command)
 	current->next = new_command;
 }
 
-void	parse_input_to_commands(t_token *token_list, t_command **command_list,
-	t_memories *memories)
-{
-	t_command	*current_command;
-	t_token		*current_token;
-	int			arg_count;
+// void	parse_input_to_commands(t_token *token_list, t_command **command_list,
+// 	t_memories *memories)
+// {
+// 	t_command	*current_command;
+// 	t_token		*current_token;
+// 	int			arg_count;
 
-	current_command = NULL;
-	current_token = token_list;
-	arg_count = 0;
-	printf("Starting parse_input_to_commands...\n");
-	while (current_token)
-	{
-		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
-		{
-			printf("Initializing new command node.\n");
-			current_command = init_command_node(memories);
-			add_command_node(command_list, current_command);
-			current_command->args = malloc(sizeof(char *) * 10);
-			add_memory(memories, current_command->args);
-			printf("Args array initialized.\n");
-			current_command->command = strdup(current_token->value);
-			add_memory(memories, current_command->command);
-			current_command->args[arg_count++] = strdup(current_token->value);
-			printf("Parsed command: %s\n", current_command->command);
-		}
-		else if ((current_token->type == TOKEN_ARGUMENT
-				|| current_token->type == TOKEN_COMMAND) && current_command)
-		{
-			current_command->args[arg_count++] = strdup(current_token->value);
-			add_memory(memories, current_command->args[arg_count - 1]);
-			printf("Parsed argument %d: %s\n", arg_count - 1,
-				current_command->args[arg_count - 1]);
-		}
-		else if (current_token->type == TOKEN_PIPE && current_command)
-		{
-			current_command->is_pipe = 1;
-			printf("Encountered pipe. Setting is_pipe for current command.\n");
-			current_command->args[arg_count] = NULL;
-			current_command = NULL;
-			arg_count = 0;
-		}
-		current_token = current_token->next;
-	}
-	if (current_command && arg_count < 10)
-	{
-		current_command->args[arg_count] = NULL;
-		printf("Final command args array null-terminated for command: %s\n",
-			current_command->command);
-	}
-	printf("Parsing complete.\n");
+// 	current_command = NULL;
+// 	current_token = token_list;
+// 	arg_count = 0;
+// 	printf("Starting parse_input_to_commands...\n");
+// 	while (current_token)
+// 	{
+// 		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
+// 		{
+// 			printf("Initializing new command node.\n");
+// 			current_command = init_command_node(memories);
+// 			add_command_node(command_list, current_command);
+// 			current_command->args = malloc(sizeof(char *) * 10);
+// 			add_memory(memories, current_command->args);
+// 			printf("Args array initialized.\n");
+// 			current_command->command = strdup(current_token->value);
+// 			add_memory(memories, current_command->command);
+// 			current_command->args[arg_count++] = strdup(current_token->value);
+// 			printf("Parsed command: %s\n", current_command->command);
+// 		}
+// 		else if ((current_token->type == TOKEN_ARGUMENT
+// 				|| current_token->type == TOKEN_COMMAND) && current_command)
+// 		{
+// 			current_command->args[arg_count++] = strdup(current_token->value);
+// 			add_memory(memories, current_command->args[arg_count - 1]);
+// 			printf("Parsed argument %d: %s\n", arg_count - 1,
+// 				current_command->args[arg_count - 1]);
+// 		}
+// 		else if (current_token->type == TOKEN_PIPE && current_command)
+// 		{
+// 			current_command->is_pipe = 1;
+// 			printf("Encountered pipe. Setting is_pipe for current command.\n");
+// 			current_command->args[arg_count] = NULL;
+// 			current_command = NULL;
+// 			arg_count = 0;
+// 		}
+// 		current_token = current_token->next;
+// 	}
+// 	if (current_command && arg_count < 10)
+// 	{
+// 		current_command->args[arg_count] = NULL;
+// 		printf("Final command args array null-terminated for command: %s\n",
+// 			current_command->command);
+// 	}
+// 	printf("Parsing complete.\n");
+// }
+void	parse_input_to_commands(t_token *token_list, t_command **command_list, t_memories *memories)
+{
+	t_command	*current_command = NULL;
+    t_token		*current_token = token_list;
+    int			arg_count = 0;
+
+    printf("Starting parse_input_to_commands...\n"); // Debug
+    while (current_token)
+    {
+        // Initialize a new command node when we encounter a command token
+        if (current_command == NULL && current_token->type == TOKEN_COMMAND)
+        {
+            printf("Initializing new command node.\n"); // Debug
+            current_command = init_command_node(memories);
+            add_command_node(command_list, current_command);
+            current_command->args = malloc(sizeof(char *) * 10);
+            add_memory(memories, current_command->args);
+            current_command->command = strdup(current_token->value);
+            add_memory(memories, current_command->command);
+            current_command->args[arg_count++] = strdup(current_token->value);
+            printf("Parsed command: %s\n", current_command->command); // Debug
+        }
+        else if ((current_token->type == TOKEN_ARGUMENT || current_token->type == TOKEN_COMMAND) && current_command)
+        {
+            // Add the token as an argument to the current command
+            current_command->args[arg_count++] = strdup(current_token->value);
+            add_memory(memories, current_command->args[arg_count - 1]);
+            printf("Parsed argument %d: %s\n", arg_count - 1, current_command->args[arg_count - 1]); // Debug
+        }
+        else if (current_token->type == TOKEN_OUTPUT_REDIRECT && current_command)
+        {
+            // Expect the next token to be the filename for output redirection
+            current_token = current_token->next;
+            if (current_token && current_token->type == TOKEN_FILENAME)
+            {
+                current_command->output_redirect = strdup(current_token->value);
+                add_memory(memories, current_command->output_redirect);
+                printf("Output redirection set to: %s\n", current_command->output_redirect); // Debug
+            }
+        }
+        else if (current_token->type == TOKEN_APPEND_OUTPUT_REDIRECT && current_command)
+        {
+            // Expect the next token to be the filename for append output redirection
+            current_token = current_token->next;
+            if (current_token && current_token->type == TOKEN_FILENAME)
+            {
+                current_command->output_redirect = strdup(current_token->value);
+                add_memory(memories, current_command->output_redirect);
+                current_command->append_mode = 1;
+                printf("Append output redirection set to: %s\n", current_command->output_redirect); // Debug
+            }
+        }
+        else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
+        {
+            // Expect the next token to be the filename for input redirection
+            current_token = current_token->next;
+            if (current_token && current_token->type == TOKEN_FILENAME)
+            {
+                current_command->input_redirect = strdup(current_token->value);
+                add_memory(memories, current_command->input_redirect);
+                printf("Input redirection set to: %s\n", current_command->input_redirect); // Debug
+            }
+        }
+        else if (current_token->type == TOKEN_PIPE && current_command)
+        {
+            // Set the pipe flag and finalize the current command node
+            current_command->is_pipe = 1;
+            printf("Encountered pipe. Setting is_pipe for current command.\n"); // Debug
+            current_command->args[arg_count] = NULL;  // Null-terminate args array
+            current_command = NULL;  // Reset to start a new command for the next part of the pipeline
+            arg_count = 0;
+        }
+        current_token = current_token->next;
+    }
+
+    // Null-terminate the last command's args array if any
+    if (current_command && arg_count < 10)
+    {
+        current_command->args[arg_count] = NULL;
+        printf("Final command args array null-terminated for command: %s\n", current_command->command); // Debug
+    }
+    printf("Parsing complete.\n"); // Debug
 }
+
 
 void	execute_commands(t_command *command_list)
 {
