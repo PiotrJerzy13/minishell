@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 19:35:52 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 15:06:19 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,9 @@ typedef enum e_token_type
 	TOKEN_PIPE,
 	TOKEN_INPUT_REDIRECT,
 	TOKEN_OUTPUT_REDIRECT,
-	TOKEN_APPEND_OUTPUT_REDIRECT
+	TOKEN_APPEND_OUTPUT_REDIRECT,
+	TOKEN_FILENAME
 }	t_token_type;
-
 typedef struct s_token
 {
 	char			*value;
@@ -105,7 +105,7 @@ void			tokenize_input(char *input, t_token **token_list,
 					t_memories *memories);
 void			skip_spaces(char **input);
 void			handle_special_characters(char **input, t_token **token_list,
-					t_memories *memories);
+					t_memories *memories, int *expect_filename);
 t_token			*init_token(char *value, t_token_type type,
 					t_memories *memories);
 void			add_token(t_token **head, t_token *new_token);
