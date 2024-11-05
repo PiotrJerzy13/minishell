@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:21:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 21:00:26 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 // the corresponding function is called. The function returns 1 if the command
 // a built-in command and 0 otherwise.
 
-char	**parse_echo_args(char *input, int *arg_count)
+char	**parse_echo_args(char *input, int *arg_count, t_memories *memories)
 {
 	char	**args;
 	char	*token;
@@ -31,6 +31,12 @@ char	**parse_echo_args(char *input, int *arg_count)
 
 	*arg_count = 0;
 	args = malloc(sizeof(char *) * 20);
+	if (!args)
+	{
+		printf("Error: Failed to allocate memory for args array.\n");
+		exit(EXIT_FAILURE);
+	}
+	add_memory(memories, args);
 	while (*input)
 	{
 		while (*input && isspace(*input))
@@ -44,6 +50,13 @@ char	**parse_echo_args(char *input, int *arg_count)
 			if (*input == quote_char)
 			{
 				token = strndup(start, input - start);
+				if (!token)
+				{
+					printf("Error: Failed to allocate memory for token.\n");
+					free_all_memories(memories);
+					exit(EXIT_FAILURE);
+				}
+				add_memory(memories, token);
 				input++;
 			}
 			else
@@ -66,74 +79,79 @@ char	**parse_echo_args(char *input, int *arg_count)
 	return (args);
 }
 
-int	handle_builtin(char *input, t_env *environment, t_memories *memories)
+void	handle_output_redirection(t_command *command)
 {
-	int		arg_count;
-	char	**args;
-	int		i;
+	int	fd;
 
-	i = 0;
-	if (strncmp(input, "echo", 4) == 0)
+	if (command->output_redirect)
 	{
-		args = parse_echo_args(input + 5, &arg_count);
-		if (args)
+		if (command->append_mode)
 		{
-			bui_echo(args);
-			while (i < arg_count)
-			{
-				free(args[i]);
-				i++;
-			}
-			free(args);
+			fd = open(command->output_redirect,
+					O_WRONLY | O_CREAT | O_APPEND, 0644);
 		}
-		return (1);
+		else
+		{
+			fd = open(command->output_redirect,
+					O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		}
+		if (fd == -1)
+		{
+			perror("open");
+			exit(EXIT_FAILURE);
+		}
+		dup2(fd, STDOUT_FILENO);
+		close(fd);
 	}
-	else if (strcmp(input, "env") == 0)
+}
+
+int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
+{
+	int	result;
+
+	result = 0;
+	if (strcmp(command->command, "echo") == 0)
+	{
+		bui_echo(command->args + 1);
+		result = 1;
+	}
+	else if (strcmp(command->command, "env") == 0)
 	{
 		print_env(environment);
-		return (1);
+		result = 1;
 	}
-	else if (strncmp(input, "export", 6) == 0)
+	else if (strcmp(command->command, "export") == 0)
 	{
-		export_env_var(environment, input + 7, memories);
-		return (1);
+		if (command->args[1] != NULL)
+		{
+			export_env_var(environment, command->args[1], memories);
+		}
+		result = 1;
 	}
-	else if (strncmp(input, "unset", 5) == 0)
+	else if (strcmp(command->command, "unset") == 0)
 	{
-		unset_env_var(environment, input + 6);
-		return (1);
+		if (command->args[1] != NULL)
+		{
+			unset_env_var(environment, command->args[1]);
+		}
+		result = 1;
 	}
-	else if (strcmp(input, "pwd") == 0)
+	else if (strcmp(command->command, "pwd") == 0)
 	{
 		bui_pwd();
-		return (1);
+		result = 1;
 	}
-	else if (strncmp(input, "cd", 2) == 0)
+	else if (strcmp(command->command, "cd") == 0)
 	{
-		args = parse_echo_args(input, &arg_count);
-		if (args)
-		{
-			i = 0;
-			bui_cd(args);
-			while (i < arg_count)
-			{
-				free(args[i]);
-				i++;
-			}
-			free(args);
-		}
-		return (1);
+		bui_cd(command->args + 1);
+		result = 1;
 	}
-	else if (strncmp(input, "exit", 4) == 0)
+	else if (strcmp(command->command, "exit") == 0)
 	{
-		args = parse_echo_args(input, &arg_count);
-		if (args)
-		{
-			bui_exit(args);
-		}
-		return (1);
+		bui_exit(command->args + 1);
+		result = -1;
 	}
-	return (0);
+	return (result);
 }
 
 int	main(int argc, char **argv, char **env)
@@ -166,16 +184,22 @@ int	main(int argc, char **argv, char **env)
 		}
 		if (*input)
 		{
-			if (handle_builtin(input, &environment, &memories) == 0)
+			add_history(input);
+			tokenize_input(input, &token_list, &memories);
+			parse_input_to_commands(token_list, &command_list, &memories);
+			if (command_list && handle_builtin(command_list, &environment,
+					&memories) == 1)
 			{
-				tokenize_input(input, &token_list, &memories);
-				parse_input_to_commands(token_list, &command_list, &memories);
+			}
+			else
+			{
 				execute_commands(command_list);
 			}
-			command_list = NULL;
-			token_list = NULL;
 		}
 		free(input);
+		input = NULL;
+		command_list = NULL;
+		token_list = NULL;
 	}
 	free_all_memories(&memories);
 	return (0);

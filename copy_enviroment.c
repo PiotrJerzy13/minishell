@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:08:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:10:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ void	add_or_update_env_var(t_env *env, const char *key,
 		{
 			free(env->pairs[i].value);
 			env->pairs[i].value = strdup(value);
-			add_memory(memories, env->pairs[i].value);
 			return ;
 		}
 		i++;
@@ -82,7 +81,6 @@ void	add_or_update_env_var(t_env *env, const char *key,
 			printf("Error: Failed to expand environment.\n");
 			exit(EXIT_FAILURE);
 		}
-		add_memory(memories, env->pairs);
 	}
 	env->pairs[env->size].key = strdup(key);
 	env->pairs[env->size].value = strdup(value);

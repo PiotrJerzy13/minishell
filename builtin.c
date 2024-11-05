@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 17:35:11 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 12:26:19 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	bui_cd(char **args)
 {
 	const char	*path;
 
-	if (args[1] == NULL)
+	if (args[0] == NULL)
 	{
 		path = getenv("HOME");
 		if (path == NULL)
@@ -34,7 +34,7 @@ int	bui_cd(char **args)
 	}
 	else
 	{
-		path = args[1];
+		path = args[0];
 	}
 	if (chdir(path) != 0)
 	{
@@ -58,13 +58,19 @@ int	bui_echo(char **args)
 	}
 	while (args[i])
 	{
-		write(1, args[i], strlen(args[i]));
+		printf("%s", args[i]);
 		if (args[i + 1])
-			write(1, " ", 1);
+		{
+			printf(" ");
+		}
+		fflush(stdout);
 		i++;
 	}
 	if (newline)
-		write(1, "\n", 1);
+	{
+		printf("\n");
+	}
+	fflush(stdout);
 	return (0);
 }
 

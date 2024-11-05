@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:00:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 12:18:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@
 // The close() function is used to close the file descriptors for the pipe
 // signal(SIGQUIT, SIG_DFL) is used to set the signal handler for SIGQUIT to the
 
-t_command	*init_command_node(void)
+t_command	*init_command_node(t_memories *memories)
 {
 	t_command	*new_node;
 
@@ -52,6 +52,7 @@ t_command	*init_command_node(void)
 		printf("Error: Failed to allocate memory for command node.\n");
 		exit(EXIT_FAILURE);
 	}
+	add_memory(memories, new_node);
 	new_node->command = NULL;
 	new_node->args = NULL;
 	new_node->is_pipe = 0;
@@ -92,8 +93,7 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 		if (current_command == NULL && current_token->type == TOKEN_COMMAND)
 		{
 			printf("Initializing new command node.\n");
-			current_command = init_command_node();
-			add_memory(memories, current_command);
+			current_command = init_command_node(memories);
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
@@ -103,22 +103,19 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			current_command->args[arg_count++] = strdup(current_token->value);
 			printf("Parsed command: %s\n", current_command->command);
 		}
-		else if ((current_token->type == TOKEN_ARGUMENT || current_token->type
-				== TOKEN_COMMAND) && current_command)
+		else if ((current_token->type == TOKEN_ARGUMENT
+				|| current_token->type == TOKEN_COMMAND) && current_command)
 		{
-			current_command->args[arg_count] = strdup(current_token->value);
-			add_memory(memories, current_command->args[arg_count]);
-			printf("Parsed argument %d: %s\n", arg_count,
-				current_command->args[arg_count]);
-			arg_count++;
+			current_command->args[arg_count++] = strdup(current_token->value);
+			add_memory(memories, current_command->args[arg_count - 1]);
+			printf("Parsed argument %d: %s\n", arg_count - 1,
+				current_command->args[arg_count - 1]);
 		}
 		else if (current_token->type == TOKEN_PIPE && current_command)
 		{
 			current_command->is_pipe = 1;
 			printf("Encountered pipe. Setting is_pipe for current command.\n");
 			current_command->args[arg_count] = NULL;
-			printf("Final command args array null-terminated for command: %s\n",
-				current_command->command);
 			current_command = NULL;
 			arg_count = 0;
 		}
@@ -172,6 +169,8 @@ void	execute_commands(t_command *command_list)
 				dup2(pipefd[1], 1);
 				close(pipefd[1]);
 			}
+			if (pipefd[0])
+				close(pipefd[0]);
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
 				perror("execvp");
