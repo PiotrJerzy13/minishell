@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/06 17:58:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 19:58:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,12 +176,14 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 
 void	execute_commands(t_command *command_list)
 {
-	t_command	*current_command = command_list;
+	t_command	*current_command;
 	int			pipefd[2];
-	int			in_fd = STDIN_FILENO;
+	int			in_fd;
 	pid_t		pid;
 	int			status;
 
+	in_fd = STDIN_FILENO;
+	current_command = command_list;
 	printf("Starting command execution...\n");
 	while (current_command)
 	{

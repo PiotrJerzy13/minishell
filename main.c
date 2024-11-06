@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/06 17:38:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 19:48:44 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,7 +248,7 @@ int	main(int argc, char **argv, char **env)
 		if (*input)
 		{
 			add_history(input);
-			tokenize_input(input, &token_list, &memories);
+			tokenize_input(input, &token_list, &memories, &environment);
 			parse_input_to_commands(token_list, &command_list, &memories);
 			if (command_list && handle_builtin(command_list, &environment,
 					&memories) == 1)

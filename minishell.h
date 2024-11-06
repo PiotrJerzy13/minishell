@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 15:06:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 20:05:52 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,8 @@ void			parse_input_to_commands(t_token *token_list,
 					t_memories *memories);
 void			add_command_node(t_command **head, t_command *new_command);
 void			tokenize_input(char *input, t_token **token_list,
-					t_memories *memories);
+					t_memories *memories, t_env *environment);
+
 void			skip_spaces(char **input);
 void			handle_special_characters(char **input, t_token **token_list,
 					t_memories *memories, int *expect_filename);
@@ -131,3 +132,4 @@ void			execute_commands(t_command *command_list);
 t_builtin_ptr	get_builtin(const char *command);
 t_env			deep_copy_env(t_env const *source_env, t_memories *memories);
 int				initialize_shell(void);
+char			*get_env_value(const char *name, t_env *environment);
