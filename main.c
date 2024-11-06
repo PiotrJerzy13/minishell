@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 21:00:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 17:16:09 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,55 @@ void	handle_output_redirection(t_command *command)
 int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 {
 	int	result;
+	int	saved_stdout;
+	int	saved_stdin;
+	int	fd_in;
+	int	fd_out;
 
 	result = 0;
+	saved_stdout = -1;
+	saved_stdin = -1;
+	fd_in = -1;
+	fd_out = -1;
+	if (command->input_redirect)
+	{
+		fd_in = open(command->input_redirect, O_RDONLY);
+		if (fd_in == -1)
+		{
+			perror("open failed in handle_builtin for input redirection");
+			return (1);
+		}
+		saved_stdin = dup(STDIN_FILENO);
+		if (dup2(fd_in, STDIN_FILENO) == -1)
+		{
+			perror("dup2 failed in handle_builtin for input redirection");
+			close(fd_in);
+			return (1);
+		}
+		close(fd_in);
+	}
+	if (command->output_redirect)
+	{
+		if (command->append_mode)
+			fd_out = open(command->output_redirect, O_WRONLY
+					| O_CREAT | O_APPEND, 0644);
+		else
+			fd_out = open(command->output_redirect, O_WRONLY
+					| O_CREAT | O_TRUNC, 0644);
+		if (fd_out == -1)
+		{
+			perror("open failed in handle_builtin for output redirection");
+			return (1);
+		}
+		saved_stdout = dup(STDOUT_FILENO);
+		if (dup2(fd_out, STDOUT_FILENO) == -1)
+		{
+			perror("dup2 failed in handle_builtin for output redirection");
+			close(fd_out);
+			return (1);
+		}
+		close(fd_out);
+	}
 	if (strcmp(command->command, "echo") == 0)
 	{
 		bui_echo(command->args + 1);
@@ -150,6 +197,16 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 	{
 		bui_exit(command->args + 1);
 		result = -1;
+	}
+	if (saved_stdin != -1)
+	{
+		dup2(saved_stdin, STDIN_FILENO);
+		close(saved_stdin);
+	}
+	if (saved_stdout != -1)
+	{
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdout);
 	}
 	return (result);
 }

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 12:18:43 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 17:29:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,9 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	t_token		*current_token;
 	int			arg_count;
 
-	current_command = NULL;
 	current_token = token_list;
 	arg_count = 0;
+	current_command = NULL;
 	printf("Starting parse_input_to_commands...\n");
 	while (current_token)
 	{
@@ -97,7 +97,6 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
-			printf("Args array initialized.\n");
 			current_command->command = strdup(current_token->value);
 			add_memory(memories, current_command->command);
 			current_command->args[arg_count++] = strdup(current_token->value);
@@ -110,6 +109,42 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_memory(memories, current_command->args[arg_count - 1]);
 			printf("Parsed argument %d: %s\n", arg_count - 1,
 				current_command->args[arg_count - 1]);
+		}
+		else if (current_token->type == TOKEN_OUTPUT_REDIRECT
+			&& current_command)
+		{
+			current_token = current_token->next;
+			if (current_token && current_token->type == TOKEN_FILENAME)
+			{
+				current_command->output_redirect = strdup(current_token->value);
+				add_memory(memories, current_command->output_redirect);
+				printf("Output redirection set to: %s\n",
+					current_command->output_redirect);
+			}
+		}
+		else if (current_token->type == TOKEN_APPEND_OUTPUT_REDIRECT
+			&& current_command)
+		{
+			current_token = current_token->next;
+			if (current_token && current_token->type == TOKEN_FILENAME)
+			{
+				current_command->output_redirect = strdup(current_token->value);
+				add_memory(memories, current_command->output_redirect);
+				current_command->append_mode = 1;
+				printf("Append output redirection set to: %s\n",
+					current_command->output_redirect);
+			}
+		}
+		else if (current_token->type == TOKEN_INPUT_REDIRECT && current_command)
+		{
+			current_token = current_token->next;
+			if (current_token && current_token->type == TOKEN_FILENAME)
+			{
+				current_command->input_redirect = strdup(current_token->value);
+				add_memory(memories, current_command->input_redirect);
+				printf("Input redirection set to: %s\n",
+					current_command->input_redirect);
+			}
 		}
 		else if (current_token->type == TOKEN_PIPE && current_command)
 		{
@@ -137,9 +172,11 @@ void	execute_commands(t_command *command_list)
 	int			status;
 	int			pipefd[2];
 	int			in_fd;
+	int			fd_in;
+	int			fd_out;
 
-	current_command = command_list;
 	in_fd = 0;
+	current_command = command_list;
 	printf("Starting command execution...\n");
 	while (current_command)
 	{
@@ -159,27 +196,72 @@ void	execute_commands(t_command *command_list)
 			signal(SIGQUIT, SIG_DFL);
 			printf("In child process for command: %s\n",
 				current_command->command);
+			if (current_command->input_redirect)
+			{
+				fd_in = open(current_command->input_redirect, O_RDONLY);
+				if (fd_in == -1)
+				{
+					perror("open failed for input redirection");
+					exit(EXIT_FAILURE);
+				}
+				if (dup2(fd_in, STDIN_FILENO) == -1)
+				{
+					perror("dup2 failed for input redirection");
+					close(fd_in);
+					exit(EXIT_FAILURE);
+				}
+				close(fd_in);
+				printf("Input redirected from file: %s\n",
+					current_command->input_redirect);
+			}
+			if (current_command->output_redirect)
+			{
+				if (current_command->append_mode)
+				{
+					fd_out = open(current_command->output_redirect, O_WRONLY
+							| O_CREAT | O_APPEND, 0644);
+				}
+				else
+				{
+					fd_out = open(current_command->output_redirect, O_WRONLY
+							| O_CREAT | O_TRUNC, 0644);
+				}
+				if (fd_out == -1)
+				{
+					perror("open failed for output redirection");
+					exit(EXIT_FAILURE);
+				}
+				if (dup2(fd_out, STDOUT_FILENO) == -1)
+				{
+					perror("dup2 failed for output redirection");
+					close(fd_out);
+					exit(EXIT_FAILURE);
+				}
+				close(fd_out);
+				printf("Output redirected to file: %s\n",
+					current_command->output_redirect);
+			}
 			if (in_fd != 0)
 			{
-				dup2(in_fd, 0);
+				dup2(in_fd, STDIN_FILENO);
 				close(in_fd);
 			}
 			if (current_command->is_pipe)
 			{
-				dup2(pipefd[1], 1);
+				dup2(pipefd[1], STDOUT_FILENO);
 				close(pipefd[1]);
 			}
 			if (pipefd[0])
 				close(pipefd[0]);
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
-				perror("execvp");
+				perror("execvp failed");
 				exit(EXIT_FAILURE);
 			}
 		}
 		else if (pid < 0)
 		{
-			perror("fork");
+			perror("fork failed");
 			return ;
 		}
 		else

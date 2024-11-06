@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 18:19:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/05 15:05:56 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,13 @@ char	*get_quoted_token(char **input_ptr)
 
 void	tokenize_input(char *input, t_token **token_list, t_memories *memories)
 {
-	char	*token;
-	char	*start;
+	char			*token;
+	char			*start;
+	int				expect_filename;
+	t_token_type	type;
 
+	expect_filename = 0;
+	printf("Starting tokenization process...\n");
 	while (*input)
 	{
 		skip_spaces(&input);
@@ -104,10 +108,25 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories)
 			token = get_quoted_token(&input);
 			if (token)
 			{
-				add_token(token_list, init_token(token, TOKEN_ARGUMENT,
-						memories));
-				printf("Tokenized quoted argument: %s\n", token);
+				if (expect_filename)
+				{
+					type = TOKEN_FILENAME;
+				}
+				else
+				{
+					type = TOKEN_ARGUMENT;
+				}
+				add_token(token_list, init_token(token, type, memories));
+				if (expect_filename)
+				{
+					printf("Tokenized filename: %s\n", token);
+				}
+				else
+				{
+					printf("Tokenized quoted argument: %s\n", token);
+				}
 				free(token);
+				expect_filename = 0;
 			}
 		}
 		else
@@ -119,29 +138,48 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories)
 			if (input > start)
 			{
 				token = strndup(start, input - start);
-				add_token(token_list, init_token(token, TOKEN_COMMAND,
-						memories));
-				printf("Tokenized command/argument: %s\n", token);
+				if (expect_filename)
+				{
+					type = TOKEN_FILENAME;
+				}
+				else
+				{
+					type = TOKEN_COMMAND;
+				}
+				add_token(token_list, init_token(token, type, memories));
+				if (expect_filename)
+				{
+					printf("Tokenized filename: %s\n", token);
+				}
+				else
+				{
+					printf("Tokenized command/argument: %s\n", token);
+				}
 				free(token);
+				expect_filename = 0;
 			}
-			handle_special_characters(&input, token_list, memories);
+			handle_special_characters(&input, token_list, memories,
+				&expect_filename);
 		}
 	}
 	printf("Tokenization complete.\n");
 }
 
 void	handle_special_characters(char **input, t_token **token_list,
-	t_memories *memories)
+		t_memories *memories, int *expect_filename)
 {
 	if (**input == '|')
 	{
 		add_token(token_list, init_token("|", TOKEN_PIPE, memories));
+		printf("Tokenized pipe: %s\n", "|");
 		(*input)++;
 	}
 	else if (**input == '<')
 	{
 		add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT, memories));
+		printf("Tokenized input redirection: %s\n", "<");
 		(*input)++;
+		*expect_filename = 1;
 	}
 	else if (**input == '>')
 	{
@@ -149,13 +187,16 @@ void	handle_special_characters(char **input, t_token **token_list,
 		{
 			add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT,
 					memories));
+			printf("Tokenized append output redirection: %s\n", ">>");
 			(*input) += 2;
 		}
 		else
 		{
 			add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT,
 					memories));
+			printf("Tokenized output redirection: %s\n", ">");
 			(*input)++;
 		}
+		*expect_filename = 1;
 	}
 }
