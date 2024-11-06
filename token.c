@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/06 20:06:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 20:18:20 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,27 +66,51 @@ void	add_token(t_token **head, t_token *new_token)
 	}
 }
 
-char	*get_quoted_token(char **input_ptr)
+char	*get_quoted_token(char **input_ptr, t_env *environment)
 {
 	char	*start;
 	char	*end;
 	char	quote_char;
+	char	*result;
+	char	*var_name;
+	char	*value;
 
+	result = malloc(1);
+	result[0] = '\0';
 	quote_char = **input_ptr;
 	start = *input_ptr + 1;
 	end = start;
 	while (*end && *end != quote_char)
 	{
-		end++;
+		if (*end == '$')
+		{
+			strncat(result, start, end - start);
+			end++;
+			start = end;
+			while (isalnum(*end) || *end == '_')
+				end++;
+			var_name = strndup(start, end - start);
+			value = get_env_value(var_name, environment);
+			free(var_name);
+			if (value)
+			{
+				result = realloc(result, strlen(result) + strlen(value) + 1);
+				strcat(result, value);
+				free(value);
+			}
+			start = end;
+		}
+		else
+		{
+			end++;
+		}
 	}
+	strncat(result, start, end - start);
 	if (*end == quote_char)
-	{
-		*end = '\0';
 		*input_ptr = end + 1;
-		return (strdup(start));
-	}
-	printf("Error: Unmatched quote in input.\n");
-	return (NULL);
+	else
+		*input_ptr = end;
+	return (result);
 }
 
 void	handle_special_characters(char **input, t_token **token_list,
@@ -163,7 +187,7 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
 		}
 		else if (*input == '"' || *input == '\'')
 		{
-			token = get_quoted_token(&input);
+			token = get_quoted_token(&input, environment);
 			if (token)
 			{
 				if (expect_filename)
