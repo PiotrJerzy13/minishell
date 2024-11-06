@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 17:16:09 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 17:38:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,11 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 	return (result);
 }
 
+void	start_minishell(void)
+{
+	printf("Minishell instance started with PID: %d\n", getpid());
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	t_command	*command_list;
@@ -223,6 +228,7 @@ int	main(int argc, char **argv, char **env)
 	(void)argv;
 	command_list = NULL;
 	token_list = NULL;
+	start_minishell();
 	if (initialize_shell() == -1)
 	{
 		fprintf(stderr, "Failed to initialize shell environment\n");

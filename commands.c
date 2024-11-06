@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 17:29:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 17:58:26 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,9 +97,18 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
-			current_command->command = strdup(current_token->value);
-			add_memory(memories, current_command->command);
+			if (strncmp(current_token->value, "./", 2) == 0)
+			{
+				current_command->command = strdup(current_token->value);
+				add_memory(memories, current_command->command);
+			}
+			else
+			{
+				current_command->command = strdup(current_token->value);
+				add_memory(memories, current_command->command);
+			}
 			current_command->args[arg_count++] = strdup(current_token->value);
+			add_memory(memories, current_command->args[arg_count - 1]);
 			printf("Parsed command: %s\n", current_command->command);
 		}
 		else if ((current_token->type == TOKEN_ARGUMENT
@@ -167,122 +176,64 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 
 void	execute_commands(t_command *command_list)
 {
-	t_command	*current_command;
+	t_command	*current_command = command_list;
+	int			pipefd[2];
+	int			in_fd = STDIN_FILENO;
 	pid_t		pid;
 	int			status;
-	int			pipefd[2];
-	int			in_fd;
-	int			fd_in;
-	int			fd_out;
 
-	in_fd = 0;
-	current_command = command_list;
 	printf("Starting command execution...\n");
 	while (current_command)
 	{
-		if (current_command->is_pipe)
+		if (current_command->next)
 		{
 			if (pipe(pipefd) == -1)
 			{
-				perror("pipe");
+				perror("pipe failed");
 				exit(EXIT_FAILURE);
 			}
-			printf("Created a pipe for command: %s\n",
-				current_command->command);
 		}
 		pid = fork();
-		if (pid == 0)
+		if (pid == -1)
 		{
-			signal(SIGQUIT, SIG_DFL);
-			printf("In child process for command: %s\n",
-				current_command->command);
-			if (current_command->input_redirect)
-			{
-				fd_in = open(current_command->input_redirect, O_RDONLY);
-				if (fd_in == -1)
-				{
-					perror("open failed for input redirection");
-					exit(EXIT_FAILURE);
-				}
-				if (dup2(fd_in, STDIN_FILENO) == -1)
-				{
-					perror("dup2 failed for input redirection");
-					close(fd_in);
-					exit(EXIT_FAILURE);
-				}
-				close(fd_in);
-				printf("Input redirected from file: %s\n",
-					current_command->input_redirect);
-			}
-			if (current_command->output_redirect)
-			{
-				if (current_command->append_mode)
-				{
-					fd_out = open(current_command->output_redirect, O_WRONLY
-							| O_CREAT | O_APPEND, 0644);
-				}
-				else
-				{
-					fd_out = open(current_command->output_redirect, O_WRONLY
-							| O_CREAT | O_TRUNC, 0644);
-				}
-				if (fd_out == -1)
-				{
-					perror("open failed for output redirection");
-					exit(EXIT_FAILURE);
-				}
-				if (dup2(fd_out, STDOUT_FILENO) == -1)
-				{
-					perror("dup2 failed for output redirection");
-					close(fd_out);
-					exit(EXIT_FAILURE);
-				}
-				close(fd_out);
-				printf("Output redirected to file: %s\n",
-					current_command->output_redirect);
-			}
-			if (in_fd != 0)
+			perror("fork failed");
+			exit(EXIT_FAILURE);
+		}
+		else if (pid == 0)
+		{
+			if (in_fd != STDIN_FILENO)
 			{
 				dup2(in_fd, STDIN_FILENO);
 				close(in_fd);
 			}
-			if (current_command->is_pipe)
+			if (current_command->next)
 			{
 				dup2(pipefd[1], STDOUT_FILENO);
 				close(pipefd[1]);
 			}
-			if (pipefd[0])
-				close(pipefd[0]);
+			close(pipefd[0]);
 			if (execvp(current_command->command, current_command->args) == -1)
 			{
 				perror("execvp failed");
 				exit(EXIT_FAILURE);
 			}
 		}
-		else if (pid < 0)
-		{
-			perror("fork failed");
-			return ;
-		}
 		else
 		{
-			waitpid(pid, &status, 0);
-			if (WIFSIGNALED(status) && WTERMSIG(status) == SIGQUIT)
-			{
-				printf("Process for command %s was terminated by SIGQUIT\n",
-					current_command->command);
-			}
-			if (current_command->is_pipe)
-			{
+			if (in_fd != STDIN_FILENO)
+				close(in_fd);
+			if (current_command->next)
 				close(pipefd[1]);
-				in_fd = pipefd[0];
-			}
-			else
-			{
-				in_fd = 0;
-			}
+			in_fd = pipefd[0];
 			current_command = current_command->next;
 		}
+	}
+	while (wait(&status) > 0)
+	{
+		if (WIFEXITED(status))
+			printf("Process exited with status %d\n", WEXITSTATUS(status));
+		else if (WIFSIGNALED(status))
+			printf("Child process terminated by signal %d\n", WTERMSIG(status));
 	}
 	printf("Command execution complete.\n");
 }
