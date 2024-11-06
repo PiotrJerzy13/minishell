@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 17:29:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/06 17:39:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,9 +97,18 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 			add_command_node(command_list, current_command);
 			current_command->args = malloc(sizeof(char *) * 10);
 			add_memory(memories, current_command->args);
-			current_command->command = strdup(current_token->value);
-			add_memory(memories, current_command->command);
+			if (strncmp(current_token->value, "./", 2) == 0)
+			{
+				current_command->command = strdup(current_token->value);
+				add_memory(memories, current_command->command);
+			}
+			else
+			{
+				current_command->command = strdup(current_token->value);
+				add_memory(memories, current_command->command);
+			}
 			current_command->args[arg_count++] = strdup(current_token->value);
+			add_memory(memories, current_command->args[arg_count - 1]);
 			printf("Parsed command: %s\n", current_command->command);
 		}
 		else if ((current_token->type == TOKEN_ARGUMENT
