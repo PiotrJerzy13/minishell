@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/06 20:05:52 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/08 13:18:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,3 +133,5 @@ t_builtin_ptr	get_builtin(const char *command);
 t_env			deep_copy_env(t_env const *source_env, t_memories *memories);
 int				initialize_shell(void);
 char			*get_env_value(const char *name, t_env *environment);
+char			*ft_strtrim(char *str, const char *set);
+char			*get_next_line(int fd);
