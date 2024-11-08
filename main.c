@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/06 17:38:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/08 13:26:24 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,89 +21,6 @@
 // env, export, unset, pwd, cd, and exit. If the input matches a built-in comman
 // the corresponding function is called. The function returns 1 if the command
 // a built-in command and 0 otherwise.
-
-char	**parse_echo_args(char *input, int *arg_count, t_memories *memories)
-{
-	char	**args;
-	char	*token;
-	char	*start;
-	char	quote_char;
-
-	*arg_count = 0;
-	args = malloc(sizeof(char *) * 20);
-	if (!args)
-	{
-		printf("Error: Failed to allocate memory for args array.\n");
-		exit(EXIT_FAILURE);
-	}
-	add_memory(memories, args);
-	while (*input)
-	{
-		while (*input && isspace(*input))
-			input++;
-		if (*input == '"' || *input == '\'')
-		{
-			quote_char = *input++;
-			start = input;
-			while (*input && *input != quote_char)
-				input++;
-			if (*input == quote_char)
-			{
-				token = strndup(start, input - start);
-				if (!token)
-				{
-					printf("Error: Failed to allocate memory for token.\n");
-					free_all_memories(memories);
-					exit(EXIT_FAILURE);
-				}
-				add_memory(memories, token);
-				input++;
-			}
-			else
-			{
-				printf("Error: unmatched quote\n");
-				free(args);
-				return (NULL);
-			}
-		}
-		else
-		{
-			start = input;
-			while (*input && !isspace(*input))
-				input++;
-			token = strndup(start, input - start);
-		}
-		args[(*arg_count)++] = token;
-	}
-	args[*arg_count] = NULL;
-	return (args);
-}
-
-void	handle_output_redirection(t_command *command)
-{
-	int	fd;
-
-	if (command->output_redirect)
-	{
-		if (command->append_mode)
-		{
-			fd = open(command->output_redirect,
-					O_WRONLY | O_CREAT | O_APPEND, 0644);
-		}
-		else
-		{
-			fd = open(command->output_redirect,
-					O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		}
-		if (fd == -1)
-		{
-			perror("open");
-			exit(EXIT_FAILURE);
-		}
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
-	}
-}
 
 int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 {
@@ -223,12 +140,12 @@ int	main(int argc, char **argv, char **env)
 	char		*input;
 	t_memories	memories;
 	t_token		*token_list;
+	char		*line;
 
 	(void)argc;
 	(void)argv;
 	command_list = NULL;
 	token_list = NULL;
-	start_minishell();
 	if (initialize_shell() == -1)
 	{
 		fprintf(stderr, "Failed to initialize shell environment\n");
@@ -239,16 +156,30 @@ int	main(int argc, char **argv, char **env)
 	copy_environment_to_struct(env, &environment, &memories);
 	while (1)
 	{
-		input = readline("minishell> ");
+		if (isatty(fileno(stdin)))
+		{
+			input = readline("minishell> ");
+		}
+		else
+		{
+			line = get_next_line(fileno(stdin));
+			if (line == NULL)
+			{
+				break ;
+			}
+			input = ft_strtrim(line, "\n");
+			free(line);
+		}
 		if (input == NULL)
 		{
-			printf("exit\n");
+			if (isatty(fileno(stdin)))
+				printf("exit\n");
 			break ;
 		}
 		if (*input)
 		{
 			add_history(input);
-			tokenize_input(input, &token_list, &memories);
+			tokenize_input(input, &token_list, &memories, &environment);
 			parse_input_to_commands(token_list, &command_list, &memories);
 			if (command_list && handle_builtin(command_list, &environment,
 					&memories) == 1)
@@ -267,3 +198,54 @@ int	main(int argc, char **argv, char **env)
 	free_all_memories(&memories);
 	return (0);
 }
+// int	main(int argc, char **argv, char **env)
+// {
+// 	t_command	*command_list;
+// 	t_env		environment;
+// 	char		*input;
+// 	t_memories	memories;
+// 	t_token		*token_list;
+
+// 	(void)argc;
+// 	(void)argv;
+// 	command_list = NULL;
+// 	token_list = NULL;
+// 	start_minishell();
+// 	if (initialize_shell() == -1)
+// 	{
+// 		fprintf(stderr, "Failed to initialize shell environment\n");
+// 		return (EXIT_FAILURE);
+// 	}
+// 	signal(SIGQUIT, SIG_IGN);
+// 	init_memories(&memories, &environment, 10);
+// 	copy_environment_to_struct(env, &environment, &memories);
+// 	while (1)
+// 	{
+// 		input = readline("minishell> ");
+// 		if (input == NULL)
+// 		{
+// 			printf("exit\n");
+// 			break ;
+// 		}
+// 		if (*input)
+// 		{
+// 			add_history(input);
+// 			tokenize_input(input, &token_list, &memories, &environment);
+// 			parse_input_to_commands(token_list, &command_list, &memories);
+// 			if (command_list && handle_builtin(command_list, &environment,
+// 					&memories) == 1)
+// 			{
+// 			}
+// 			else
+// 			{
+// 				execute_commands(command_list);
+// 			}
+// 		}
+// 		free(input);
+// 		input = NULL;
+// 		command_list = NULL;
+// 		token_list = NULL;
+// 	}
+// 	free_all_memories(&memories);
+// 	return (0);
+// }
