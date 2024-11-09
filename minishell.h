@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:18:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/09 12:34:45 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 #include <readline/readline.h>
 
 #define INITIAL_CAPACITY 128
+#define SUCCESS 0
+#define FAILURE 1
 
 typedef int	(*t_builtin_ptr)(char **args);
 
@@ -125,8 +127,8 @@ void			free_env(t_env *env);
 void			export_env_var(t_env *environment, char *input,
 					t_memories *memories);
 int				bui_echo(char **args);
-int				bui_cd(char **args);
-int				bui_pwd(void);
+// int				bui_cd(char **args);
+// int				bui_pwd(void);
 int				bui_exit(char **args);
 void			execute_commands(t_command *command_list);
 t_builtin_ptr	get_builtin(const char *command);
@@ -135,3 +137,12 @@ int				initialize_shell(void);
 char			*get_env_value(const char *name, t_env *environment);
 char			*ft_strtrim(char *str, const char *set);
 char			*get_next_line(int fd);
+
+
+/* *********************************************************** */
+
+// int				bui_pwd(t_env *env, t_memories *memories);
+int				bui_pwd(t_env *env);
+int				set_env_value(const char *name, const char *value, t_env *env);
+// int				bui_cd(char **args, t_env *env);
+int				bui_cd(char **args, t_env *env, t_memories *memories);

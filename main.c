@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:26:24 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/09 12:19:58 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,12 +102,15 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 	}
 	else if (strcmp(command->command, "pwd") == 0)
 	{
-		bui_pwd();
+		// bui_pwd();
+		// bui_pwd(environment, memories);
+		bui_pwd(environment);
 		result = 1;
 	}
 	else if (strcmp(command->command, "cd") == 0)
 	{
-		bui_cd(command->args + 1);
+		// bui_cd(command->args + 1);
+		bui_cd(command->args + 1, environment, memories);
 		result = 1;
 	}
 	else if (strcmp(command->command, "exit") == 0)
