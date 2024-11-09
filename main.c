@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:26:24 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/09 11:58:38 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,54 +198,3 @@ int	main(int argc, char **argv, char **env)
 	free_all_memories(&memories);
 	return (0);
 }
-// int	main(int argc, char **argv, char **env)
-// {
-// 	t_command	*command_list;
-// 	t_env		environment;
-// 	char		*input;
-// 	t_memories	memories;
-// 	t_token		*token_list;
-
-// 	(void)argc;
-// 	(void)argv;
-// 	command_list = NULL;
-// 	token_list = NULL;
-// 	start_minishell();
-// 	if (initialize_shell() == -1)
-// 	{
-// 		fprintf(stderr, "Failed to initialize shell environment\n");
-// 		return (EXIT_FAILURE);
-// 	}
-// 	signal(SIGQUIT, SIG_IGN);
-// 	init_memories(&memories, &environment, 10);
-// 	copy_environment_to_struct(env, &environment, &memories);
-// 	while (1)
-// 	{
-// 		input = readline("minishell> ");
-// 		if (input == NULL)
-// 		{
-// 			printf("exit\n");
-// 			break ;
-// 		}
-// 		if (*input)
-// 		{
-// 			add_history(input);
-// 			tokenize_input(input, &token_list, &memories, &environment);
-// 			parse_input_to_commands(token_list, &command_list, &memories);
-// 			if (command_list && handle_builtin(command_list, &environment,
-// 					&memories) == 1)
-// 			{
-// 			}
-// 			else
-// 			{
-// 				execute_commands(command_list);
-// 			}
-// 		}
-// 		free(input);
-// 		input = NULL;
-// 		command_list = NULL;
-// 		token_list = NULL;
-// 	}
-// 	free_all_memories(&memories);
-// 	return (0);
-// }

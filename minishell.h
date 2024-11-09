@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:18:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/09 12:31:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ typedef struct s_env
 	t_key_value	*pairs;
 	int			size;
 	int			capacity;
+	int			last_exit_status;
 	t_memories	*memories;
 }	t_env;
 
@@ -113,8 +114,6 @@ void			add_token(t_token **head, t_token *new_token);
 char			*handle_quoted_string(char **input);
 void			handle_output_redirection(t_command *command);
 
-void			init_env(t_env *env, int initial_capacity,
-					t_memories *memories);
 void			copy_environment_to_struct(char **env, t_env *environment,
 					t_memories *memories);
 void			add_or_update_env_var(t_env *env, const char *key,

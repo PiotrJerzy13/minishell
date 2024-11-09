@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 17:10:20 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/09 12:34:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	init_memories(t_memories *memories,
 	}
 	environment->size = 0;
 	environment->capacity = env_capacity;
+	environment->last_exit_status = 0;
 	add_memory(memories, environment->pairs);
 }
 
