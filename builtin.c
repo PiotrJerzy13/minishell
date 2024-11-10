@@ -6,18 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/05 12:26:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 16:25:26 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// The chdir function in C is used to change the current working directory
-// of the calling process.
-// Error handling not implemented using perror() function.
-// Using atoi() and other build function for example strlen strcmp.
-// The getcwd function in C is used to obtain the current working directory.
-// Do we want to use whole Libft functions or just some of them?
 
 int	bui_cd(char **args)
 {

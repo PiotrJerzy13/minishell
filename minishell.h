@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:18:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 16:27:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,11 +102,13 @@ void			parse_input_to_commands(t_token *token_list,
 					t_memories *memories);
 void			add_command_node(t_command **head, t_command *new_command);
 void			tokenize_input(char *input, t_token **token_list,
-					t_memories *memories, t_env *environment);
+					t_memories *memories, t_env *environment,
+					int *last_exit_status);
 
 void			skip_spaces(char **input);
 void			handle_special_characters(char **input, t_token **token_list,
-					t_memories *memories, int *expect_filename);
+					t_memories *memories, int *expect_filename,
+					int *last_exit_status);
 t_token			*init_token(char *value, t_token_type type,
 					t_memories *memories);
 void			add_token(t_token **head, t_token *new_token);
@@ -128,10 +130,13 @@ int				bui_echo(char **args);
 int				bui_cd(char **args);
 int				bui_pwd(void);
 int				bui_exit(char **args);
-void			execute_commands(t_command *command_list);
+void			execute_commands(t_command *command_list, int *last_exit_status,
+					t_env *environment);
 t_builtin_ptr	get_builtin(const char *command);
 t_env			deep_copy_env(t_env const *source_env, t_memories *memories);
 int				initialize_shell(void);
 char			*get_env_value(const char *name, t_env *environment);
 char			*ft_strtrim(char *str, const char *set);
 char			*get_next_line(int fd);
+int				handle_builtin(t_command *command, t_env *environment,
+					t_memories *memories, int *last_exit_status);
