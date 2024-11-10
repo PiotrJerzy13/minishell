@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 17:56:30 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 18:09:45 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void	handle_special_characters(char **input, t_token **token_list,
 	if (*expect_filename && (**input == '\0' || **input == '|'
 			|| **input == '<' || **input == '>'))
 	{
-		*last_exit_status = 2;
+		*last_exit_status = 258;
 		return ;
 	}
 }
@@ -203,7 +203,7 @@ void tokenize_input(char *input, t_token **token_list, t_memories *memories, t_e
 
             // Handle special characters and detect syntax errors
             handle_special_characters(&input, token_list, memories, &expect_filename, last_exit_status);
-            if (*last_exit_status == 2)
+            if (*last_exit_status == 258)
             {
                 printf("Debug: Syntax error detected in handle_special_characters, setting last_exit_status to 2\n");
             }
