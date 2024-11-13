@@ -6,19 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/03 16:10:34 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 17:46:47 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// The deep_copy_env function creates a deep copy of the environment.
-// The shallow_copy_env function creates a shallow copy of the environment.
-// We are not using them but maybe we will use them when we will work on running
-// the minishell in minisheel. If we create a new variable inside the minishell
-// minishell it should not be created in the first one. 
-// copy_environment_to_struct function copies the environment variables from the
-// enviroment to the t_env structure. it crates key value pairs.
 
 t_env	deep_copy_env(t_env const *source_env, t_memories *memories)
 {
@@ -59,7 +51,8 @@ t_env	shallow_copy_env(t_env *source_env)
 void	add_or_update_env_var(t_env *env, const char *key,
 	const char *value, t_memories *memories)
 {
-	int	i;
+	int			i;
+	t_key_value	*new_pairs;
 
 	i = 0;
 	while (i < env->size)
@@ -68,6 +61,11 @@ void	add_or_update_env_var(t_env *env, const char *key,
 		{
 			free(env->pairs[i].value);
 			env->pairs[i].value = strdup(value);
+			if (!env->pairs[i].value)
+			{
+				fprintf(stderr, "Error: Memory allocation failed for value.\n");
+				exit(EXIT_FAILURE);
+			}
 			return ;
 		}
 		i++;
@@ -75,35 +73,53 @@ void	add_or_update_env_var(t_env *env, const char *key,
 	if (env->size >= env->capacity)
 	{
 		env->capacity *= 2;
-		env->pairs = realloc(env->pairs, env->capacity * sizeof(t_key_value));
-		if (!env->pairs)
+		new_pairs = realloc(env->pairs, env->capacity * sizeof(t_key_value));
+		if (!new_pairs)
 		{
-			printf("Error: Failed to expand environment.\n");
+			fprintf(stderr, "Error: Failed to expand environment capacity.\n");
 			exit(EXIT_FAILURE);
 		}
+		env->pairs = new_pairs;
+		add_memory(memories, env->pairs);
 	}
 	env->pairs[env->size].key = strdup(key);
 	env->pairs[env->size].value = strdup(value);
+	if (!env->pairs[env->size].key || !env->pairs[env->size].value)
+	{
+		fprintf(stderr, "Error: Memory allocation failed for key or value.\n");
+		exit(EXIT_FAILURE);
+	}
 	add_memory(memories, env->pairs[env->size].key);
 	add_memory(memories, env->pairs[env->size].value);
 	env->size++;
 }
 
 void	copy_environment_to_struct(char **env, t_env *environment,
-		t_memories *memories)
+	t_memories *memories)
 {
-	int			i;
-	char const	*key;
-	char const	*value;
+	int		i;
+	char	*entry;
+	char	*equal_sign;
+	size_t	key_len;
+	char	*key;
+	char	*value;
 
 	i = 0;
 	while (env[i])
 	{
-		key = strtok(env[i], "=");
-		value = strtok(NULL, "=");
-		if (key && value)
+		entry = env[i];
+		equal_sign = strchr(entry, '=');
+		if (equal_sign)
 		{
-			add_or_update_env_var(environment, key, value, memories);
+			key_len = equal_sign - entry;
+			key = strndup(entry, key_len);
+			value = strdup(equal_sign + 1);
+			if (key && value)
+			{
+				add_or_update_env_var(environment, key, value, memories);
+				free(key);
+				free(value);
+			}
 		}
 		i++;
 	}

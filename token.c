@@ -6,28 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:11:02 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/13 15:19:31 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// init_token function allocates memory for a new token and initializes its val
-// and type fields. The value is copied using strdup to ensure that the token
-// has its own copy of the string. The token is added to the memory tracking
-// system using the add_memory function.
-// add_token function is used to add a new token to the end of a linked list of
-// tokens. If the list is empty, the new token is set as the head of the list.
-// tokenize_input function is used to split the input string into tokens. It
-// iterates over the input string, skipping leading spaces, and calls
-// handle_special_characters when it encounters special characters like pipes or
-// redirections. If the character is a quote, it calls get_quoted_token to parse
-// the quoted string. Otherwise, it reads the token until it encounters a space
-// or special character. The token is then added to the token list.
-// handle_special_characters function is used to handle special characters like
-// pipes, input redirections, and output redirections. It adds the corresponding
-// token to the token list and advances the input pointer to the next character.
-// Handle_special is called by tokenize_input not working for > and >>
 
 t_token	*init_token(char *value, t_token_type type, t_memories *memories)
 {
@@ -114,7 +97,7 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 }
 
 void	handle_special_characters(char **input, t_token **token_list,
-		t_memories *memories, int *expect_filename)
+			t_memories *memories, int *expect_filename, int *last_exit_status)
 {
 	if (**input == '|')
 	{
@@ -131,28 +114,34 @@ void	handle_special_characters(char **input, t_token **token_list,
 	{
 		if (*(*input + 1) == '>')
 		{
-			add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT,
-					memories));
+			add_token(token_list, init_token(">>",
+					TOKEN_APPEND_OUTPUT_REDIRECT, memories));
 			(*input) += 2;
 		}
 		else
 		{
-			add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT,
-					memories));
+			add_token(token_list, init_token(">",
+					TOKEN_OUTPUT_REDIRECT, memories));
 			(*input)++;
 		}
 		*expect_filename = 1;
 	}
+	if (*expect_filename && (**input == '\0' || **input == '|'
+			|| **input == '<' || **input == '>'))
+	{
+		*last_exit_status = 258;
+		return ;
+	}
 }
 
 void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
-	t_env *environment)
+			t_env *environment, int *last_exit_status)
 {
-	char			*token;
-	char			*start;
-	int				expect_filename;
-	t_token_type	type;
-	char			*value;
+	char	*token;
+	char	*start;
+	int		expect_filename;
+	char	*value;
+	char	exit_status_str[12];
 
 	expect_filename = 0;
 	while (*input)
@@ -162,23 +151,33 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
 			break ;
 		if (*input == '$')
 		{
-			input++;
-			start = input;
-			while (isalnum(*input) || *input == '_')
-				input++;
-			token = strndup(start, input - start);
-			value = get_env_value(token, environment);
-			if (value != NULL)
+			if (*(input + 1) == '?')
 			{
-				add_token(token_list, init_token(value,
+				snprintf(exit_status_str, sizeof(exit_status_str),
+					"%d", *last_exit_status);
+				add_token(token_list, init_token(exit_status_str,
 						TOKEN_ARGUMENT, memories));
-				free(value);
+				input += 2;
+				continue ;
 			}
 			else
 			{
-				add_token(token_list, init_token("", TOKEN_ARGUMENT, memories));
+				input++;
+				start = input;
+				while (isalnum(*input) || *input == '_')
+					input++;
+				token = strndup(start, input - start);
+				value = get_env_value(token, environment);
+				if (value)
+					add_token(token_list, init_token(value,
+							TOKEN_ARGUMENT, memories));
+				else
+					add_token(token_list, init_token("",
+							TOKEN_ARGUMENT, memories));
+				free(token);
+				if (value)
+					free(value);
 			}
-			free(token);
 		}
 		else if (*input == '"' || *input == '\'')
 		{
@@ -186,10 +185,11 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
 			if (token)
 			{
 				if (expect_filename)
-					type = TOKEN_FILENAME;
+					add_token(token_list, init_token(token,
+							TOKEN_FILENAME, memories));
 				else
-					type = TOKEN_ARGUMENT;
-				add_token(token_list, init_token(token, type, memories));
+					add_token(token_list, init_token(token,
+							TOKEN_ARGUMENT, memories));
 				free(token);
 				expect_filename = 0;
 			}
@@ -204,126 +204,16 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
 			{
 				token = strndup(start, input - start);
 				if (expect_filename)
-					type = TOKEN_FILENAME;
+					add_token(token_list, init_token(token,
+							TOKEN_FILENAME, memories));
 				else
-					type = TOKEN_COMMAND;
-				add_token(token_list, init_token(token, type, memories));
+					add_token(token_list, init_token(token,
+							TOKEN_COMMAND, memories));
 				free(token);
 				expect_filename = 0;
 			}
 			handle_special_characters(&input, token_list, memories,
-				&expect_filename);
+				&expect_filename, last_exit_status);
 		}
 	}
 }
-// void	handle_special_characters(char **input, t_token **token_list,
-// 		t_memories *memories, int *expect_filename)
-// {
-// 	if (**input == '|')
-// 	{
-// 		add_token(token_list, init_token("|", TOKEN_PIPE, memories));
-// 		printf("Tokenized pipe: %s\n", "|");
-// 		(*input)++;
-// 	}
-// 	else if (**input == '<')
-// 	{
-// 		add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT, memories));
-// 		printf("Tokenized input redirection: %s\n", "<");
-// 		(*input)++;
-// 		*expect_filename = 1;
-// 	}
-// 	else if (**input == '>')
-// 	{
-// 		if (*(*input + 1) == '>')
-// 		{
-// 			add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT,
-// 					memories));
-// 			printf("Tokenized append output redirection: %s\n", ">>");
-// 			(*input) += 2;
-// 		}
-// 		else
-// 		{
-// 			add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT,
-// 					memories));
-// 			printf("Tokenized output redirection: %s\n", ">");
-// 			(*input)++;
-// 		}
-// 		*expect_filename = 1;
-// 	}
-// }
-
-// void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
-// 	t_env *environment)
-// {
-// 	char			*token;
-// 	char			*start;
-// 	int				expect_filename;
-// 	t_token_type	type;
-// 	char			*value;
-
-// 	expect_filename = 0;
-// 	printf("Starting tokenization process...\n");
-// 	while (*input)
-// 	{
-// 		skip_spaces(&input);
-// 		if (*input == '\0')
-// 			break ;
-// 		if (*input == '$')
-// 		{
-// 			input++;
-// 			start = input;
-// 			while (isalnum(*input) || *input == '_')
-// 				input++;
-// 			token = strndup(start, input - start);
-// 			value = get_env_value(token, environment);
-// 			if (value != NULL)
-// 			{
-// 				add_token(token_list, init_token(value,
-// 						TOKEN_ARGUMENT, memories));
-// 				free(value);
-// 			}
-// 			else
-// 			{
-// 				add_token(token_list, init_token("", TOKEN_ARGUMENT, memories));
-// 			}
-// 			free(token);
-// 		}
-// 		else if (*input == '"' || *input == '\'')
-// 		{
-// 			token = get_quoted_token(&input, environment);
-// 			if (token)
-// 			{
-// 				if (expect_filename)
-// 					type = TOKEN_FILENAME;
-// 				else
-// 					type = TOKEN_ARGUMENT;
-// 				add_token(token_list, init_token(token, type, memories));
-// 				printf("Tokenized quoted argument: %s\n", token);
-// 				free(token);
-// 				expect_filename = 0;
-// 			}
-// 		}
-// 		else
-// 		{
-// 			start = input;
-// 			while (*input && !isspace(*input) && *input != '|'
-// 				&& *input != '<' && *input != '>')
-// 				input++;
-// 			if (input > start)
-// 			{
-// 				token = strndup(start, input - start);
-// 				if (expect_filename)
-// 					type = TOKEN_FILENAME;
-// 				else
-// 					type = TOKEN_COMMAND;
-// 				add_token(token_list, init_token(token, type, memories));
-// 				printf("Tokenized command/argument: %s\n", token);
-// 				free(token);
-// 				expect_filename = 0;
-// 			}
-// 			handle_special_characters(&input, token_list,
-// 				memories, &expect_filename);
-// 		}
-// 	}
-// 	printf("Tokenization complete.\n");
-// }

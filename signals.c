@@ -6,22 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 18:30:45 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:17:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 17:38:45 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// The handle_sigint function is used to handle the SIGINT signal. It is called
-// when the user presses Ctrl+C. The function prints a newline character and
-// clears the current line using the readline library functions.
-// The toggle_sigquit function is used to enable or disable the default behavior
-// of the SIGQUIT signal. If enable_default is true, the default behavior is
-// enabled. If enable_default is false, the default behavior is ignored.
-// The initialize_shell function is used to set up the shell environment. It
-// initializes the SIGINT signal handler and disables the default behavior of
-// the SIGQUIT signal. It also disables echoing of control characters in the
-// terminal.
 
 void	handle_sigint(int signum)
 {
