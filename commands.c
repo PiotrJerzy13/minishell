@@ -6,66 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 18:15:17 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/13 15:37:36 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	**env_to_char_array(t_env *environment)
-{
-	char	**env_array;
-	size_t	len;
-
-	env_array = malloc((environment->size + 1) * sizeof(char *));
-	if (!env_array)
-	{
-		exit(EXIT_FAILURE);
-	}
-	for (int i = 0; i < environment->size; i++)
-	{
-		len = strlen(environment->pairs[i].key)
-			+ strlen(environment->pairs[i].value) + 2;
-		env_array[i] = malloc(len);
-		if (!env_array[i])
-		{
-			exit(EXIT_FAILURE);
-		}
-		snprintf(env_array[i], len, "%s=%s", environment->pairs[i].key,
-			environment->pairs[i].value);
-	}
-	env_array[environment->size] = NULL;
-	return (env_array);
-}
-
-void	free_env_array(char **env_array)
-{
-	for (int i = 0; env_array[i] != NULL; i++)
-	{
-		free(env_array[i]);
-	}
-	free(env_array);
-}
-
-t_command	*init_command_node(t_memories *memories)
-{
-	t_command	*new_node;
-
-	new_node = (t_command *)malloc(sizeof(t_command));
-	if (!new_node)
-	{
-		printf("Error: Failed to allocate memory for command node.\n");
-		exit(EXIT_FAILURE);
-	}
-	add_memory(memories, new_node);
-	new_node->command = NULL;
-	new_node->args = NULL;
-	new_node->is_pipe = 0;
-	new_node->input_redirect = NULL;
-	new_node->output_redirect = NULL;
-	new_node->next = NULL;
-	return (new_node);
-}
 
 void	add_command_node(t_command **head, t_command *new_command)
 {
@@ -199,112 +144,8 @@ char	*find_executable_path(const char *command)
 	return (NULL);
 }
 
-int	handle_builtin(t_command *command, t_env *environment, t_memories *memories, int *last_exit_status)
-{
-	int	result;
-	int	saved_stdin;
-	int	saved_stdout;
-	int	fd_in;
-
-	result = 0;
-	saved_stdin = -1;
-	saved_stdout = -1;
-	if (command->input_redirect)
-	{
-		fd_in = open(command->input_redirect, O_RDONLY);
-		if (fd_in == -1)
-		{
-			perror("open failed in handle_builtin for input redirection");
-			*last_exit_status = 1;
-			return (1);
-		}
-		saved_stdin = dup(STDIN_FILENO);
-		if (saved_stdin == -1 || dup2(fd_in, STDIN_FILENO) == -1)
-		{
-			perror("dup failed in handle_builtin for input redirection");
-			close(fd_in);
-			*last_exit_status = 1;
-			return (1);
-		}
-		close(fd_in);
-	}
-	if (command->output_redirect)
-	{
-		int fd_out = command->append_mode ?
-			open(command->output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644) :
-			open(command->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-		if (fd_out == -1)
-		{
-			perror("open failed in handle_builtin for output redirection");
-			*last_exit_status = 1;
-			return (1);
-		}
-		saved_stdout = dup(STDOUT_FILENO);
-		if (saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
-		{
-			perror("dup failed in handle_builtin for output redirection");
-			close(fd_out);
-			*last_exit_status = 1;
-			return (1);
-		}
-		close(fd_out);
-	}
-	if (strcmp(command->command, "echo") == 0)
-	{
-		bui_echo(command->args + 1);
-		*last_exit_status = 0;
-		result = (1);
-	}
-	else if (strcmp(command->command, "env") == 0)
-	{
-		print_env(environment);
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "export") == 0)
-	{
-		if (command->args[1] != NULL)
-			export_env_var(environment, command->args[1], memories);
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "cd") == 0)
-	{
-		*last_exit_status = (bui_cd(command->args + 1) == -1) ? 2 : 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "exit") == 0)
-	{
-		bui_exit(command->args + 1);
-		*last_exit_status = 0;
-		return (-1);
-	}
-	else
-	{
-		*last_exit_status = 127;
-		return (0);
-	}
-	if (saved_stdin != -1)
-	{
-		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-		{
-			perror("Failed to restore stdin");
-		}
-		close(saved_stdin);
-	}
-	if (saved_stdout != -1)
-	{
-		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-		{
-			perror("Failed to restore stdout");
-		}
-		close(saved_stdout);
-	}
-	return (result);
-}
-
-void execute_commands(t_command *command_list, int *last_exit_status, t_env *environment)
+void	execute_commands(t_command *command_list, int *last_exit_status,
+	t_env *environment)
 {
 	t_command	*current_command;
 	int			pipefd[2];
@@ -312,7 +153,7 @@ void execute_commands(t_command *command_list, int *last_exit_status, t_env *env
 	pid_t		pid;
 	int			status;
 	int			builtin_status;
-	char		*executable_path;
+	char		*exec_path;
 	char		**env_array;
 
 	current_command = command_list;
@@ -363,12 +204,12 @@ void execute_commands(t_command *command_list, int *last_exit_status, t_env *env
 			env_array = env_to_char_array(environment);
 			if (strchr(current_command->command, '/'))
 			{
-				executable_path = strdup(current_command->command);
+				exec_path = strdup(current_command->command);
 			}
 			else
 			{
-				executable_path = find_executable_path(current_command->command);
-				if (!executable_path)
+				exec_path = find_executable_path(current_command->command);
+				if (!exec_path)
 				{
 					fprintf(stderr, "minishell: %s: command not found\n",
 						current_command->command);
@@ -377,7 +218,7 @@ void execute_commands(t_command *command_list, int *last_exit_status, t_env *env
 					exit(127);
 				}
 			}
-			execve(executable_path, current_command->args, env_array);
+			execve(exec_path, current_command->args, env_array);
 			if (errno == EACCES)
 			{
 				fprintf(stderr, "minishell: %s: permission denied\n",
@@ -390,7 +231,7 @@ void execute_commands(t_command *command_list, int *last_exit_status, t_env *env
 					current_command->command);
 				*last_exit_status = 1;
 			}
-			free(executable_path);
+			free(exec_path);
 			free_env_array(env_array);
 			exit(*last_exit_status);
 		}

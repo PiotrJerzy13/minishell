@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 16:27:58 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/13 15:37:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 #include <readline/readline.h>
 
 #define INITIAL_CAPACITY 128
-
-typedef int	(*t_builtin_ptr)(char **args);
 
 typedef struct s_memories
 {
@@ -68,12 +66,6 @@ typedef struct s_command
 	struct s_command	*next;
 }	t_command;
 
-typedef struct s_prompt
-{
-	char	*cmd;
-	char	**args;
-}	t_prompt;
-
 typedef enum e_token_type
 {
 	TOKEN_COMMAND,
@@ -95,35 +87,20 @@ void			init_memories(t_memories *memories, t_env *environment,
 					int env_capacity);
 void			add_memory(t_memories *memories, void *ptr);
 void			free_all_memories(t_memories *memories);
-char			*allocate_user_input(t_memories *memories);
-
 void			parse_input_to_commands(t_token *token_list,
 					t_command **command_list,
 					t_memories *memories);
-void			add_command_node(t_command **head, t_command *new_command);
+t_command		*init_command_node(t_memories *memories);
 void			tokenize_input(char *input, t_token **token_list,
 					t_memories *memories, t_env *environment,
 					int *last_exit_status);
 
 void			skip_spaces(char **input);
-void			handle_special_characters(char **input, t_token **token_list,
-					t_memories *memories, int *expect_filename,
-					int *last_exit_status);
-t_token			*init_token(char *value, t_token_type type,
-					t_memories *memories);
-void			add_token(t_token **head, t_token *new_token);
-char			*handle_quoted_string(char **input);
-void			handle_output_redirection(t_command *command);
-
-void			init_env(t_env *env, int initial_capacity,
-					t_memories *memories);
 void			copy_environment_to_struct(char **env, t_env *environment,
 					t_memories *memories);
 void			add_or_update_env_var(t_env *env, const char *key,
 					const char *value, t_memories *memories);
-void			unset_env_var(t_env *env, const char *key);
 void			print_env(t_env *env);
-void			free_env(t_env *env);
 void			export_env_var(t_env *environment, char *input,
 					t_memories *memories);
 int				bui_echo(char **args);
@@ -132,11 +109,11 @@ int				bui_pwd(void);
 int				bui_exit(char **args);
 void			execute_commands(t_command *command_list, int *last_exit_status,
 					t_env *environment);
-t_builtin_ptr	get_builtin(const char *command);
-t_env			deep_copy_env(t_env const *source_env, t_memories *memories);
 int				initialize_shell(void);
 char			*get_env_value(const char *name, t_env *environment);
 char			*ft_strtrim(char *str, const char *set);
 char			*get_next_line(int fd);
 int				handle_builtin(t_command *command, t_env *environment,
 					t_memories *memories, int *last_exit_status);
+void			free_env_array(char **env_array);
+char			**env_to_char_array(t_env *environment);

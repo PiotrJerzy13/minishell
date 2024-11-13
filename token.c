@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 18:09:45 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/13 15:19:31 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,81 +134,86 @@ void	handle_special_characters(char **input, t_token **token_list,
 	}
 }
 
-void tokenize_input(char *input, t_token **token_list, t_memories *memories, t_env *environment, int *last_exit_status)
+void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
+			t_env *environment, int *last_exit_status)
 {
-    char *token;
-    char *start;
-    int expect_filename = 0;
-    char *value;
+	char	*token;
+	char	*start;
+	int		expect_filename;
+	char	*value;
+	char	exit_status_str[12];
 
-    printf("Debug: Starting tokenization. Last exit status = %d\n", *last_exit_status);
-
-    while (*input)
-    {
-        skip_spaces(&input);
-        printf("Debug: After skipping spaces, input = '%s'\n", input);
-
-        if (*input == '\0')
-            break;
-
-        if (*input == '$')
-        {
-            if (*(input + 1) == '?')
-            {
-                char exit_status_str[12];
-                snprintf(exit_status_str, sizeof(exit_status_str), "%d", *last_exit_status);
-                printf("Debug: Found $?, replacing with last_exit_status = %s\n", exit_status_str);
-                add_token(token_list, init_token(exit_status_str, TOKEN_ARGUMENT, memories));
-                input += 2;
-                continue;
-            }
-            else
-            {
-                input++;
-                start = input;
-                while (isalnum(*input) || *input == '_')
-                    input++;
-                token = strndup(start, input - start);
-                value = get_env_value(token, environment);
-                printf("Debug: Found variable $%s, value = %s\n", token, value ? value : "(null)");
-                add_token(token_list, init_token(value ? value : "", TOKEN_ARGUMENT, memories));
-                free(token);
-                if (value) free(value);
-            }
-        }
-        else if (*input == '"' || *input == '\'')
-        {
-            token = get_quoted_token(&input, environment);
-            printf("Debug: Found quoted token: %s\n", token);
-            if (token)
-            {
-                add_token(token_list, init_token(token, expect_filename ? TOKEN_FILENAME : TOKEN_ARGUMENT, memories));
-                free(token);
-                expect_filename = 0;
-            }
-        }
-        else
-        {
-            start = input;
-            while (*input && !isspace(*input) && *input != '|' && *input != '<' && *input != '>')
-                input++;
-            if (input > start)
-            {
-                token = strndup(start, input - start);
-                printf("Debug: Found regular token: %s\n", token);
-                add_token(token_list, init_token(token, expect_filename ? TOKEN_FILENAME : TOKEN_COMMAND, memories));
-                free(token);
-                expect_filename = 0;
-            }
-
-            // Handle special characters and detect syntax errors
-            handle_special_characters(&input, token_list, memories, &expect_filename, last_exit_status);
-            if (*last_exit_status == 258)
-            {
-                printf("Debug: Syntax error detected in handle_special_characters, setting last_exit_status to 2\n");
-            }
-        }
-    }
-
-    printf("Debug: Tokenization complete. Last exit status = %d\n", *last_exit_status);
+	expect_filename = 0;
+	while (*input)
+	{
+		skip_spaces(&input);
+		if (*input == '\0')
+			break ;
+		if (*input == '$')
+		{
+			if (*(input + 1) == '?')
+			{
+				snprintf(exit_status_str, sizeof(exit_status_str),
+					"%d", *last_exit_status);
+				add_token(token_list, init_token(exit_status_str,
+						TOKEN_ARGUMENT, memories));
+				input += 2;
+				continue ;
+			}
+			else
+			{
+				input++;
+				start = input;
+				while (isalnum(*input) || *input == '_')
+					input++;
+				token = strndup(start, input - start);
+				value = get_env_value(token, environment);
+				if (value)
+					add_token(token_list, init_token(value,
+							TOKEN_ARGUMENT, memories));
+				else
+					add_token(token_list, init_token("",
+							TOKEN_ARGUMENT, memories));
+				free(token);
+				if (value)
+					free(value);
+			}
+		}
+		else if (*input == '"' || *input == '\'')
+		{
+			token = get_quoted_token(&input, environment);
+			if (token)
+			{
+				if (expect_filename)
+					add_token(token_list, init_token(token,
+							TOKEN_FILENAME, memories));
+				else
+					add_token(token_list, init_token(token,
+							TOKEN_ARGUMENT, memories));
+				free(token);
+				expect_filename = 0;
+			}
+		}
+		else
+		{
+			start = input;
+			while (*input && !isspace(*input) && *input != '|'
+				&& *input != '<' && *input != '>')
+				input++;
+			if (input > start)
+			{
+				token = strndup(start, input - start);
+				if (expect_filename)
+					add_token(token_list, init_token(token,
+							TOKEN_FILENAME, memories));
+				else
+					add_token(token_list, init_token(token,
+							TOKEN_COMMAND, memories));
+				free(token);
+				expect_filename = 0;
+			}
+			handle_special_characters(&input, token_list, memories,
+				&expect_filename, last_exit_status);
+		}
+	}
 }
