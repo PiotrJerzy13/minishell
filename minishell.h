@@ -23,6 +23,9 @@
 #include <fcntl.h>
 #include <readline/history.h>
 #include <readline/readline.h>
+#include <sys/stat.h>
+
+extern void rl_replace_line(const char *text, int clear_undo);
 
 #define INITIAL_CAPACITY 128
 
@@ -117,3 +120,5 @@ int				handle_builtin(t_command *command, t_env *environment,
 					t_memories *memories, int *last_exit_status);
 void			free_env_array(char **env_array);
 char			**env_to_char_array(t_env *environment);
+int				is_same_file(const char *file1, const char *file2);
+char			*find_executable_path(const char *command);

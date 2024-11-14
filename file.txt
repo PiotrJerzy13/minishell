@@ -1,7 +1,5 @@
-Makefile
-file.txt
+ls
 lib
-main.c
-main.o
-minishell
-shell
+mkmom
+gdt
+sss

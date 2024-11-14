@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/13 15:19:31 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/14 20:38:05 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,45 +54,52 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 	char	*start;
 	char	*end;
 	char	quote_char;
-	char	*result;
 	char	*var_name;
 	char	*value;
+	char	*result = malloc(1);
 
-	result = malloc(1);
 	result[0] = '\0';
 	quote_char = **input_ptr;
 	start = *input_ptr + 1;
 	end = start;
-	while (*end && *end != quote_char)
+	if (quote_char == '\'')
 	{
-		if (*end == '$')
-		{
-			strncat(result, start, end - start);
+		while (*end && *end != quote_char)
 			end++;
-			start = end;
-			while (isalnum(*end) || *end == '_')
-				end++;
-			var_name = strndup(start, end - start);
-			value = get_env_value(var_name, environment);
-			free(var_name);
-			if (value)
-			{
-				result = realloc(result, strlen(result) + strlen(value) + 1);
-				strcat(result, value);
-				free(value);
-			}
-			start = end;
-		}
-		else
-		{
-			end++;
-		}
+		strncat(result, start, end - start);
+		*input_ptr = (*end == quote_char) ? end + 1 : end;
 	}
-	strncat(result, start, end - start);
-	if (*end == quote_char)
-		*input_ptr = end + 1;
-	else
-		*input_ptr = end;
+	else if (quote_char == '"')
+	{
+		while (*end && *end != quote_char)
+		{
+			if (*end == '$')
+			{
+				strncat(result, start, end - start);
+				end++;
+				start = end;
+				while (isalnum(*end) || *end == '_')
+					end++;
+				var_name = strndup(start, end - start);
+				value = get_env_value(var_name, environment);
+				free(var_name);
+				if (value)
+				{
+					result = realloc(result, strlen(result)
+							+ strlen(value) + 1);
+					strcat(result, value);
+					free(value);
+				}
+				start = end;
+			}
+			else
+			{
+				end++;
+			}
+		}
+		strncat(result, start, end - start);
+		*input_ptr = (*end == quote_char) ? end + 1 : end;
+	}
 	return (result);
 }
 
