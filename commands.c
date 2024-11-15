@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/13 15:37:36 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/15 17:57:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,159 +144,181 @@ char	*find_executable_path(const char *command)
 	return (NULL);
 }
 
-void execute_commands(t_command *command_list, int *last_exit_status, t_env *environment) {
-    t_command *current_command;
-    int pipefd[2];
-    int in_fd = STDIN_FILENO;
-    pid_t pid;
-    int status;
-    int builtin_status;
-    char *exec_path = NULL;
-    char **env_array;
+void	execute_commands(t_command *command_list, int *last_exit_status,
+	t_env *environment)
+{
+	t_command	*current_command;
+	int			pipefd[2];
+	int			in_fd;
+	pid_t		pid;
+	int			status;
+	int			builtin_status;
+	char		*exec_path;
+	char		**env_array;
+	int			is_last_command;
+	int			fd_out;
 
-    current_command = command_list;
-    while (current_command) {
-        printf("Processing command: %s\n", current_command->command);
-
-        // Handle built-in commands
-        builtin_status = handle_builtin(current_command, environment, NULL, last_exit_status);
-        printf("Builtin status: %d\n", builtin_status);
-
-        if (builtin_status == 1) {
-            printf("Executed builtin command: %s\n", current_command->command);
-            current_command = current_command->next;
-            continue;
-        } else if (builtin_status == -1) {
-            printf("Exit command detected\n");
-            *last_exit_status = 0;
-            break;
-        }
-
-        // Check if input and output files are the same, and clear if needed
-        if (current_command->input_redirect && current_command->output_redirect &&
-            is_same_file(current_command->input_redirect, current_command->output_redirect)) {
-            printf("Input and output are the same file. Clearing output file: %s\n", current_command->output_redirect);
-            int fd_out = open(current_command->output_redirect, O_WRONLY | O_TRUNC, 0644);
-            if (fd_out == -1) {
-                perror("open failed for clearing output file");
-                *last_exit_status = 1;
-                return;
-            }
-            close(fd_out);
-        }
-
-        // Only set up a pipe if there's a next command and it's not the last command
-        int is_last_command = (current_command->next == NULL);
-        if (!is_last_command && pipe(pipefd) == -1) {
-            perror("pipe failed");
-            *last_exit_status = 1;
-            return;
-        }
-        if (!is_last_command) {
-            printf("Pipe created between commands\n");
-        }
-
-        // Fork a new process
-        pid = fork();
-        if (pid == -1) {
-            perror("fork failed");
-            *last_exit_status = 1;
-            return;
-        } else if (pid == 0) {
-            // In child process
-            printf("In child process for command: %s\n", current_command->command);
-
-            if (in_fd != STDIN_FILENO) {
-                printf("Redirecting stdin\n");
-                if (dup2(in_fd, STDIN_FILENO) == -1) {
-                    perror("dup2 failed for input redirection");
-                    exit(1);
-                }
-                close(in_fd);
-            }
-
-            // Redirect stdout only if there's a next command or if output redirection is specified
-            if (!is_last_command) {
-                printf("Redirecting stdout to pipe\n");
-                if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
-                    perror("dup2 failed for output redirection");
-                    exit(1);
-                }
-                close(pipefd[1]);
-            } else if (current_command->output_redirect) {
-                int fd_out = open(current_command->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                if (fd_out == -1) {
-                    perror("open failed for output redirection");
-                    exit(1);
-                }
-                printf("Redirecting stdout to output file: %s\n", current_command->output_redirect);
-                if (dup2(fd_out, STDOUT_FILENO) == -1) {
-                    perror("dup2 failed for output redirection to file");
-                    close(fd_out);
-                    exit(1);
-                }
-                close(fd_out);
-            }
-
-            // Close unused pipe ends in the child process
-            if (!is_last_command) {
-                close(pipefd[0]);
-            }
-
-            env_array = env_to_char_array(environment);
-
-            // Find executable path if command does not contain a '/'
-            if (strchr(current_command->command, '/')) {
-                exec_path = strdup(current_command->command);
-            } else {
-                exec_path = find_executable_path(current_command->command);
-                if (!exec_path) {
-                    fprintf(stderr, "minishell: %s: command not found\n", current_command->command);
-                    *last_exit_status = 127;
-                    free_env_array(env_array);
-                    exit(127);
-                }
-            }
-
-            printf("Executing command: %s\n", exec_path);
-            execve(exec_path, current_command->args, env_array);
-            perror("execve failed");
-            free(exec_path);
-            free_env_array(env_array);
-            exit(1);
-        } else {
-            // In parent process
-            printf("In parent process, forked child PID: %d\n", pid);
-
-            if (in_fd != STDIN_FILENO) {
-                close(in_fd);
-                printf("Closed previous input file descriptor\n");
-            }
-            if (!is_last_command) {
-                close(pipefd[1]);
-                printf("Closed unused write end of pipe\n");
-            }
-
-            in_fd = pipefd[0];
-            printf("Setting up in_fd for next command\n");
-
-            current_command = current_command->next;
-            if (exec_path) {
-                free(exec_path);  // Free exec_path in the parent after use
-                exec_path = NULL;
-            }
-        }
-    }
-
-    // Wait for all child processes to complete and get exit status
-    printf("Waiting for child processes to complete\n");
-    while (wait(&status) > 0) {
-        if (WIFEXITED(status)) {
-            *last_exit_status = WEXITSTATUS(status);
-            printf("Child exited with status: %d\n", *last_exit_status);
-        } else if (WIFSIGNALED(status)) {
-            *last_exit_status = 128 + WTERMSIG(status);
-            printf("Child terminated by signal: %d\n", WTERMSIG(status));
-        }
-    }
+	in_fd = STDIN_FILENO;
+	exec_path = NULL;
+	current_command = command_list;
+	while (current_command)
+	{
+		printf("Processing command: %s\n", current_command->command);
+		builtin_status = handle_builtin(current_command, environment, NULL,
+				last_exit_status);
+		printf("Builtin status: %d\n", builtin_status);
+		if (builtin_status == 1)
+		{
+			printf("Executed builtin command: %s\n", current_command->command);
+			current_command = current_command->next;
+			continue ;
+		}
+		else if (builtin_status == -1)
+		{
+			printf("Exit command detected\n");
+			*last_exit_status = 0;
+			break ;
+		}
+		if (current_command->input_redirect && current_command->output_redirect
+			&& is_same_file(current_command->input_redirect,
+				current_command->output_redirect))
+		{
+			printf("Input file. Clearing output file: %s\n",
+				current_command->output_redirect);
+			fd_out = open(current_command->output_redirect,
+					O_WRONLY | O_TRUNC, 0644);
+			if (fd_out == -1)
+			{
+				perror("open failed for clearing output file");
+				*last_exit_status = 1;
+				return ;
+			}
+			close(fd_out);
+		}
+		is_last_command = (current_command->next == NULL);
+		if (!is_last_command && pipe(pipefd) == -1)
+		{
+			perror("pipe failed");
+			*last_exit_status = 1;
+			return ;
+		}
+		if (!is_last_command)
+		{
+			printf("Pipe created between commands\n");
+		}
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork failed");
+			*last_exit_status = 1;
+			return ;
+		}
+		else if (pid == 0)
+		{
+			printf("In child process for command: %s\n",
+				current_command->command);
+			if (in_fd != STDIN_FILENO)
+			{
+				printf("Redirecting stdin\n");
+				if (dup2(in_fd, STDIN_FILENO) == -1)
+				{
+					perror("dup2 failed for input redirection");
+					exit(1);
+				}
+				close(in_fd);
+			}
+			if (!is_last_command)
+			{
+				printf("Redirecting stdout to pipe\n");
+				if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+				{
+					perror("dup2 failed for output redirection");
+					exit(1);
+				}
+				close(pipefd[1]);
+			}
+			else if (current_command->output_redirect)
+			{
+				fd_out = open(current_command->output_redirect,
+						O_WRONLY | O_CREAT | O_TRUNC, 0644);
+				if (fd_out == -1)
+				{
+					perror("open failed for output redirection");
+					exit(1);
+				}
+				printf("Redirecting stdout to output file: %s\n",
+					current_command->output_redirect);
+				if (dup2(fd_out, STDOUT_FILENO) == -1)
+				{
+					perror("dup2 failed for output redirection to file");
+					close(fd_out);
+					exit(1);
+				}
+				close(fd_out);
+			}
+			if (!is_last_command)
+			{
+				close(pipefd[0]);
+			}
+			env_array = env_to_char_array(environment);
+			if (strchr(current_command->command, '/'))
+			{
+				exec_path = strdup(current_command->command);
+			}
+			else
+			{
+				exec_path = find_executable_path(current_command->command);
+				if (!exec_path)
+				{
+					fprintf(stderr, "minishell: %s: command not found\n",
+						current_command->command);
+					*last_exit_status = 127;
+					free_env_array(env_array);
+					exit(127);
+				}
+			}
+			printf("Executing command: %s\n", exec_path);
+			execve(exec_path, current_command->args, env_array);
+			perror("execve failed");
+			free(exec_path);
+			free_env_array(env_array);
+			exit(1);
+		}
+		else
+		{
+			printf("In parent process, forked child PID: %d\n", pid);
+			if (in_fd != STDIN_FILENO)
+			{
+				close(in_fd);
+				printf("Closed previous input file descriptor\n");
+			}
+			if (!is_last_command)
+			{
+				close(pipefd[1]);
+				printf("Closed unused write end of pipe\n");
+			}
+			in_fd = pipefd[0];
+			printf("Setting up in_fd for next command\n");
+			current_command = current_command->next;
+			if (exec_path)
+			{
+				free(exec_path);
+				exec_path = NULL;
+			}
+		}
+	}
+	printf("Waiting for child processes to complete\n");
+	while (wait(&status) > 0)
+	{
+		if (WIFEXITED(status))
+		{
+			*last_exit_status = WEXITSTATUS(status);
+			printf("Child exited with status: %d\n", *last_exit_status);
+		}
+		else if (WIFSIGNALED(status))
+		{
+			*last_exit_status = 128 + WTERMSIG(status);
+			printf("Child terminated by signal: %d\n", WTERMSIG(status));
+		}
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/13 15:37:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/15 17:58:12 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <sys/stat.h>
-
-extern void rl_replace_line(const char *text, int clear_undo);
 
 #define INITIAL_CAPACITY 128
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_helper.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 15:20:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/14 20:41:13 by piotr            ###   ########.fr       */
+/*   Updated: 2024/11/15 18:08:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,119 +82,146 @@ char	*get_next_line(int fd)
 	}
 }
 
-int is_same_file(const char *file1, const char *file2)
+int	is_same_file(const char *file1, const char *file2)
 {
-    struct stat stat1, stat2;
+	struct stat	stat1;
+	struct stat	stat2;
 
-    if (stat(file1, &stat1) == -1 || stat(file2, &stat2) == -1)
-        return (0);
-    return (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+	if (stat(file1, &stat1) == -1 || stat(file2, &stat2) == -1)
+		return (0);
+	return (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
 }
 
-int handle_builtin(t_command *command, t_env *environment,
-                   t_memories *memories, int *last_exit_status)
+int	handle_builtin(t_command *command, t_env *environment,
+		t_memories *memories, int *last_exit_status)
 {
-    int result = 0;
-    int saved_stdin = -1;
-    int saved_stdout = -1;
-    int fd_in, fd_out;
+	int	result;
+	int	saved_stdin;
+	int	saved_stdout;
+	int	fd_in;
+	int	fd_out;
 
-    if (command->input_redirect && command->output_redirect &&
-        is_same_file(command->input_redirect, command->output_redirect)) 
-    {
-        // Clear the output file if input and output are the same
-        fd_out = open(command->output_redirect, O_WRONLY | O_TRUNC, 0644);
-        if (fd_out == -1) {
-            perror("open failed in handle_builtin for clearing output file");
-            *last_exit_status = 1;
-            return 1;
-        }
-        close(fd_out);
-    }
-
-    // Handle input redirection
-    if (command->input_redirect) {
-        fd_in = open(command->input_redirect, O_RDONLY);
-        if (fd_in == -1) {
-            perror("open failed in handle_builtin for input redirection");
-            *last_exit_status = 1;
-            return 1;
-        }
-        saved_stdin = dup(STDIN_FILENO);
-        if (saved_stdin == -1 || dup2(fd_in, STDIN_FILENO) == -1) {
-            perror("dup failed in handle_builtin for input redirection");
-            close(fd_in);
-            *last_exit_status = 1;
-            return 1;
-        }
-        close(fd_in);
-    }
-
-    // Handle output redirection
-    if (command->output_redirect) {
-        if (command->append_mode) {
-            fd_out = open(command->output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
-        } else {
-            fd_out = open(command->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        }
-        if (fd_out == -1) {
-            perror("open failed in handle_builtin for output redirection");
-            *last_exit_status = 1;
-            return 1;
-        }
-        saved_stdout = dup(STDOUT_FILENO);
-        if (saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1) {
-            perror("dup failed in handle_builtin for output redirection");
-            close(fd_out);
-            *last_exit_status = 1;
-            return 1;
-        }
-        close(fd_out);
-    }
-
-    // Handle the specific built-in commands
-    if (strcmp(command->command, "echo") == 0) {
-        bui_echo(command->args + 1);
-        *last_exit_status = 0;
-        result = 1;
-    } else if (strcmp(command->command, "env") == 0) {
-        print_env(environment);
-        *last_exit_status = 0;
-        result = 1;
-    } else if (strcmp(command->command, "export") == 0) {
-        if (command->args[1] != NULL) {
-            export_env_var(environment, command->args[1], memories);
-        }
-        *last_exit_status = 0;
-        result = 1;
-    } else if (strcmp(command->command, "cd") == 0) {
-        if (bui_cd(command->args + 1) == -1) {
-            *last_exit_status = 2;
-        } else {
-            *last_exit_status = 0;
-        }
-        result = 1;
-    } else if (strcmp(command->command, "exit") == 0) {
-        bui_exit(command->args + 1);
-        *last_exit_status = 0;
-        return -1;
-    } else {
-        *last_exit_status = 127;
-        return 0;
-    }
-
-    // Restore original stdin and stdout if they were redirected
-    if (saved_stdin != -1) {
-        if (dup2(saved_stdin, STDIN_FILENO) == -1) {
-            perror("Failed to restore stdin");
-        }
-        close(saved_stdin);
-    }
-    if (saved_stdout != -1) {
-        if (dup2(saved_stdout, STDOUT_FILENO) == -1) {
-            perror("Failed to restore stdout");
-        }
-        close(saved_stdout);
-    }
-    return result;
+	result = 0;
+	saved_stdin = -1;
+	saved_stdout = -1;
+	if (command->input_redirect && command->output_redirect
+		&& is_same_file(command->input_redirect, command->output_redirect))
+	{
+		fd_out = open(command->output_redirect, O_WRONLY | O_TRUNC, 0644);
+		if (fd_out == -1)
+		{
+			perror("open failed in handle_builtin for clearing output file");
+			*last_exit_status = 1;
+			return (1);
+		}
+		close(fd_out);
+	}
+	if (command->input_redirect)
+	{
+		fd_in = open(command->input_redirect, O_RDONLY);
+		if (fd_in == -1)
+		{
+			perror("open failed in handle_builtin for input redirection");
+			*last_exit_status = 1;
+			return (1);
+		}
+		saved_stdin = dup(STDIN_FILENO);
+		if (saved_stdin == -1 || dup2(fd_in, STDIN_FILENO) == -1)
+		{
+			perror("dup failed in handle_builtin for input redirection");
+			close(fd_in);
+			*last_exit_status = 1;
+			return (1);
+		}
+		close(fd_in);
+	}
+	if (command->output_redirect)
+	{
+		if (command->append_mode)
+		{
+			fd_out = open(command->output_redirect,
+					O_WRONLY | O_CREAT | O_APPEND, 0644);
+		}
+		else
+		{
+			fd_out = open(command->output_redirect,
+					O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		}
+		if (fd_out == -1)
+		{
+			perror("open failed in handle_builtin for output redirection");
+			*last_exit_status = 1;
+			return (1);
+		}
+		saved_stdout = dup(STDOUT_FILENO);
+		if (saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
+		{
+			perror("dup failed in handle_builtin for output redirection");
+			close(fd_out);
+			*last_exit_status = 1;
+			return (1);
+		}
+		close(fd_out);
+	}
+	if (strcmp(command->command, "echo") == 0)
+	{
+		bui_echo(command->args + 1);
+		*last_exit_status = 0;
+		result = 1;
+	}
+	else if (strcmp(command->command, "env") == 0)
+	{
+		print_env(environment);
+		*last_exit_status = 0;
+		result = 1;
+	}
+	else if (strcmp(command->command, "export") == 0)
+	{
+		if (command->args[1] != NULL)
+		{
+			export_env_var(environment, command->args[1], memories);
+		}
+		*last_exit_status = 0;
+		result = 1;
+	}
+	else if (strcmp(command->command, "cd") == 0)
+	{
+		if (bui_cd(command->args + 1) == -1)
+		{
+			*last_exit_status = 2;
+		}
+		else
+		{
+			*last_exit_status = 0;
+		}
+		result = 1;
+	}
+	else if (strcmp(command->command, "exit") == 0)
+	{
+		bui_exit(command->args + 1);
+		*last_exit_status = 0;
+		return (-1);
+	}
+	else
+	{
+		*last_exit_status = 127;
+		return (0);
+	}
+	if (saved_stdin != -1)
+	{
+		if (dup2(saved_stdin, STDIN_FILENO) == -1)
+		{
+			perror("Failed to restore stdin");
+		}
+		close(saved_stdin);
+	}
+	if (saved_stdout != -1)
+	{
+		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+		{
+			perror("Failed to restore stdout");
+		}
+		close(saved_stdout);
+	}
+	return (result);
 }

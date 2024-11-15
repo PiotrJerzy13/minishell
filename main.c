@@ -6,49 +6,49 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/13 14:26:37 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/15 18:12:49 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void execute_with_pipe_and_redirect(t_command *command_list, int *last_exit_status, t_env *environment) {
-    t_command *current_command = command_list;
-    int pipefd[2], status;
-    pid_t pid;
-    char *exec_path = NULL;
-    char **env_array;
-    int in_fd = STDIN_FILENO;
+void	execute_with_pipe_and_redirect(t_command *command_list,
+	int *last_exit_status, t_env *environment)
+{
+	t_command	*current_command = command_list;
+	int	pipefd[2], status;
+	pid_t		pid;
+	char		*exec_path = NULL;
+	char		**env_array;
+	int			in_fd = STDIN_FILENO;
+	char		*output_buffer = malloc(4096);
+	size_t		buffer_size = 0;
 
-    // Temporary buffer for capturing output
-    char *output_buffer = malloc(4096);  // Adjust size as needed
-    size_t buffer_size = 0;
-
-    if (!output_buffer) {
-        perror("malloc failed for output buffer");
-        *last_exit_status = 1;
-        return;
-    }
-
-    while (current_command) {
-        // Check for output redirection in the last command
-        int is_last_command = (current_command->next == NULL);
-
-        // Setup a pipe if there's a next command
-        if (!is_last_command && pipe(pipefd) == -1) {
-            perror("pipe failed");
-            *last_exit_status = 1;
-            free(output_buffer);
-            return;
-        }
-
-        pid = fork();
-        if (pid == -1) {
-            perror("fork failed");
-            *last_exit_status = 1;
-            free(output_buffer);
-            return;
-        } else if (pid == 0) {
+	if (!output_buffer)
+	{
+		perror("malloc failed for output buffer");
+		*last_exit_status = 1;
+		return ;
+	}
+	while (current_command)
+	{
+		int is_last_command = (current_command->next == NULL);
+        if (!is_last_command && pipe(pipefd) == -1)
+		{
+			perror("pipe failed");
+			*last_exit_status = 1;
+			free(output_buffer);
+			return ;
+		}
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork failed");
+			*last_exit_status = 1;
+			free(output_buffer);
+			return ;
+		}
+		else if (pid == 0) {
             // In child process
             if (in_fd != STDIN_FILENO) {
                 if (dup2(in_fd, STDIN_FILENO) == -1) {
@@ -160,77 +160,6 @@ void execute_pipeline(t_command *command_list, int *last_exit_status, t_env *env
         execute_commands(command_list, last_exit_status, environment);
     }
 }
-
-// int	main(int argc, char **argv, char **env)
-// {
-// 	t_command	*command_list;
-// 	t_env		environment;
-// 	char		*input;
-// 	t_memories	memories;
-// 	t_token		*token_list;
-// 	char		*line;
-// 	int			last_exit_status;
-
-// 	last_exit_status = 0;
-// 	(void)argc;
-// 	(void)argv;
-// 	command_list = NULL;
-// 	token_list = NULL;
-// 	if (initialize_shell() == -1)
-// 	{
-// 		fprintf(stderr, "Failed to initialize shell environment\n");
-// 		return (EXIT_FAILURE);
-// 	}
-// 	signal(SIGQUIT, SIG_IGN);
-// 	init_memories(&memories, &environment, 10);
-// 	copy_environment_to_struct(env, &environment, &memories);
-// 	while (1)
-// 	{
-// 		if (isatty(fileno(stdin)))
-// 		{
-// 			input = readline("minishell> ");
-// 		}
-// 		else
-// 		{
-// 			line = get_next_line(fileno(stdin));
-// 			if (line == NULL)
-// 				break ;
-// 			input = ft_strtrim(line, "\n");
-// 			free(line);
-// 		}
-// 		if (input == NULL)
-// 		{
-// 			if (isatty(fileno(stdin)))
-// 				printf("exit\n");
-// 			break ;
-// 		}
-// 		if (*input)
-// 		{
-// 			add_history(input);
-// 			tokenize_input(input, &token_list, &memories, &environment,
-// 				&last_exit_status);
-// 			parse_input_to_commands(token_list, &command_list, &memories);
-// 			if (command_list)
-// 			{
-// 				if (handle_builtin(command_list, &environment, &memories,
-// 						&last_exit_status) == 1)
-// 				{
-// 				}
-// 				else
-// 				{
-// 					execute_commands(command_list, &last_exit_status,
-// 						&environment);
-// 				}
-// 			}
-// 		}
-// 		free(input);
-// 		input = NULL;
-// 		command_list = NULL;
-// 		token_list = NULL;
-// 	}
-// 	free_all_memories(&memories);
-// 	return (last_exit_status);
-// }
 int main(int argc, char **argv, char **env) {
     t_command *command_list;
     t_env environment;
