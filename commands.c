@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 18:03:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 18:12:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,6 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 		}
 		else if (current_token->type == TOKEN_HEREDOC && current_command)
 		{
-			printf("[DEBUG] Handling heredoc for command: %s\n",
-				current_command->command);
 			current_token = current_token->next;
 			if (current_token && current_token->type == TOKEN_FILENAME)
 			{
@@ -78,8 +76,6 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 					fprintf(stderr, "Error collecting heredoc input\n");
 					return ;
 				}
-				printf("[DEBUG] Heredoc input collected for command: %s\n",
-					current_command->command);
 			}
 		}
 		else if (current_token->type == TOKEN_OUTPUT_REDIRECT
@@ -180,11 +176,8 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 	current_command = command_list;
 	while (current_command)
 	{
-		printf("Processing command: %s\n", current_command->command);
 		if (current_command->heredoc_list)
 		{
-			printf("[DEBUG] Handling heredoc for command: %s\n",
-				current_command->command);
 			if (pipe(heredoc_pipe) == -1)
 			{
 				perror("[ERROR] Pipe for heredoc failed");
@@ -197,8 +190,6 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 				write(heredoc_pipe[1], current_node->line,
 					strlen(current_node->line));
 				write(heredoc_pipe[1], "\n", 1);
-				printf("[DEBUG] Wrote heredoc line to pipe: %s\n",
-					current_node->line);
 				current_node = current_node->next;
 			}
 			close(heredoc_pipe[1]);
@@ -225,11 +216,8 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 		}
 		else if (pid == 0)
 		{
-			printf("[DEBUG] In child process for command: %s\n",
-				current_command->command);
 			if (in_fd != STDIN_FILENO)
 			{
-				printf("[DEBUG] Redirecting stdin\n");
 				if (dup2(in_fd, STDIN_FILENO) == -1)
 				{
 					perror("dup2 failed for input redirection");
@@ -239,7 +227,6 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 			}
 			if (!is_last_command)
 			{
-				printf("[DEBUG] Redirecting stdout to pipe\n");
 				if (dup2(pipefd[1], STDOUT_FILENO) == -1)
 				{
 					perror("dup2 failed for output redirection");
@@ -259,14 +246,12 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 				free_env_array(env_array);
 				exit(127);
 			}
-			printf("[DEBUG] Executing command: %s\n", exec_path);
 			execve(exec_path, current_command->args, env_array);
 			perror("[ERROR] execve failed");
 			exit(1);
 		}
 		else
 		{
-			printf("[DEBUG] In parent process, forked child PID: %d\n", pid);
 			if (in_fd != STDIN_FILENO)
 			{
 				close(in_fd);
@@ -286,19 +271,15 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 			current_command = current_command->next;
 		}
 	}
-	printf("[DEBUG] Waiting for child processes to complete\n");
 	while (wait(&status) > 0)
 	{
 		if (WIFEXITED(status))
 		{
 			*last_exit_status = WEXITSTATUS(status);
-			printf("[DEBUG] Child exited with status: %d\n", *last_exit_status);
 		}
 		else if (WIFSIGNALED(status))
 		{
 			*last_exit_status = 128 + WTERMSIG(status);
-			printf("[DEBUG] Child terminated by signal: %d\n",
-				WTERMSIG(status));
 		}
 	}
 }

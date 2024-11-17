@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 15:42:45 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 18:10:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ t_heredoc_node	*create_heredoc_node(const char *line)
 
 void	add_token_debug(t_token **head, t_token *new_token)
 {
-	printf("[DEBUG] Adding token: value='%s', type='%d'\n",
-		new_token->value, new_token->type);
 	add_token(head, new_token);
 }
 
@@ -81,25 +79,19 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 
 	len = 0;
 	line = NULL;
-	printf("[DEBUG] Starting heredoc input collection. Delimiter: '%s'\n",
-		delimiter);
 	printf("heredoc> ");
 	while ((read = getline(&line, &len, stdin)) != -1)
 	{
-		printf("[DEBUG] Read line: %s", line);
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 		if (strcmp(line, delimiter) == 0)
 		{
-			printf("[DEBUG] Delimiter matched: '%s'\n", delimiter);
 			break ;
 		}
-		printf("[DEBUG] Adding line to heredoc list: %s\n", line);
 		append_heredoc_node(heredoc_list, line);
 		printf("heredoc> ");
 	}
 	if (read == -1)
-		printf("[DEBUG] End of input or error while reading heredoc.\n");
-	free(line);
+		free(line);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 17:49:27 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 18:09:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,6 @@ void	execute_with_pipe_and_redirect(t_command *command_list,
 		}
 	}
 	free(output_buffer);
-	printf("All processes in special execution completed\n");
 }
 
 void	execute_pipeline(t_command *command_list, int *last_exit_status,
@@ -174,13 +173,11 @@ void	execute_pipeline(t_command *command_list, int *last_exit_status,
 	}
 	if (requires_special_handling)
 	{
-		printf("Special case detected: using execute_with_pipe_and_redirect\n");
 		execute_with_pipe_and_redirect(command_list, last_exit_status,
 			environment);
 	}
 	else
 	{
-		printf("Using standard execute_commands\n");
 		execute_commands(command_list, last_exit_status, environment);
 	}
 }
