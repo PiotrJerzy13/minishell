@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 15:54:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 17:04:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,4 +130,5 @@ char			*find_executable_path(const char *command);
 void			unset_env_var(t_env *env, const char *key);
 void			add_token(t_token **head, t_token *new_token);
 void			free_heredoc_list(t_heredoc_node *head);
-int				collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list);
+int				collect_heredoc_input(const char *delimiter,
+					t_heredoc_node **heredoc_list);

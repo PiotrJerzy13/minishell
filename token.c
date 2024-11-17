@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 16:20:50 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 17:58:06 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,53 @@ void	add_token(t_token **head, t_token *new_token)
 	}
 }
 
+void	handle_special_characters(char **input, t_token **token_list,
+			t_memories *memories, int *expect_filename, int *last_exit_status)
+{
+	if (**input == '|')
+	{
+		add_token(token_list, init_token("|", TOKEN_PIPE, memories));
+		(*input)++;
+	}
+	else if (**input == '<')
+	{
+		if (*(*input + 1) == '<')
+		{
+			add_token(token_list, init_token("<<", TOKEN_HEREDOC, memories));
+			(*input) += 2;
+		}
+		else
+		{
+			add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT,
+					memories));
+			(*input)++;
+		}
+		*expect_filename = 1;
+	}
+	else if (**input == '>')
+	{
+		if (*(*input + 1) == '>')
+		{
+			add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT,
+					memories));
+			(*input) += 2;
+		}
+		else
+		{
+			add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT,
+					memories));
+			(*input)++;
+		}
+		*expect_filename = 1;
+	}
+	if (*expect_filename && (**input == '\0' || **input == '|'
+			|| **input == '<' || **input == '>'))
+	{
+		*last_exit_status = 258;
+		return ;
+	}
+}
+
 char	*get_quoted_token(char **input_ptr, t_env *environment)
 {
 	char	*start;
@@ -56,8 +103,14 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 	char	quote_char;
 	char	*var_name;
 	char	*value;
-	char	*result = malloc(1);
+	char	*result;
 
+	result = malloc(1);
+	if (!result)
+	{
+		perror("Failed to allocate memory for quoted token");
+		exit(EXIT_FAILURE);
+	}
 	result[0] = '\0';
 	quote_char = **input_ptr;
 	start = *input_ptr + 1;
@@ -66,8 +119,11 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 	{
 		while (*end && *end != quote_char)
 			end++;
+		if (*end == quote_char)
+			*input_ptr = end + 1;
+		else
+			*input_ptr = end;
 		strncat(result, start, end - start);
-		*input_ptr = (*end == quote_char) ? end + 1 : end;
 	}
 	else if (quote_char == '"')
 	{
@@ -81,12 +137,22 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 				while (isalnum(*end) || *end == '_')
 					end++;
 				var_name = strndup(start, end - start);
+				if (!var_name)
+				{
+					perror("Failed to allocate memory for variable name");
+					exit(EXIT_FAILURE);
+				}
 				value = get_env_value(var_name, environment);
 				free(var_name);
 				if (value)
 				{
-					result = realloc(result, strlen(result)
-							+ strlen(value) + 1);
+					result = realloc(result,
+							strlen(result) + strlen(value) + 1);
+					if (!result)
+					{
+						perror("Failed to reallocate memory for result");
+						exit(EXIT_FAILURE);
+					}
 					strcat(result, value);
 					free(value);
 				}
@@ -98,52 +164,12 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 			}
 		}
 		strncat(result, start, end - start);
-		*input_ptr = (*end == quote_char) ? end + 1 : end;
+		if (*end == quote_char)
+			*input_ptr = end + 1;
+		else
+			*input_ptr = end;
 	}
 	return (result);
-}
-
-void	handle_special_characters(char **input, t_token **token_list,
-                               t_memories *memories, int *expect_filename, int *last_exit_status)
-{
-    if (**input == '|')
-    {
-        add_token(token_list, init_token("|", TOKEN_PIPE, memories));
-        (*input)++;
-    }
-    else if (**input == '<')
-    {
-        if (*(*input + 1) == '<')
-        {
-            add_token(token_list, init_token("<<", TOKEN_HEREDOC, memories));
-            (*input) += 2;
-        }
-        else
-        {
-            add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT, memories));
-            (*input)++;
-        }
-        *expect_filename = 1;
-    }
-    else if (**input == '>')
-    {
-        if (*(*input + 1) == '>')
-        {
-            add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT, memories));
-            (*input) += 2;
-        }
-        else
-        {
-            add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT, memories));
-            (*input)++;
-        }
-        *expect_filename = 1; // Expect a filename
-    }
-    if (*expect_filename && (**input == '\0' || **input == '|' || **input == '<' || **input == '>'))
-    {
-        *last_exit_status = 258; // Syntax error if expected a filename but encountered invalid token
-        return;
-    }
 }
 
 void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
