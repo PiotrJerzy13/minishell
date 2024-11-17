@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/15 17:58:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 15:54:10 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,11 @@
 
 #define INITIAL_CAPACITY 128
 
+typedef struct s_heredoc_node
+{
+	char					*line;
+	struct s_heredoc_node	*next;
+}	t_heredoc_node;
 typedef struct s_memories
 {
 	void	**allocations;
@@ -64,6 +69,7 @@ typedef struct s_command
 	char				*output_redirect;
 	int					append_mode;
 	int					append_output;
+	t_heredoc_node		*heredoc_list;
 	struct s_command	*next;
 }	t_command;
 
@@ -75,6 +81,7 @@ typedef enum e_token_type
 	TOKEN_INPUT_REDIRECT,
 	TOKEN_OUTPUT_REDIRECT,
 	TOKEN_APPEND_OUTPUT_REDIRECT,
+	TOKEN_HEREDOC,
 	TOKEN_FILENAME
 }	t_token_type;
 typedef struct s_token
@@ -120,3 +127,7 @@ void			free_env_array(char **env_array);
 char			**env_to_char_array(t_env *environment);
 int				is_same_file(const char *file1, const char *file2);
 char			*find_executable_path(const char *command);
+void			unset_env_var(t_env *env, const char *key);
+void			add_token(t_token **head, t_token *new_token);
+void			free_heredoc_list(t_heredoc_node *head);
+int				collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list);

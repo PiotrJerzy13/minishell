@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 15:24:01 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/13 15:24:54 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/17 16:07:45 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,5 +71,6 @@ t_command	*init_command_node(t_memories *memories)
 	new_node->input_redirect = NULL;
 	new_node->output_redirect = NULL;
 	new_node->next = NULL;
+	new_node->heredoc_list = NULL;
 	return (new_node);
 }

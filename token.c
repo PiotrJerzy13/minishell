@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/14 20:38:05 by piotr            ###   ########.fr       */
+/*   Updated: 2024/11/17 16:20:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,41 +104,46 @@ char	*get_quoted_token(char **input_ptr, t_env *environment)
 }
 
 void	handle_special_characters(char **input, t_token **token_list,
-			t_memories *memories, int *expect_filename, int *last_exit_status)
+                               t_memories *memories, int *expect_filename, int *last_exit_status)
 {
-	if (**input == '|')
-	{
-		add_token(token_list, init_token("|", TOKEN_PIPE, memories));
-		(*input)++;
-	}
-	else if (**input == '<')
-	{
-		add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT, memories));
-		(*input)++;
-		*expect_filename = 1;
-	}
-	else if (**input == '>')
-	{
-		if (*(*input + 1) == '>')
-		{
-			add_token(token_list, init_token(">>",
-					TOKEN_APPEND_OUTPUT_REDIRECT, memories));
-			(*input) += 2;
-		}
-		else
-		{
-			add_token(token_list, init_token(">",
-					TOKEN_OUTPUT_REDIRECT, memories));
-			(*input)++;
-		}
-		*expect_filename = 1;
-	}
-	if (*expect_filename && (**input == '\0' || **input == '|'
-			|| **input == '<' || **input == '>'))
-	{
-		*last_exit_status = 258;
-		return ;
-	}
+    if (**input == '|')
+    {
+        add_token(token_list, init_token("|", TOKEN_PIPE, memories));
+        (*input)++;
+    }
+    else if (**input == '<')
+    {
+        if (*(*input + 1) == '<')
+        {
+            add_token(token_list, init_token("<<", TOKEN_HEREDOC, memories));
+            (*input) += 2;
+        }
+        else
+        {
+            add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT, memories));
+            (*input)++;
+        }
+        *expect_filename = 1;
+    }
+    else if (**input == '>')
+    {
+        if (*(*input + 1) == '>')
+        {
+            add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT, memories));
+            (*input) += 2;
+        }
+        else
+        {
+            add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT, memories));
+            (*input)++;
+        }
+        *expect_filename = 1; // Expect a filename
+    }
+    if (*expect_filename && (**input == '\0' || **input == '|' || **input == '<' || **input == '>'))
+    {
+        *last_exit_status = 258; // Syntax error if expected a filename but encountered invalid token
+        return;
+    }
 }
 
 void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
