@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 14:39:49 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/11/17 14:14:22 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@
 
 /* The set_env_value function is used to set the value of an environment 
 variable. */
-
+// ========================
 int	set_env_value(const char *name, const char *value, t_env *env)
 {
 	t_memories	*memories;
@@ -72,7 +72,7 @@ int	set_env_value(const char *name, const char *value, t_env *env)
 	add_or_update_env_var(env, name, value, memories);
 	return (SUCCESS);
 }
-
+//=================================
 // int	bui_cd(char **args, t_env *env)
 // {
 // 	const char	*path;
@@ -100,65 +100,71 @@ int	set_env_value(const char *name, const char *value, t_env *env)
 // 	return (0);
 // }
 
-int	bui_cd(char **args, t_env *env, t_memories *memories)
-{
-	const char	*path;
-	char		*old_pwd;
-	char		*new_pwd;
 
-    // Get the current working directory and store it in old_pwd
-	old_pwd = getcwd(NULL, 0);
-	if (old_pwd == NULL)
-	{
-		perror("getcwd");
-		return (1);
-	}
-	if (args[0] == NULL || strcmp(args[0], "~") == 0)
-	{
-		path = get_env_value("HOME", env);
-		if (path == NULL)
-		{
-			fprintf(stderr, "cd: HOME not set\n");
-			free(old_pwd);
-			return (1);
-		}
-	}
-	else if (strcmp(args[0], "-") == 0)
-	{
-		path = get_env_value("OLDPWD", env);
-		if (path == NULL)
-		{
-			fprintf(stderr, "cd: OLDPWD not set\n");
-			free(old_pwd);
-			return (1);
-		}
-		printf("%s\n", path); // Print the new directory as per convention
-	}
-	else
-	{
-		path = args[0];
-	}
-	if (chdir(path) != 0)
-	{
-		perror("cd");
-		free(old_pwd);
-		return (1);
-	}
-    // Get the new current working directory and store it in new_pwd
-	new_pwd = getcwd(NULL, 0);
-	if (new_pwd == NULL)
-	{
-		perror("getcwd");
-		free(old_pwd);
-		return (1);
-	}
-    // Update the OLDPWD and PWD environment variables
-	add_or_update_env_var(env, "OLDPWD", old_pwd, memories);
-	add_or_update_env_var(env, "PWD", new_pwd, memories);
-	free(old_pwd);
-	free(new_pwd);
-	return (0);
-}
+
+
+//=================================
+// int	bui_cd(char **args, t_env *env, t_memories *memories)
+// {
+// 	const char	*path;
+// 	char		*old_pwd;
+// 	char		*new_pwd;
+
+//     // Get the current working directory and store it in old_pwd
+// 	old_pwd = getcwd(NULL, 0);
+// 	if (old_pwd == NULL)
+// 	{
+// 		perror("getcwd");
+// 		return (FAILURE);
+// 	}
+// 	if (args[0] == NULL || strcmp(args[0], "~") == 0)
+// 	{
+// 		path = get_env_value("HOME", env);
+// 		if (path == NULL)
+// 		{
+// 			fprintf(stderr, "cd: HOME not set\n");
+// 			free(old_pwd);
+// 			return (FAILURE);
+// 		}
+// 	}
+// 	else if (strcmp(args[0], "-") == 0)
+// 	{
+// 		path = get_env_value("OLDPWD", env);
+// 		if (path == NULL)
+// 		{
+// 			fprintf(stderr, "cd: OLDPWD not set\n");
+// 			free(old_pwd);
+// 			return (FAILURE);
+// 		}
+// 		printf("%s\n", path); // Print the new directory as per convention
+// 	}
+// 	else
+// 	{
+// 		path = args[0];
+// 	}
+// 	if (chdir(path) != 0)
+// 	{
+// 		perror("cd");
+// 		free(old_pwd);
+// 		return (FAILURE);
+// 	}
+//     // Get the new current working directory and store it in new_pwd
+// 	new_pwd = getcwd(NULL, 0);
+// 	if (new_pwd == NULL)
+// 	{
+// 		perror("getcwd");
+// 		free(old_pwd);
+// 		return (FAILURE);
+// 	}
+//     // Update the OLDPWD and PWD environment variables
+// 	add_or_update_env_var(env, "OLDPWD", old_pwd, memories);
+// 	add_or_update_env_var(env, "PWD", new_pwd, memories);
+// 	free(old_pwd);
+// 	free(new_pwd);
+// 	return (SUCCESS);
+// }
+//=================================
+
 
 // int	bui_echo(char **args)
 // {
@@ -190,28 +196,30 @@ int	bui_cd(char **args, t_env *env, t_memories *memories)
 // 	return (0);
 // }
 
-int	bui_exit(char **args)
-{
-	int	exit_code;
-	int	i;
+//++++++++++++ bui_exit +++++++++++++
+// int	bui_exit(char **args)
+// {
+// 	int	exit_code;
+// 	int	i;
 
-	i = 0;
-	exit_code = 0;
-	if (args[1] != NULL)
-	{
-		while (args[1][i])
-		{
-			if (!isdigit(args[1][i]))
-			{
-				fprintf(stderr, "exit: numeric argument required\n");
-				exit(255);
-				i++;
-			}
-		}
-		exit_code = atoi(args[1]);
-	}
-	exit(exit_code);
-}
+// 	i = 0;
+// 	exit_code = 0;
+// 	if (args[1] != NULL)
+// 	{
+// 		while (args[1][i])
+// 		{
+// 			if (!isdigit(args[1][i]))
+// 			{
+// 				fprintf(stderr, "exit: numeric argument required\n");
+// 				exit(255);
+// 				i++;
+// 			}
+// 		}
+// 		exit_code = atoi(args[1]);
+// 	}
+// 	exit(exit_code);
+// }
+
 
 // int	bui_pwd(void)
 // {
@@ -268,76 +276,78 @@ The copied environment is freed before returning. */
 // 	return (FAILURE);
 // }
 
-int	bui_pwd(t_env *env)
-{
-	int	i;
+//+++++++++++++ bui_pwd without copy of enviroment +++++++++++++
+// int	bui_pwd(t_env *env)
+// {
+// 	int	i;
 
-	if (env == NULL || env->pairs == NULL)
-	{
-		fprintf(stderr, "pwd: PWD not set\n");
-		return (FAILURE);
-	}
-	i = 0;
-	while (i < env->size)
-	{
-		if (strncmp(env->pairs[i].key, "PWD", 3) == 0)
-		{
-			printf("%s\n", env->pairs[i].value);
-			return (SUCCESS);
-			break ;
-		}
-		i++;
-	}
-	return (FAILURE);
-}
+// 	if (env == NULL || env->pairs == NULL)
+// 	{
+// 		fprintf(stderr, "pwd: PWD not set\n");
+// 		return (FAILURE);
+// 	}
+// 	i = 0;
+// 	while (i < env->size)
+// 	{
+// 		if (strncmp(env->pairs[i].key, "PWD", 3) == 0)
+// 		{
+// 			printf("%s\n", env->pairs[i].value);
+// 			return (SUCCESS);
+// 			break ;
+// 		}
+// 		i++;
+// 	}
+// 	return (FAILURE);
+// }
 
-int	check_n_flag(char **args, int *newline)
-{
-	int	i;
-	int	j;
+// ++++++++++++bui_echo++++++++++++
+// int	check_n_flag(char **args, int *newline)
+// {
+// 	int	i;
+// 	int	j;
 
-	*newline = 1;
-	i = 0;
-	while (args[i])
-	{
-		if (args[i][0] == '-' && args[i][1] == 'n')
-		{
-			j = 1;
-			while (args[i][j] == 'n')
-				j++;
-			if (args[i][j] == '\0')
-			{
-				*newline = 0;
-				i++;
-			}
-			else
-				break ;
-		}
-		else
-			break ;
-	}
-	return (i);
-}
+// 	*newline = 1;
+// 	i = 0;
+// 	while (args[i])
+// 	{
+// 		if (args[i][0] == '-' && args[i][1] == 'n')
+// 		{
+// 			j = 1;
+// 			while (args[i][j] == 'n')
+// 				j++;
+// 			if (args[i][j] == '\0')
+// 			{
+// 				*newline = 0;
+// 				i++;
+// 			}
+// 			else
+// 				break ;
+// 		}
+// 		else
+// 			break ;
+// 	}
+// 	return (i);
+// }
 
-int	bui_echo(char **args)
-{
-	int	i;
-	int	newline;
+// int	bui_echo(char **args)
+// {
+// 	int	i;
+// 	int	newline;
 
-	if (args == NULL || args[0] == NULL)
-	{
-		fprintf(stderr, "bui_echo: args is NULL\n");
-		return (1);
-	}
-	i = check_n_flag(args, &newline);
-	while (args[i])
-	{
-		printf("%s", args[i]);
-		if (args[i + 1])
-			printf(" ");
-		i++;
-	}
-	if (newline)
-		printf("\n");
-	return (0);
-}
+// 	if (args == NULL || args[0] == NULL)
+// 	{
+// 		fprintf(stderr, "bui_echo: args is NULL\n");
+// 		return (1);
+// 	}
+// 	i = check_n_flag(args, &newline);
+// 	while (args[i])
+// 	{
+// 		printf("%s", args[i]);
+// 		if (args[i + 1])
+// 			printf(" ");
+// 		i++;
+// 	}
+// 	if (newline)
+// 		printf("\n");
+// 	return (0);
+// }

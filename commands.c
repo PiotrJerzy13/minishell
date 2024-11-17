@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 13:10:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/10 14:21:12 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 		{
 			current_command = init_command_node(memories);
 			add_command_node(command_list, current_command);
-			current_command->args = malloc(sizeof(char *) * 10);
+			current_command->args = malloc(sizeof(char *) * 20);
 			add_memory(memories, current_command->args);
 			if (strncmp(current_token->value, "./", 2) == 0)
 			{
