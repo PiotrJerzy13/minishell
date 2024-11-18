@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 17:58:06 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/18 12:47:17 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,78 +98,15 @@ void	handle_special_characters(char **input, t_token **token_list,
 
 char	*get_quoted_token(char **input_ptr, t_env *environment)
 {
-	char	*start;
-	char	*end;
 	char	quote_char;
-	char	*var_name;
-	char	*value;
-	char	*result;
 
-	result = malloc(1);
-	if (!result)
-	{
-		perror("Failed to allocate memory for quoted token");
-		exit(EXIT_FAILURE);
-	}
-	result[0] = '\0';
 	quote_char = **input_ptr;
-	start = *input_ptr + 1;
-	end = start;
 	if (quote_char == '\'')
-	{
-		while (*end && *end != quote_char)
-			end++;
-		if (*end == quote_char)
-			*input_ptr = end + 1;
-		else
-			*input_ptr = end;
-		strncat(result, start, end - start);
-	}
+		return (get_single_quoted_token(input_ptr));
 	else if (quote_char == '"')
-	{
-		while (*end && *end != quote_char)
-		{
-			if (*end == '$')
-			{
-				strncat(result, start, end - start);
-				end++;
-				start = end;
-				while (isalnum(*end) || *end == '_')
-					end++;
-				var_name = strndup(start, end - start);
-				if (!var_name)
-				{
-					perror("Failed to allocate memory for variable name");
-					exit(EXIT_FAILURE);
-				}
-				value = get_env_value(var_name, environment);
-				free(var_name);
-				if (value)
-				{
-					result = realloc(result,
-							strlen(result) + strlen(value) + 1);
-					if (!result)
-					{
-						perror("Failed to reallocate memory for result");
-						exit(EXIT_FAILURE);
-					}
-					strcat(result, value);
-					free(value);
-				}
-				start = end;
-			}
-			else
-			{
-				end++;
-			}
-		}
-		strncat(result, start, end - start);
-		if (*end == quote_char)
-			*input_ptr = end + 1;
-		else
-			*input_ptr = end;
-	}
-	return (result);
+		return (get_double_quoted_token(input_ptr, environment));
+	else
+		return (NULL);
 }
 
 void	tokenize_input(char *input, t_token **token_list, t_memories *memories,

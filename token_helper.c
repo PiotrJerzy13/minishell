@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 15:20:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 17:05:24 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/18 12:48:51 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,26 +32,6 @@ char	*get_env_value(const char *name, t_env *environment)
 		i++;
 	}
 	return (NULL);
-}
-
-char	*ft_strtrim(char *str, const char *set)
-{
-	size_t	start;
-	size_t	end;
-	char	*trimmed;
-
-	start = 0;
-	end = strlen(str);
-	while (str[start] && strchr(set, str[start]))
-		start++;
-	while (end > start && strchr(set, str[end - 1]))
-		end--;
-	trimmed = malloc(end - start + 1);
-	if (!trimmed)
-		return (NULL);
-	strncpy(trimmed, str + start, end - start);
-	trimmed[end - start] = '\0';
-	return (trimmed);
 }
 
 char	*get_next_line(int fd)

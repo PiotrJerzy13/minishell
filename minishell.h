@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 17:04:00 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/18 12:46:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,3 +132,5 @@ void			add_token(t_token **head, t_token *new_token);
 void			free_heredoc_list(t_heredoc_node *head);
 int				collect_heredoc_input(const char *delimiter,
 					t_heredoc_node **heredoc_list);
+char			*get_double_quoted_token(char **input_ptr, t_env *environment);
+char			*get_single_quoted_token(char **input_ptr);
