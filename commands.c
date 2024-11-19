@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 13:41:30 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 14:39:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,128 +158,35 @@ char	*find_executable_path(const char *command)
 	return (NULL);
 }
 
-void	execute_commands(t_command *command_list, int *last_exit_status,
-		t_env *environment)
+int	handle_heredoc_redirection(t_command *command, int *last_exit_status)
 {
-	t_command		*current_command;
-	int				pipefd[2];
-	int				in_fd;
-	pid_t			pid;
-	int				status;
-	char			*exec_path;
-	char			**env_array;
-	int				is_last_command;
 	int				heredoc_pipe[2];
 	t_heredoc_node	*current_node;
 
-	in_fd = STDIN_FILENO;
-	current_command = command_list;
-	while (current_command)
+	if (pipe(heredoc_pipe) == -1)
 	{
-		if (current_command->heredoc_list)
-		{
-			if (pipe(heredoc_pipe) == -1)
-			{
-				perror("[ERROR] Pipe for heredoc failed");
-				*last_exit_status = 1;
-				return ;
-			}
-			current_node = current_command->heredoc_list;
-			while (current_node)
-			{
-				write(heredoc_pipe[1], current_node->line,
-					strlen(current_node->line));
-				write(heredoc_pipe[1], "\n", 1);
-				current_node = current_node->next;
-			}
-			close(heredoc_pipe[1]);
-			in_fd = heredoc_pipe[0];
-		}
-		is_last_command = 0;
-		if (current_command->next == NULL)
-			is_last_command = 1;
-		if (!is_last_command)
-		{
-			if (pipe(pipefd) == -1)
-			{
-				perror("pipe failed");
-				*last_exit_status = 1;
-				return ;
-			}
-		}
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork failed");
-			*last_exit_status = 1;
-			return ;
-		}
-		else if (pid == 0)
-		{
-			if (in_fd != STDIN_FILENO)
-			{
-				if (dup2(in_fd, STDIN_FILENO) == -1)
-				{
-					perror("dup2 failed for input redirection");
-					exit(1);
-				}
-				close(in_fd);
-			}
-			if (!is_last_command)
-			{
-				if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-				{
-					perror("dup2 failed for output redirection");
-					exit(1);
-				}
-				close(pipefd[1]);
-			}
-			if (!is_last_command)
-				close(pipefd[0]);
-			env_array = env_to_char_array(environment);
-			exec_path = find_executable_path(current_command->command);
-			if (!exec_path)
-			{
-				fprintf(stderr, "minishell: %s: command not found\n",
-					current_command->command);
-				*last_exit_status = 127;
-				free_env_array(env_array);
-				exit(127);
-			}
-			execve(exec_path, current_command->args, env_array);
-			perror("[ERROR] execve failed");
-			exit(1);
-		}
-		else
-		{
-			if (in_fd != STDIN_FILENO)
-			{
-				close(in_fd);
-			}
-			if (!is_last_command)
-			{
-				close(pipefd[1]);
-			}
-			if (is_last_command)
-			{
-				in_fd = STDIN_FILENO;
-			}
-			else
-			{
-				in_fd = pipefd[0];
-			}
-			current_command = current_command->next;
-		}
+		perror("[ERROR] Pipe for heredoc failed");
+		*last_exit_status = 1;
+		return (-1);
 	}
-	while (wait(&status) > 0)
+	current_node = command->heredoc_list;
+	while (current_node)
 	{
-		if (WIFEXITED(status))
-		{
-			*last_exit_status = WEXITSTATUS(status);
-		}
-		else if (WIFSIGNALED(status))
-		{
-			*last_exit_status = 128 + WTERMSIG(status);
-		}
+		write(heredoc_pipe[1], current_node->line, strlen(current_node->line));
+		write(heredoc_pipe[1], "\n", 1);
+		current_node = current_node->next;
 	}
+	close(heredoc_pipe[1]);
+	return (heredoc_pipe[0]);
+}
+
+int	setup_pipes(int *pipefd, int *last_exit_status)
+{
+	if (pipe(pipefd) == -1)
+	{
+		perror("pipe failed");
+		*last_exit_status = 1;
+		return (-1);
+	}
+	return (0);
 }

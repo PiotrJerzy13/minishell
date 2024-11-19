@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 14:04:20 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 15:11:15 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,14 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
+typedef struct s_exec_context
+{
+	int		in_fd;
+	int		*pipefd;
+	int		*last_exit_status;
+	t_env	*environment;
+}	t_exec_context;
+
 void			init_memories(t_memories *memories, t_env *environment,
 					int env_capacity);
 void			add_memory(t_memories *memories, void *ptr);
@@ -138,3 +146,19 @@ int				clear_output_redirect(const char *output_redirect,
 					const char *input_redirect, int *last_exit_status);
 void			restore_redirections(int saved_stdin, int saved_stdout);
 void			handle_unset(t_command *command, t_env *environment);
+int				setup_pipes(int *pipefd, int *last_exit_status);
+int				handle_heredoc_redirection(t_command *command,
+					int *last_exit_status);
+int				setup_pipe_if_needed(t_command *command, int *pipefd,
+					int *last_exit_status);
+void			wait_for_children(int *last_exit_status);
+void			handle_command_execution(t_command *command,
+					t_exec_context *context);
+int				prepare_next_command(int *pipefd, t_command *command);
+int				is_last_command(t_command *command);
+void			execute_commands(t_command *command_list, int *last_exit_status,
+					t_env *environment);
+void			setup_child_redirections(int in_fd, int *pipefd,
+					int is_last_command);
+void			execute_command(t_command *command,
+					t_env *environment, int *last_exit_status);

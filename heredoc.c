@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/17 18:10:50 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 15:34:25 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ void	add_token_debug(t_token **head, t_token *new_token)
 	add_token(head, new_token);
 }
 
-// Function to add a node to the end of the list
 void	append_heredoc_node(t_heredoc_node **head, const char *line)
 {
 	t_heredoc_node	*new_node;
@@ -80,14 +79,15 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 	len = 0;
 	line = NULL;
 	printf("heredoc> ");
-	while ((read = getline(&line, &len, stdin)) != -1)
+	while (1)
 	{
+		read = getline(&line, &len, stdin);
+		if (read == -1)
+			break ;
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 		if (strcmp(line, delimiter) == 0)
-		{
 			break ;
-		}
 		append_heredoc_node(heredoc_list, line);
 		printf("heredoc> ");
 	}
