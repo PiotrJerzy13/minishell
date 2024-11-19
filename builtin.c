@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 16:25:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 12:07:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,7 @@ int	bui_echo(char **args)
 		i++;
 	}
 	if (newline)
-	{
 		printf("\n");
-	}
 	fflush(stdout);
 	return (0);
 }

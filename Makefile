@@ -3,7 +3,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -lreadline  # Link with the readline library
 OBJDIR = ./bin
-SRCS = main.c enviroment.c memories.c commands.c token.c token_helper.c copy_enviroment.c builtin.c signals.c command_helper.c heredoc.c token_helper2.c token_helper3.c
+SRCS = main.c enviroment.c memories.c commands.c token.c token_helper.c copy_enviroment.c builtin.c signals.c command_helper.c heredoc.c token_helper2.c token_helper3.c handle_buildins.c builtins_helper.c
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
 # Name of the executable

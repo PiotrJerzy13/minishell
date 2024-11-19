@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 15:20:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/18 12:48:51 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 13:44:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,151 +72,171 @@ int	is_same_file(const char *file1, const char *file2)
 	return (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
 }
 
-int	handle_builtin(t_command *command, t_env *environment,
-		t_memories *memories, int *last_exit_status)
-{
-	int	result;
-	int	saved_stdin;
-	int	saved_stdout;
-	int	fd_in;
-	int	fd_out;
-	int	i;
+// int	handle_builtin(t_command *command, t_env *environment,
+// 		t_memories *memories, int *last_exit_status)
+// {
+// 	int	result;
+// 	int	saved_stdin;
+// 	int	saved_stdout;
+// 	int	fd_in;
+// 	int	fd_out;
+// 	int	i;
 
-	result = 0;
-	saved_stdin = -1;
-	saved_stdout = -1;
-	if (command->input_redirect && command->output_redirect
-		&& is_same_file(command->input_redirect, command->output_redirect))
+// 	result = 0;
+// 	saved_stdin = -1;
+// 	saved_stdout = -1;
+// 	if (command->input_redirect && command->output_redirect
+// 		&& is_same_file(command->input_redirect, command->output_redirect))
+// 	{
+// 		fd_out = open(command->output_redirect, O_WRONLY | O_TRUNC, 0644);
+// 		if (fd_out == -1)
+// 		{
+// 			perror("open failed in handle_builtin for clearing output file");
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 		close(fd_out);
+// 	}
+// 	if (command->input_redirect)
+// 	{
+// 		fd_in = open(command->input_redirect, O_RDONLY);
+// 		if (fd_in == -1)
+// 		{
+// 			perror("open failed in handle_builtin for input redirection");
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 		saved_stdin = dup(STDIN_FILENO);
+// 		if (saved_stdin == -1 || dup2(fd_in, STDIN_FILENO) == -1)
+// 		{
+// 			perror("dup failed in handle_builtin for input redirection");
+// 			close(fd_in);
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 		close(fd_in);
+// 	}
+// 	if (command->output_redirect)
+// 	{
+// 		if (command->append_mode)
+// 		{
+// 			fd_out = open(command->output_redirect,
+// 					O_WRONLY | O_CREAT | O_APPEND, 0644);
+// 		}
+// 		else
+// 		{
+// 			fd_out = open(command->output_redirect,
+// 					O_WRONLY | O_CREAT | O_TRUNC, 0644);
+// 		}
+// 		if (fd_out == -1)
+// 		{
+// 			perror("open failed in handle_builtin for output redirection");
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 		saved_stdout = dup(STDOUT_FILENO);
+// 		if (saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
+// 		{
+// 			perror("dup failed in handle_builtin for output redirection");
+// 			close(fd_out);
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 		close(fd_out);
+// 	}
+// 	if (strcmp(command->command, "echo") == 0)
+// 	{
+// 		bui_echo(command->args + 1);
+// 		*last_exit_status = 0;
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "env") == 0)
+// 	{
+// 		print_env(environment);
+// 		*last_exit_status = 0;
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "export") == 0)
+// 	{
+// 		if (command->args[1] != NULL)
+// 		{
+// 			export_env_var(environment, command->args[1], memories);
+// 		}
+// 		*last_exit_status = 0;
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "unset") == 0)
+// 	{
+// 		if (command->args[1] != NULL)
+// 		{
+// 			i = 1;
+// 			while (command->args[i])
+// 			{
+// 				unset_env_var(environment, command->args[i]);
+// 				i++;
+// 			}
+// 		}
+// 		*last_exit_status = 0;
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "cd") == 0)
+// 	{
+// 		if (bui_cd(command->args + 1) == -1)
+// 		{
+// 			*last_exit_status = 2;
+// 		}
+// 		else
+// 		{
+// 			*last_exit_status = 0;
+// 		}
+// 		result = 1;
+// 	}
+// 	else if (strcmp(command->command, "exit") == 0)
+// 	{
+// 		bui_exit(command->args + 1);
+// 		*last_exit_status = 0;
+// 		return (-1);
+// 	}
+// 	else
+// 	{
+// 		*last_exit_status = 127;
+// 		return (0);
+// 	}
+// 	if (saved_stdin != -1)
+// 	{
+// 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
+// 		{
+// 			perror("Failed to restore stdin");
+// 		}
+// 		close(saved_stdin);
+// 	}
+// 	if (saved_stdout != -1)
+// 	{
+// 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+// 		{
+// 			perror("Failed to restore stdout");
+// 		}
+// 		close(saved_stdout);
+// 	}
+// 	return (result);
+// }
+
+int	clear_output_redirect(const char *output_redirect,
+		const char *input_redirect, int *last_exit_status)
+{
+	int	fd_out;
+
+	if (input_redirect && output_redirect
+		&& is_same_file(input_redirect, output_redirect))
 	{
-		fd_out = open(command->output_redirect, O_WRONLY | O_TRUNC, 0644);
+		fd_out = open(output_redirect, O_WRONLY | O_TRUNC, 0644);
 		if (fd_out == -1)
 		{
-			perror("open failed in handle_builtin for clearing output file");
+			perror("open failed in clear_output_redirect");
 			*last_exit_status = 1;
 			return (1);
 		}
 		close(fd_out);
 	}
-	if (command->input_redirect)
-	{
-		fd_in = open(command->input_redirect, O_RDONLY);
-		if (fd_in == -1)
-		{
-			perror("open failed in handle_builtin for input redirection");
-			*last_exit_status = 1;
-			return (1);
-		}
-		saved_stdin = dup(STDIN_FILENO);
-		if (saved_stdin == -1 || dup2(fd_in, STDIN_FILENO) == -1)
-		{
-			perror("dup failed in handle_builtin for input redirection");
-			close(fd_in);
-			*last_exit_status = 1;
-			return (1);
-		}
-		close(fd_in);
-	}
-	if (command->output_redirect)
-	{
-		if (command->append_mode)
-		{
-			fd_out = open(command->output_redirect,
-					O_WRONLY | O_CREAT | O_APPEND, 0644);
-		}
-		else
-		{
-			fd_out = open(command->output_redirect,
-					O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		}
-		if (fd_out == -1)
-		{
-			perror("open failed in handle_builtin for output redirection");
-			*last_exit_status = 1;
-			return (1);
-		}
-		saved_stdout = dup(STDOUT_FILENO);
-		if (saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
-		{
-			perror("dup failed in handle_builtin for output redirection");
-			close(fd_out);
-			*last_exit_status = 1;
-			return (1);
-		}
-		close(fd_out);
-	}
-	if (strcmp(command->command, "echo") == 0)
-	{
-		bui_echo(command->args + 1);
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "env") == 0)
-	{
-		print_env(environment);
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "export") == 0)
-	{
-		if (command->args[1] != NULL)
-		{
-			export_env_var(environment, command->args[1], memories);
-		}
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "unset") == 0)
-	{
-		if (command->args[1] != NULL)
-		{
-			i = 1;
-			while (command->args[i])
-			{
-				unset_env_var(environment, command->args[i]);
-				i++;
-			}
-		}
-		*last_exit_status = 0;
-		result = 1;
-	}
-	else if (strcmp(command->command, "cd") == 0)
-	{
-		if (bui_cd(command->args + 1) == -1)
-		{
-			*last_exit_status = 2;
-		}
-		else
-		{
-			*last_exit_status = 0;
-		}
-		result = 1;
-	}
-	else if (strcmp(command->command, "exit") == 0)
-	{
-		bui_exit(command->args + 1);
-		*last_exit_status = 0;
-		return (-1);
-	}
-	else
-	{
-		*last_exit_status = 127;
-		return (0);
-	}
-	if (saved_stdin != -1)
-	{
-		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-		{
-			perror("Failed to restore stdin");
-		}
-		close(saved_stdin);
-	}
-	if (saved_stdout != -1)
-	{
-		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-		{
-			perror("Failed to restore stdout");
-		}
-		close(saved_stdout);
-	}
-	return (result);
+	return (0);
 }
