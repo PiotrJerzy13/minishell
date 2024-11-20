@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/08 18:22:37 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/11/20 09:24:40 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,12 +56,50 @@ t_env	shallow_copy_env(t_env *source_env)
 	return (new_env);
 }
 
-void	add_or_update_env_var(t_env *env, const char *key,
+// void	 add_or_update_env_var(t_env *env, const char *key,
+// 	const char *value, t_memories *memories)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (i < env->size)
+// 	{
+// 		if (strcmp(env->pairs[i].key, key) == 0)
+// 		{
+// 			free(env->pairs[i].value);
+// 			env->pairs[i].value = strdup(value);
+// 			return ;
+// 		}
+// 		i++;
+// 	}
+// 	if (env->size >= env->capacity)
+// 	{
+// 		env->capacity *= 2;
+// 		env->pairs = realloc(env->pairs, env->capacity * sizeof(t_key_value));
+// 		if (!env->pairs)
+// 		{
+// 			printf("Error: Failed to expand environment.\n");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 	}
+// 	env->pairs[env->size].key = strdup(key);
+// 	env->pairs[env->size].value = strdup(value);
+// 	add_memory(memories, env->pairs[env->size].key);
+// 	add_memory(memories, env->pairs[env->size].value);
+// 	env->size++;
+// }
+
+void	 add_or_update_env_var(t_env *env, const char *key,
 	const char *value, t_memories *memories)
 {
 	int	i;
 
 	i = 0;
+	// if (!env || !key || !value || !memories)
+	// {
+	// 	printf("Error: Invalid arguments to add_or_update_env_var.\n");
+	// 	exit(EXIT_FAILURE);
+	// }
 	while (i < env->size)
 	{
 		if (strcmp(env->pairs[i].key, key) == 0)
@@ -103,7 +141,10 @@ void	copy_environment_to_struct(char **env, t_env *environment,
 		value = strtok(NULL, "=");
 		if (key && value)
 		{
-			add_or_update_env_var(environment, key, value, memories);
+			if (strcmp(key, " OLDPWD") != 0)
+			{
+				add_or_update_env_var(environment, key, value, memories);
+			}
 		}
 		i++;
 	}

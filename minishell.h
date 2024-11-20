@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 14:32:52 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/11/19 11:35:03 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,12 @@ typedef struct s_key_value
 
 typedef struct s_env
 {
-	t_key_value	*pairs;
-	int			size;
-	int			capacity;
-	t_memories	*memories;
+	t_key_value		*pairs;
+	int				size;
+	int				capacity;
+	struct s_env	*next;
+	t_memories		*memories;
+	int				cd_used_flag;
 }	t_env;
 
 typedef struct s_key_value_store
@@ -146,3 +148,5 @@ int				bui_pwd(t_env *env);
 int				set_env_value(const char *name, const char *value, t_env *env);
 // int				bui_cd(char **args, t_env *env);
 int				bui_cd(char **args, t_env *env, t_memories *memories);
+int				bui_export(t_env **env, char **args);
+void			print_declared_env(t_env *env);

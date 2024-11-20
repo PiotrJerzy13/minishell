@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 11:58:20 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/11/20 09:36:35 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,13 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 	}
 	else if (strcmp(command->command, "export") == 0)
 	{
-		if (command->args[1] != NULL)
+		if (command->args[1])
 		{
 			export_env_var(environment, command->args[1], memories);
+		}
+		else
+		{
+			bui_export(&environment, command->args);
 		}
 		result = 1;
 	}
@@ -111,6 +115,7 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories)
 	{
 		// bui_cd(command->args + 1);
 		bui_cd(command->args + 1, environment, memories);
+		environment->cd_used_flag = 1;
 		result = 1;
 	}
 	else if (strcmp(command->command, "exit") == 0)

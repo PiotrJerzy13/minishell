@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/01 18:08:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/20 09:37:14 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,23 @@ void	unset_env_var(t_env *env, const char *key)
 	}
 }
 
+// void	export_env_var(t_env *environment, char *input, t_memories *memories)
+// {
+// 	char	*key;
+// 	char	*value;
+
+// 	key = strtok(input, "=");
+// 	value = strtok(NULL, "=");
+// 	if (key && value)
+// 	{
+// 		add_or_update_env_var(environment, key, value, memories);
+// 	}
+// 	else
+// 	{
+// 		printf("Error: Invalid format. Use export KEY=VALUE.\n");
+// 	}
+// }
+
 void	export_env_var(t_env *environment, char *input, t_memories *memories)
 {
 	char	*key;
@@ -65,6 +82,18 @@ void	export_env_var(t_env *environment, char *input, t_memories *memories)
 	}
 }
 
+// void	print_env(t_env *env)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (i < env->size)
+// 	{
+// 		printf("%s=%s\n", env->pairs[i].key, env->pairs[i].value);
+// 		i++;
+// 	}
+// }
+
 void	print_env(t_env *env)
 {
 	int	i;
@@ -72,7 +101,14 @@ void	print_env(t_env *env)
 	i = 0;
 	while (i < env->size)
 	{
-		printf("%s=%s\n", env->pairs[i].key, env->pairs[i].value);
-		i++;
+		if (strcmp(env->pairs[i].key, "OLDPWD") == 0 && env->cd_used_flag == 0)
+		{
+			i++;
+		}
+		else
+		{
+			printf("%s=%s\n", env->pairs[i].key, env->pairs[i].value);
+			i++;
+		}
 	}
 }
