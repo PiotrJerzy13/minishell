@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 15:34:25 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/22 14:24:36 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,6 @@ t_heredoc_node	*create_heredoc_node(const char *line)
 	return (node);
 }
 
-void	add_token_debug(t_token **head, t_token *new_token)
-{
-	add_token(head, new_token);
-}
-
 void	append_heredoc_node(t_heredoc_node **head, const char *line)
 {
 	t_heredoc_node	*new_node;
@@ -55,19 +50,6 @@ void	append_heredoc_node(t_heredoc_node **head, const char *line)
 	while (current->next)
 		current = current->next;
 	current->next = new_node;
-}
-
-void	free_heredoc_list(t_heredoc_node *head)
-{
-	t_heredoc_node	*tmp;
-
-	while (head)
-	{
-		tmp = head;
-		head = head->next;
-		free(tmp->line);
-		free(tmp);
-	}
 }
 
 int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)

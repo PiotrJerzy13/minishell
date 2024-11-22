@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 15:11:15 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/22 19:01:26 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,42 @@ typedef struct s_exec_context
 	t_env	*environment;
 }	t_exec_context;
 
+typedef struct s_token_context
+{
+	t_token		**token_list;
+	t_memories	*memories;
+	t_env		*environment;
+	int			*last_exit_status;
+	int			expect_filename;
+}	t_token_context;
+
+typedef struct s_token_info
+{
+	char	*single_token;
+	char	*double_token;
+	int		type_single;
+	int		type_double;
+}	t_token_info;
+
+typedef struct s_shell_state
+{
+	t_command	*command_list;
+	t_token		*token_list;
+	t_memories	memories;
+	t_env		environment;
+	int			last_exit_status;
+	char		*input;
+}	t_shell_state;
+
+typedef struct s_command_context
+{
+	t_token		**token_list;
+	t_command	**command_list;
+	t_memories	*memories;
+	t_env		*environment;
+	int			*last_exit_status;
+}	t_command_context;
+
 void			init_memories(t_memories *memories, t_env *environment,
 					int env_capacity);
 void			add_memory(t_memories *memories, void *ptr);
@@ -107,10 +143,7 @@ void			parse_input_to_commands(t_token *token_list,
 					t_command **command_list,
 					t_memories *memories);
 t_command		*init_command_node(t_memories *memories);
-void			tokenize_input(char *input, t_token **token_list,
-					t_memories *memories, t_env *environment,
-					int *last_exit_status);
-
+void			tokenize_input(char *input, t_token_context *context);
 void			skip_spaces(char **input);
 void			copy_environment_to_struct(char **env, t_env *environment,
 					t_memories *memories);
@@ -137,7 +170,6 @@ int				is_same_file(const char *file1, const char *file2);
 char			*find_executable_path(const char *command);
 void			unset_env_var(t_env *env, const char *key);
 void			add_token(t_token **head, t_token *new_token);
-void			free_heredoc_list(t_heredoc_node *head);
 int				collect_heredoc_input(const char *delimiter,
 					t_heredoc_node **heredoc_list);
 char			*get_double_quoted_token(char **input_ptr, t_env *environment);
@@ -162,3 +194,27 @@ void			setup_child_redirections(int in_fd, int *pipefd,
 					int is_last_command);
 void			execute_command(t_command *command,
 					t_env *environment, int *last_exit_status);
+void			handle_special_characters(char **input,
+					t_token_context *context);
+t_token			*init_token(char *value, t_token_type type,
+					t_memories *memories);
+void			process_variable_expansion(char **input,
+					t_token_context *context);
+char			*get_quoted_token(char **input_ptr, t_env *environment);
+void			process_general_token(char **input, t_token_context *context);
+void			handle_variable_expansion(char **input,
+					t_token_context *context);
+void			process_quoted_token(char **input, t_token_context *context);
+t_command		*initialize_command(t_token *current_token,
+					t_command **command_list, t_memories *memories);
+void			handle_all_redirections(t_token **current_token,
+					t_command *current_command, t_memories *memories);
+void			handle_redirections(t_token **current_token,
+					t_command *current_command, t_memories *memories,
+					int append_mode);
+void			process_special_tokens(t_token **current_token,
+					t_command **current_command, t_memories *memories,
+					int *arg_count);
+void			init_shell_state(t_shell_state *state);
+void			process_commands(char *input, t_command_context *context);
+char			*get_user_input(void);

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/18 12:38:56 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/19 17:48:09 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	append_to_result(char **result, const char *start, size_t length)
 	strncat(*result, start, length);
 }
 
-void	handle_variable_expansion(char **result, char **end_ptr,
+void	handle_variable_expansion1(char **result, char **end_ptr,
 	t_env *environment)
 {
 	char	*end;
@@ -64,7 +64,7 @@ void	handle_dollar(char **end, char **start, char **result,
 	t_env *environment)
 {
 	process_until_special(end, start, result, '$');
-	handle_variable_expansion(result, end, environment);
+	handle_variable_expansion1(result, end, environment);
 	*start = *end;
 }
 
