@@ -1,17 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   token_helper2.c                                    :+:      :+:    :+:   */
+/*   input_parser.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 17:48:09 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:42:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+/**
+This code is needed for processing and dynamically building a string 
+result in scenarios where parts of an 
+input string need to be parsed, expanded, and combined into a final 
+string. Example echo "Hello, $USER!"
+**/
 void	append_to_result(char **result, const char *start, size_t length)
 {
 	*result = realloc(*result, strlen(*result) + length + 1);
@@ -20,7 +26,8 @@ void	append_to_result(char **result, const char *start, size_t length)
 	strncat(*result, start, length);
 }
 
-void	handle_variable_expansion1(char **result, char **end_ptr,
+//for mixed content echo "Welcome, $USER! Your home directory is $HOME."
+void	handle_expansion(char **result, char **end_ptr,
 	t_env *environment)
 {
 	char	*end;
@@ -64,33 +71,56 @@ void	handle_dollar(char **end, char **start, char **result,
 	t_env *environment)
 {
 	process_until_special(end, start, result, '$');
-	handle_variable_expansion1(result, end, environment);
+	handle_expansion(result, end, environment);
 	*start = *end;
 }
 
-char	*get_double_quoted_token(char **input_ptr, t_env *environment)
+char	*get_user_input(void)
 {
-	char	*start;
-	char	*end;
-	char	*result;
+	char	*input;
+	char	*line;
 
-	start = *input_ptr + 1;
-	end = start;
-	result = malloc(1);
-	if (!result)
-		exit(EXIT_FAILURE);
-	result[0] = '\0';
-	while (*end && *end != '"')
-	{
-		if (*end == '$')
-			handle_dollar(&end, &start, &result, environment);
-		else
-			process_until_special(&end, &start, &result, '"');
-	}
-	append_to_result(&result, start, end - start);
-	if (*end == '"')
-		*input_ptr = end + 1;
+	input = NULL;
+	line = NULL;
+	if (isatty(fileno(stdin)))
+		input = readline("minishell> ");
 	else
-		*input_ptr = end;
-	return (result);
+	{
+		line = get_next_line(fileno(stdin));
+		if (!line)
+			return (NULL);
+		input = ft_strtrim(line, "\n");
+		free(line);
+	}
+	return (input);
+}
+
+void	parse_input_to_commands(t_token *token_list, t_command **command_list,
+	t_memories *memories)
+{
+	t_command	*command;
+	t_token		*token;
+	int			arg_count;
+
+	arg_count = 0;
+	token = token_list;
+	command = NULL;
+	while (token)
+	{
+		if (command == NULL && token->type == TOKEN_COMMAND)
+		{
+			command = initialize_command(token,
+					command_list, memories);
+			arg_count = 1;
+		}
+		else if ((token->type == TOKEN_ARGUMENT || token->type == TOKEN_COMMAND)
+			&& command)
+			add_argument_to_command(token, command,
+				memories, &arg_count);
+		else
+			process_special_tokens(&token, &command, memories, &arg_count);
+		token = token->next;
+	}
+	if (command)
+		command->args[arg_count] = NULL;
 }

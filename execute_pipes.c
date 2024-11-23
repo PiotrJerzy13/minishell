@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   execute_commands2.c                                :+:      :+:    :+:   */
+/*   execute_pipes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 15:09:54 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:41:16 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,34 +43,37 @@ void	wait_for_children(int *last_exit_status)
 	}
 }
 
-void	handle_command_execution(t_command *command, t_exec_context *context)
+void	setup_child_redirections(int in_fd, int *pipefd, int is_last_command)
 {
-	pid_t	pid;
-
-	pid = fork();
-	if (pid == -1)
+	if (in_fd != STDIN_FILENO)
 	{
-		perror("fork failed");
-		*(context->last_exit_status) = 1;
-		return ;
+		if (dup2(in_fd, STDIN_FILENO) == -1)
+		{
+			perror("dup2 failed for input redirection");
+			exit(1);
+		}
+		close(in_fd);
 	}
-	else if (pid == 0)
+	if (!is_last_command)
 	{
-		setup_child_redirections(context->in_fd, context->pipefd,
-			is_last_command(command));
-		execute_command(command, context->environment,
-			context->last_exit_status);
+		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+		{
+			perror("dup2 failed for output redirection");
+			exit(1);
+		}
+		close(pipefd[1]);
 	}
-	else
-	{
-		handle_parent_cleanup(context->in_fd, context->pipefd, command);
-	}
+	if (!is_last_command)
+		close(pipefd[0]);
 }
 
-int	prepare_next_command(int *pipefd, t_command *command)
+void	handle_pipe(t_command **current_command, int *arg_count)
 {
-	if (is_last_command(command))
-		return (STDIN_FILENO);
-	else
-		return (pipefd[0]);
+	if (*current_command)
+	{
+		(*current_command)->is_pipe = 1;
+		(*current_command)->args[*arg_count] = NULL;
+		*current_command = NULL;
+		*arg_count = 0;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 17:52:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:46:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,54 +49,43 @@ void	add_token(t_token **head, t_token *new_token)
 	}
 }
 
-void	handle_exit_status_expansion(char **input, t_token_context *context)
+void	tokenize_input(char *input, t_token_context *context)
 {
-	char	exit_status_str[12];
-
-	snprintf(exit_status_str, sizeof(exit_status_str),
-		"%d", *(context->last_exit_status));
-	add_token(context->token_list, init_token(exit_status_str,
-			TOKEN_ARGUMENT, context->memories));
-	*input += 2;
+	context->expect_filename = 0;
+	while (*input)
+	{
+		skip_spaces(&input);
+		if (*input == '\0')
+			break ;
+		if (*input == '$')
+		{
+			process_variable_expansion(&input, context);
+		}
+		else if (*input == '"' || *input == '\'')
+		{
+			process_quoted_token(&input, context);
+		}
+		else
+		{
+			process_general_token(&input, context);
+		}
+	}
 }
 
-void	process_variable_expansion(char **input, t_token_context *context)
+void	handle_token_creation(char **input, t_token_context *context,
+			t_token_info *info)
 {
-	if (*(*input + 1) == '?')
+	if (*(*input + 1) == info->single_token[0])
 	{
-		handle_exit_status_expansion(input, context);
+		add_token(context->token_list, init_token(info->double_token,
+				info->type_double, context->memories));
+		(*input) += 2;
 	}
 	else
 	{
-		handle_variable_expansion(input, context);
-	}
-}
-
-void	handle_variable_expansion(char **input, t_token_context *context)
-{
-	char	*start;
-	char	*token;
-	char	*value;
-
-	(*input)++;
-	start = *input;
-	while (isalnum(**input) || **input == '_')
+		add_token(context->token_list, init_token(info->single_token,
+				info->type_single, context->memories));
 		(*input)++;
-	token = strndup(start, *input - start);
-	value = get_env_value(token, context->environment);
-	if (value != NULL)
-	{
-		add_token(context->token_list, init_token(value,
-				TOKEN_ARGUMENT, context->memories));
 	}
-	else
-	{
-		add_token(context->token_list, init_token("",
-				TOKEN_ARGUMENT, context->memories));
-	}
-	free(token);
-	if (value != NULL)
-	{
-		free(value);
-	}
+	context->expect_filename = 1;
 }

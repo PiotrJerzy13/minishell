@@ -6,37 +6,13 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/19 15:29:32 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:40:57 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	setup_child_redirections(int in_fd, int *pipefd, int is_last_command)
-{
-	if (in_fd != STDIN_FILENO)
-	{
-		if (dup2(in_fd, STDIN_FILENO) == -1)
-		{
-			perror("dup2 failed for input redirection");
-			exit(1);
-		}
-		close(in_fd);
-	}
-	if (!is_last_command)
-	{
-		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-		{
-			perror("dup2 failed for output redirection");
-			exit(1);
-		}
-		close(pipefd[1]);
-	}
-	if (!is_last_command)
-		close(pipefd[0]);
-}
-
-void	execute_command(t_command *command,
+void	exe_command(t_command *command,
 	t_env *environment, int *last_exit_status)
 {
 	char	**env_array;
@@ -98,4 +74,44 @@ void	execute_commands(t_command *command_list,
 		current_command = current_command->next;
 	}
 	wait_for_children(last_exit);
+}
+
+void	handle_command_execution(t_command *command, t_exec_context *context)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork failed");
+		*(context->last_exit_status) = 1;
+		return ;
+	}
+	else if (pid == 0)
+	{
+		setup_child_redirections(context->in_fd, context->pipefd,
+			is_last_command(command));
+		exe_command(command, context->environment,
+			context->last_exit_status);
+	}
+	else
+	{
+		handle_parent_cleanup(context->in_fd, context->pipefd, command);
+	}
+}
+
+int	prepare_next_command(int *pipefd, t_command *command)
+{
+	if (is_last_command(command))
+		return (STDIN_FILENO);
+	else
+		return (pipefd[0]);
+}
+
+void	add_argument_to_command(t_token *current_token,
+	t_command *current_command, t_memories *memories, int *arg_count)
+{
+	current_command->args[*arg_count] = strdup(current_token->value);
+	add_memory(memories, current_command->args[*arg_count]);
+	(*arg_count)++;
 }

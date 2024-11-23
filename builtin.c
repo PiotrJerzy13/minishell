@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/22 14:26:49 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:58:41 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,8 @@ int	bui_exit(char **args)
 			{
 				fprintf(stderr, "exit: numeric argument required\n");
 				exit(255);
-				i++;
 			}
+			i++;
 		}
 		exit_code = atoi(args[1]);
 	}

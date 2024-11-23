@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/22 19:01:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:55:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ char			*get_env_value(const char *name, t_env *environment);
 char			*ft_strtrim(char *str, const char *set);
 char			*get_next_line(int fd);
 int				handle_builtin(t_command *command, t_env *environment,
-					t_memories *memories, int *last_exit_status);
+					t_memories *memories, int *exit_st);
 void			free_env_array(char **env_array);
 char			**env_to_char_array(t_env *environment);
 int				is_same_file(const char *file1, const char *file2);
@@ -188,7 +188,7 @@ void			handle_command_execution(t_command *command,
 					t_exec_context *context);
 int				prepare_next_command(int *pipefd, t_command *command);
 int				is_last_command(t_command *command);
-void			execute_commands(t_command *command_list, int *last_exit_status,
+void			execute_commands(t_command *command_list, int *last_exit,
 					t_env *environment);
 void			setup_child_redirections(int in_fd, int *pipefd,
 					int is_last_command);
@@ -218,3 +218,27 @@ void			process_special_tokens(t_token **current_token,
 void			init_shell_state(t_shell_state *state);
 void			process_commands(char *input, t_command_context *context);
 char			*get_user_input(void);
+int				initialize_shell_environment(t_memories *memories,
+					t_env *environment, char **env);
+void			add_argument_to_command(t_token *current_token,
+					t_command *current_command, t_memories *memories,
+					int *arg_count);
+void			handle_parent_cleanup(int in_fd, int *pipefd,
+					t_command *command);
+void			handle_pipe(t_command **current_command, int *arg_count);
+void			handle_heredoc(t_token **current_token,
+					t_command *current_command);
+void			handle_token_creation(char **input, t_token_context *context,
+					t_token_info *info);
+void			process_until_special(char **end_ptr, char **start_ptr,
+					char **result, char stop_char);
+void			handle_dollar(char **end, char **start, char **result,
+					t_env *environment);
+void			append_to_result(char **result, const char *start,
+					size_t length);
+int				handle_input_redirection(const char *input_redirect,
+					int *saved_stdin, int	*last_exit_status);
+int				handle_output_redirection(const char *output_redirect,
+					int append_mode, int *saved_stdout, int *last_exit_status);
+t_command_context	*create_command_context(t_shell_state *state);
+t_token_context	init_token_context(t_command_context *context);

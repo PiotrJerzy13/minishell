@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/22 14:24:36 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:42:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,18 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 	if (read == -1)
 		free(line);
 	return (0);
+}
+
+void	handle_heredoc(t_token **current_token, t_command *current_command)
+{
+	*current_token = (*current_token)->next;
+	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
+	{
+		current_command->heredoc_list = NULL;
+		if (collect_heredoc_input((*current_token)->value,
+				&current_command->heredoc_list) == -1)
+		{
+			fprintf(stderr, "Error collecting heredoc input\n");
+		}
+	}
 }
