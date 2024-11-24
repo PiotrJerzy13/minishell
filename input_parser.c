@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 14:35:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:29:29 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,53 +24,6 @@ void	append_to_result(char **result, const char *start, size_t length)
 	if (!*result)
 		exit(EXIT_FAILURE);
 	strncat(*result, start, length);
-}
-
-void	handle_expansion(char **result, char **end_ptr, t_env *environment)
-{
-	char	*end;
-	char	*start;
-	char	*var_name;
-	char	*value;
-
-	end = *end_ptr;
-	start = end;
-	while (isalnum(*end) || *end == '_')
-		end++;
-	var_name = strndup(start, end - start);
-	if (!var_name)
-		exit(EXIT_FAILURE);
-	value = get_env_value(var_name, environment);
-	free(var_name);
-	if (value)
-	{
-		append_to_result(result, value, strlen(value));
-		free(value);
-	}
-	*end_ptr = end;
-}
-
-void	process_until_special(char **end_ptr, char **start_ptr, char **result,
-	char stop_char)
-{
-	char	*end;
-	char	*start;
-
-	end = *end_ptr;
-	start = *start_ptr;
-	while (*end && *end != stop_char && *end != '$')
-		end++;
-	append_to_result(result, start, end - start);
-	*end_ptr = end;
-	*start_ptr = end;
-}
-
-void	handle_dollar(char **end, char **start,
-	char **result, t_env *environment)
-{
-	process_until_special(end, start, result, '$');
-	handle_expansion(result, end, environment);
-	*start = *end;
 }
 
 char	*get_user_input(void)
@@ -93,7 +46,8 @@ char	*get_user_input(void)
 	return (input);
 }
 
-void	parse_input_to_commands(t_token *token_list, t_command **command_list, t_memories *memories)
+void	parse_input_to_commands(t_token *token_list, t_command **command_list,
+	t_memories *memories)
 {
 	t_command	*command;
 	t_token		*token;
@@ -104,10 +58,8 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list, t_me
 	arg_count = 0;
 	while (token)
 	{
-		printf("Parsing token: %s (type: %d)\n", token->value, token->type);
 		if (command == NULL && token->type == TOKEN_COMMAND)
 		{
-			printf("Initializing new command: %s\n", token->value);
 			command = initialize_command(token, command_list, memories);
 			if (!command)
 			{
@@ -119,14 +71,10 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list, t_me
 		else if ((token->type == TOKEN_ARGUMENT || token->type == TOKEN_COMMAND)
 			&& command)
 		{
-			printf("Adding argument: %s to command: %s\n", token->value,
-				command->command);
 			add_argument_to_command(token, command, memories, &arg_count);
 		}
 		else
 		{
-			printf("Processing special token: %s (type: %d)\n",
-				token->value, token->type);
 			process_special_tokens(&token, &command, memories, &arg_count);
 		}
 		token = token->next;
@@ -134,16 +82,10 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list, t_me
 	if (command)
 	{
 		command->args[arg_count] = NULL;
-		printf("Finalized command: %s with %d arguments.\n",
-			command->command, arg_count);
-		for (int i = 0; i < arg_count; i++)
-		{
-			printf("  Argument[%d]: %s\n", i, command->args[i]);
-		}
 	}
 }
 
-t_command *create_new_command(t_memories *memories)
+t_command	*create_new_command(t_memories *memories)
 {
 	t_command	*command;
 

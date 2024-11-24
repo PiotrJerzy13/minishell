@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 13:07:53 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:35:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,17 +59,14 @@ void	tokenize_input(char *input, t_token_context *context)
 			break ;
 		if (*input == '$')
 		{
-			printf("Processing variable expansion: %s\n", input);
 			process_variable_expansion(&input, context);
 		}
 		else if (*input == '"' || *input == '\'')
 		{
-			printf("Processing quoted token: %s\n", input);
 			process_quoted_token(&input, context);
 		}
 		else
 		{
-			printf("Processing general token or special: %s\n", input);
 			process_general_token(&input, context);
 		}
 	}
@@ -80,14 +77,12 @@ void	handle_token_creation(char **input, t_token_context *context,
 {
 	if (*(*input + 1) == info->single_token[0])
 	{
-		printf("Detected redirection token: %s\n", info->double_token);
 		add_token(context->token_list, init_token(info->double_token,
 				info->type_double, context->memories));
 		(*input) += 2;
 	}
 	else
 	{
-		printf("Detected redirection token: %s\n", info->single_token);
 		add_token(context->token_list, init_token(info->single_token,
 				info->type_single, context->memories));
 		(*input)++;

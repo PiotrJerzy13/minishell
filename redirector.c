@@ -6,28 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 13:21:24 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:36:22 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	is_same_file(const char *file1, const char *file2)
-{
-	struct stat	stat1;
-	struct stat	stat2;
-	int			same;
-
-	printf("Checking if '%s' and '%s' are the same file.\n", file1, file2);
-	if (stat(file1, &stat1) == -1 || stat(file2, &stat2) == -1)
-	{
-		printf("Error: Could not stat files '%s' or '%s'.\n", file1, file2);
-		return (0);
-	}
-	same = (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
-	printf("Result: %s\n", same ? "Same file" : "Different files");
-	return (same);
-}
 
 int	clear_output_redirect(const char *output_redirect, int *last_exit_status)
 {
@@ -54,7 +37,6 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 
 	if (input_redirect)
 	{
-		printf("Handling input redirection from file: %s\n", input_redirect);
 		fd_in = open(input_redirect, O_RDONLY);
 		if (fd_in == -1)
 		{
@@ -70,7 +52,6 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 			*last_exit_status = 1;
 			return (1);
 		}
-		printf("Input redirection successfully set to '%s'.\n", input_redirect);
 		close(fd_in);
 	}
 	return (0);
@@ -79,13 +60,12 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 int	handle_output_redirection(const char *output_redirect, int append_mode,
 		int *saved_stdout, int *last_exit_status)
 {
+	int	fd_out;
+
 	if (!output_redirect)
 	{
-		printf("No output redirection specified.\n");
 		return (0);
 	}
-	printf("Handling output redirection for file: %s\n", output_redirect);
-	int fd_out;
 	if (append_mode)
 	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -108,7 +88,6 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 		*last_exit_status = 1;
 		return (1);
 	}
-	printf("Output successfully redirected to '%s'.\n", output_redirect);
 	close(fd_out);
 	return (0);
 }
@@ -133,7 +112,6 @@ void	handle_redirections(t_token **current_token, t_command *current_command,
 			return ;
 		}
 		add_memory(memories, redirect);
-		printf("Setting redirection for file: %s\n", redirect);
 		if (append_mode)
 		{
 			current_command->output_redirect = redirect;
@@ -143,8 +121,6 @@ void	handle_redirections(t_token **current_token, t_command *current_command,
 		{
 			current_command->output_redirect = redirect;
 		}
-		printf("Updated current_command->output_redirect: %s\n",
-			current_command->output_redirect ? current_command->output_redirect : "(null)");
 	}
 	else
 	{
@@ -156,21 +132,20 @@ void	restore_redirections(int saved_stdin, int saved_stdout)
 {
 	if (saved_stdin != -1)
 	{
-		printf("Restoring original stdin (fd: %d).\n", saved_stdin);
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
 			perror("Failed to restore stdin");
 		close(saved_stdin);
 	}
 	if (saved_stdout != -1)
 	{
-		printf("Restoring original stdout (fd: %d).\n", saved_stdout);
 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
 			perror("Failed to restore stdout");
 		close(saved_stdout);
 	}
 }
 
-void handle_all_redirections(t_token **current_token, t_command *current_command, t_memories *memories)
+void	handle_all_redirections(t_token **current_token,
+			t_command *current_command, t_memories *memories)
 {
 	int	append_mode;
 
@@ -178,11 +153,9 @@ void handle_all_redirections(t_token **current_token, t_command *current_command
 	if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
 	{
 		append_mode = 1;
-		printf("Detected append redirection.\n");
 	}
 	else
 	{
-		printf("Detected output redirection.\n");
 	}
 	handle_redirections(current_token, current_command, memories, append_mode);
 }

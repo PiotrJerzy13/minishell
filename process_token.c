@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 14:31:39 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 15:39:31 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	process_general_token(char **input, t_token_context *context)
  * as either a `TOKEN_FILENAME` or a `TOKEN_ARGUMENT`, 
  * based on the context.
  */
+
 void	process_quoted_token(char **input, t_token_context *context)
 {
 	char	*token;
@@ -76,13 +77,19 @@ void	process_quoted_token(char **input, t_token_context *context)
 	}
 	if (token)
 	{
-		add_token(context->token_list, init_token(token,
-				context->expect_filename ? TOKEN_FILENAME : TOKEN_ARGUMENT,
-				context->memories));
+		if (context->expect_filename)
+		{
+			add_token(context->token_list, init_token(token, TOKEN_FILENAME,
+					context->memories));
+		}
+		else
+		{
+			add_token(context->token_list, init_token(token, TOKEN_ARGUMENT,
+					context->memories));
+		}
 		free(token);
 	}
 }
-
 
 /**
  * handle_redirects - Handles input and output redirection tokens.

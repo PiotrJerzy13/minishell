@@ -6,11 +6,29 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 12:33:45 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 16:29:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_command_context	*create_command_context(t_shell_state *state)
+{
+	t_command_context	*context;
+
+	context = malloc(sizeof(t_command_context));
+	if (!context)
+	{
+		fprintf(stderr, "Error: Failed to allocate memory.\n");
+		exit(EXIT_FAILURE);
+	}
+	context->token_list = &state->token_list;
+	context->command_list = &state->command_list;
+	context->memories = &state->memories;
+	context->environment = &state->environment;
+	context->last_exit_status = &state->last_exit_status;
+	return (context);
+}
 
 void	process_commands(char *input, t_command_context *context)
 {

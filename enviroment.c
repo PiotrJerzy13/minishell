@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 14:41:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:19:32 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,60 +23,51 @@
  * the correct format), an error 
  * message is displayed.
  */
-
 void	export_env_var(t_env *environment, char *input, t_memories *memories)
 {
 	char	*key;
 	char	*value;
 
+	if (!validate_export_argument(input))
+		return ;
 	key = strtok(input, "=");
 	value = strtok(NULL, "=");
 	if (key && value)
-	{
 		add_or_update_env_var(environment, key, value, memories);
-	}
 	else
-	{
-		printf("Error: Invalid format. Use export KEY=VALUE.\n");
-	}
+		fprintf(stderr, "Error: Invalid format. Use export KEY=VALUE.\n");
 }
-/**
- * env_to_char_array - Converts a custom environment structure 
- * into a standard C-style array.
- *
- * This function transforms a custom environment structure (t_env) into a 
- * format compatible with standard C-style environment arrays. Each environment 
- * variable is represented as a string in the format "key=value". This type of 
- * array is commonly used with system calls like execve that require environment 
- * variables to be passed as a char ** array.
- */
 
 char	**env_to_char_array(t_env *environment)
 {
-	char	**env_array = malloc((environment->size + 1) * sizeof(char *));
+	char	**env_array;
+	size_t	i;
 
+	env_array = malloc((environment->size + 1) * sizeof(char *));
 	if (!env_array)
 	{
 		perror("Failed to allocate environment array");
 		exit(EXIT_FAILURE);
 	}
-	for (size_t i = 0; i < environment->size; i++)
+	i = 0;
+	while (i < environment->size)
 	{
-		env_array[i] = malloc(strlen(environment->pairs[i].key) + strlen(environment->pairs[i].value) + 2);
+		env_array[i] = malloc(strlen(environment->pairs[i].key)
+				+ strlen(environment->pairs[i].value) + 2);
 		if (!env_array[i])
 		{
 			perror("Failed to allocate environment string");
 			exit(EXIT_FAILURE);
 		}
-		snprintf(env_array[i], strlen(environment->pairs[i].key) + strlen(environment->pairs[i].value) + 2,
+		snprintf(env_array[i], strlen(environment->pairs[i].key)
+			+ strlen(environment->pairs[i].value) + 2,
 			"%s=%s", environment->pairs[i].key, environment->pairs[i].value);
+		i++;
 	}
 	env_array[environment->size] = NULL;
 	return (env_array);
 }
 
-//Used when you need to modify the value of an existing key without 
-//changing its position or key name.
 void	update_env_var(t_env *env, int index, const char *value)
 {
 	free(env->pairs[index].value);
@@ -105,15 +96,6 @@ void	add_env_var(t_env *env, const char *key, const char *value,
 	add_memory(memories, env->pairs[env->size].value);
 	env->size++;
 }
-/**
- * add_or_update_env_var - Adds a new environment variable 
- * or updates an existing one.
- *
- * This function ensures that a key-value pair is added or updated in the 
- * custom environment structure (`t_env`). If the key already exists, its value 
- * is updated using `update_env_var`. If the key does not exist, it is added 
- * as a new key-value pair using `add_env_var`
- */
 
 void	add_or_update_env_var(t_env *env, const char *key, const char *value,
 	t_memories *memories)

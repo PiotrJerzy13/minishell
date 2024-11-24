@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 17:10:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:26:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,25 +36,82 @@ int	handle_simple_command(t_command *command, t_env *environment,
 	return (0);
 }
 
+void	print_declared_env(t_env *env)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < env->size)
+	{
+		if (strcmp(env->pairs[i].key, "OLDPWD") == 0 && env->cd_used_flag == 0)
+		{
+			printf("declare -x OLDPWD\n");
+		}
+		else
+		{
+			printf("declare -x %s=\"%s\"\n", env->pairs[i].key,
+				env->pairs[i].value);
+		}
+		i++;
+	}
+}
+
+int	validate_export_argument(const char *arg)
+{
+	if (!arg || strchr(arg, '=') == NULL)
+	{
+		fprintf(stderr, "export: `%s': not a valid identifier\n", arg);
+		return (0);
+	}
+	return (1);
+}
+
+int	bui_export(t_env **env, char **args)
+{
+	int	i;
+
+	if (!args[1])
+	{
+		print_declared_env(*env);
+		return (SUCCESS);
+	}
+	i = 1;
+	while (args[i])
+	{
+		export_env_var(*env, args[i], (*env)->memories);
+		i++;
+	}
+	return (SUCCESS);
+}
+
 int	handle_environment_command(t_command *command, t_env *environment,
 	t_memories *memories, int *last_exit_status)
 {
 	if (strcmp(command->command, "export") == 0)
 	{
-		if (command->args[1] != NULL)
-			export_env_var(environment, command->args[1], memories);
-		*last_exit_status = 0;
+		if (bui_export(&environment, command->args) == FAILURE)
+			*last_exit_status = 1;
+		else
+			*last_exit_status = 0;
 		return (1);
 	}
 	if (strcmp(command->command, "unset") == 0)
 	{
-		handle_unset(command, environment);
-		*last_exit_status = 0;
+		if (command->args[1] != NULL)
+		{
+			handle_unset(command, environment);
+			*last_exit_status = 0;
+		}
+		else
+		{
+			fprintf(stderr, "unset: not enough arguments\n");
+			*last_exit_status = 1;
+		}
 		return (1);
 	}
 	if (strcmp(command->command, "cd") == 0)
 	{
-		if (bui_cd(command->args + 1) == -1)
+		if (bui_cd(command->args + 1, environment, memories) == FAILURE)
 			*last_exit_status = 2;
 		else
 			*last_exit_status = 0;

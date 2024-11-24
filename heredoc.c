@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 13:04:33 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:37:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,17 +61,30 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 	line = NULL;
 	len = 0;
 	printf("heredoc> ");
-	while ((read = getline(&line, &len, stdin)) != -1)
+	read = getline(&line, &len, stdin);
+	while (read != -1)
 	{
 		if (line[read - 1] == '\n')
+		{
 			line[read - 1] = '\0';
+		}
 		if (strcmp(line, delimiter) == 0)
+		{
 			break ;
+		}
 		append_heredoc_node(heredoc_list, line);
 		printf("heredoc> ");
+		read = getline(&line, &len, stdin);
 	}
 	free(line);
-	return (read == -1) ? -1 : 0;
+	if (read == -1)
+	{
+		return (-1);
+	}
+	else
+	{
+		return (0);
+	}
 }
 
 void	handle_heredoc(t_token **current_token, t_command *current_command)
@@ -80,8 +93,6 @@ void	handle_heredoc(t_token **current_token, t_command *current_command)
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
 		current_command->heredoc_list = NULL;
-		printf("Collecting heredoc input for delimiter: %s\n",
-			(*current_token)->value);
 		if (collect_heredoc_input((*current_token)->value,
 				&current_command->heredoc_list) == -1)
 		{
