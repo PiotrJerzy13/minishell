@@ -1,47 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   token_helper.c                                     :+:      :+:    :+:   */
+/*   execute_pipes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/13 15:20:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 12:29:50 by pwojnaro         ###   ########.fr       */
+/*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
+/*   Updated: 2024/11/24 16:08:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	skip_spaces(char **input)
+void	handle_pipe(t_command **current_command, int *arg_count)
 {
-	while (**input && isspace(**input))
-		(*input)++;
-}
-
-char	*get_next_line(int fd)
-{
-	char	*line;
-	int		i;
-	char	ch;
-
-	line = malloc(1024);
-	i = 0;
-	if (!line)
-		return (NULL);
-	while (read(fd, &ch, 1) > 0 && ch != '\n')
+	if (*current_command)
 	{
-		line[i++] = ch;
-		if (i >= 1023)
-			break ;
-	}
-	line[i] = '\0';
-	if (i == 0 && ch != '\n')
-	{
-		free(line);
-		return (NULL);
-	}
-	else
-	{
-		return (line);
+		(*current_command)->is_pipe = 1;
+		(*current_command)->args[*arg_count] = NULL;
+		*current_command = NULL;
+		*arg_count = 0;
 	}
 }

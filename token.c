@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/18 12:47:17 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 17:35:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,76 +49,9 @@ void	add_token(t_token **head, t_token *new_token)
 	}
 }
 
-void	handle_special_characters(char **input, t_token **token_list,
-			t_memories *memories, int *expect_filename, int *last_exit_status)
+void	tokenize_input(char *input, t_token_context *context)
 {
-	if (**input == '|')
-	{
-		add_token(token_list, init_token("|", TOKEN_PIPE, memories));
-		(*input)++;
-	}
-	else if (**input == '<')
-	{
-		if (*(*input + 1) == '<')
-		{
-			add_token(token_list, init_token("<<", TOKEN_HEREDOC, memories));
-			(*input) += 2;
-		}
-		else
-		{
-			add_token(token_list, init_token("<", TOKEN_INPUT_REDIRECT,
-					memories));
-			(*input)++;
-		}
-		*expect_filename = 1;
-	}
-	else if (**input == '>')
-	{
-		if (*(*input + 1) == '>')
-		{
-			add_token(token_list, init_token(">>", TOKEN_APPEND_OUTPUT_REDIRECT,
-					memories));
-			(*input) += 2;
-		}
-		else
-		{
-			add_token(token_list, init_token(">", TOKEN_OUTPUT_REDIRECT,
-					memories));
-			(*input)++;
-		}
-		*expect_filename = 1;
-	}
-	if (*expect_filename && (**input == '\0' || **input == '|'
-			|| **input == '<' || **input == '>'))
-	{
-		*last_exit_status = 258;
-		return ;
-	}
-}
-
-char	*get_quoted_token(char **input_ptr, t_env *environment)
-{
-	char	quote_char;
-
-	quote_char = **input_ptr;
-	if (quote_char == '\'')
-		return (get_single_quoted_token(input_ptr));
-	else if (quote_char == '"')
-		return (get_double_quoted_token(input_ptr, environment));
-	else
-		return (NULL);
-}
-
-void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
-			t_env *environment, int *last_exit_status)
-{
-	char	*token;
-	char	*start;
-	int		expect_filename;
-	char	*value;
-	char	exit_status_str[12];
-
-	expect_filename = 0;
+	context->expect_filename = 0;
 	while (*input)
 	{
 		skip_spaces(&input);
@@ -126,69 +59,33 @@ void	tokenize_input(char *input, t_token **token_list, t_memories *memories,
 			break ;
 		if (*input == '$')
 		{
-			if (*(input + 1) == '?')
-			{
-				snprintf(exit_status_str, sizeof(exit_status_str),
-					"%d", *last_exit_status);
-				add_token(token_list, init_token(exit_status_str,
-						TOKEN_ARGUMENT, memories));
-				input += 2;
-				continue ;
-			}
-			else
-			{
-				input++;
-				start = input;
-				while (isalnum(*input) || *input == '_')
-					input++;
-				token = strndup(start, input - start);
-				value = get_env_value(token, environment);
-				if (value)
-					add_token(token_list, init_token(value,
-							TOKEN_ARGUMENT, memories));
-				else
-					add_token(token_list, init_token("",
-							TOKEN_ARGUMENT, memories));
-				free(token);
-				if (value)
-					free(value);
-			}
+			process_variable_expansion(&input, context);
 		}
 		else if (*input == '"' || *input == '\'')
 		{
-			token = get_quoted_token(&input, environment);
-			if (token)
-			{
-				if (expect_filename)
-					add_token(token_list, init_token(token,
-							TOKEN_FILENAME, memories));
-				else
-					add_token(token_list, init_token(token,
-							TOKEN_ARGUMENT, memories));
-				free(token);
-				expect_filename = 0;
-			}
+			process_quoted_token(&input, context);
 		}
 		else
 		{
-			start = input;
-			while (*input && !isspace(*input) && *input != '|'
-				&& *input != '<' && *input != '>')
-				input++;
-			if (input > start)
-			{
-				token = strndup(start, input - start);
-				if (expect_filename)
-					add_token(token_list, init_token(token,
-							TOKEN_FILENAME, memories));
-				else
-					add_token(token_list, init_token(token,
-							TOKEN_COMMAND, memories));
-				free(token);
-				expect_filename = 0;
-			}
-			handle_special_characters(&input, token_list, memories,
-				&expect_filename, last_exit_status);
+			process_general_token(&input, context);
 		}
 	}
+}
+
+void	handle_token_creation(char **input, t_token_context *context,
+	t_token_info *info)
+{
+	if (*(*input + 1) == info->single_token[0])
+	{
+		add_token(context->token_list, init_token(info->double_token,
+				info->type_double, context->memories));
+		(*input) += 2;
+	}
+	else
+	{
+		add_token(context->token_list, init_token(info->single_token,
+				info->type_single, context->memories));
+		(*input)++;
+	}
+	context->expect_filename = 1;
 }
