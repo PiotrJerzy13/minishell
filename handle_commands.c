@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_buildins.c                                  :+:      :+:    :+:   */
+/*   handle_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 12:35:38 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 17:10:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,7 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories,
 
 	saved_stdin = -1;
 	saved_stdout = -1;
-	if (clear_output_redirect(command->output_redirect,
-			command->input_redirect, exit_st)
+	if (clear_output_redirect(command->output_redirect, exit_st)
 		|| handle_input_redirection(command->input_redirect,
 			&saved_stdin, exit_st)
 		|| handle_output_redirection(command->output_redirect,

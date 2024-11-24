@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 15:24:01 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:37:44 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 14:47:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,18 +48,40 @@ void	add_command_node(t_command **head, t_command *new_command)
 	current->next = new_command;
 }
 
-t_command	*initialize_command(t_token *current_token,
-		t_command **command_list, t_memories *memories)
+t_command	*initialize_command(t_token *token,
+	t_command **command_list, t_memories *memories)
 {
-	t_command	*command;
+	t_command	*new_command = create_new_command(memories);
 
-	command = init_command_node(memories);
-	add_command_node(command_list, command);
-	command->args = malloc(sizeof(char *) * 10);
-	add_memory(memories, command->args);
-	command->command = strdup(current_token->value);
-	add_memory(memories, command->command);
-	command->args[0] = strdup(current_token->value);
-	add_memory(memories, command->args[0]);
-	return (command);
+	if (!new_command)
+	{
+		printf("Error: Failed to create a new command.\n");
+		return (NULL);
+	}
+	new_command->command = strdup(token->value);
+	add_memory(memories, new_command->command);
+	new_command->args = malloc(sizeof(char *) * (MAX_ARGS));
+	if (!new_command->args)
+	{
+		printf("Error: Failed to allocate memory for arguments.\n");
+		return (NULL);
+	}
+	add_memory(memories, new_command->args);
+	new_command->args[0] = strdup(token->value);
+	add_memory(memories, new_command->args[0]);
+	if (*command_list == NULL)
+	{
+		*command_list = new_command;
+	}
+	else
+	{
+		t_command *current = *command_list;
+		while (current->next)
+		{
+			current = current->next;
+		}
+		current->next = new_command;
+	}
+	printf("Initialized new command: %s\n", new_command->command);
+	return (new_command);
 }

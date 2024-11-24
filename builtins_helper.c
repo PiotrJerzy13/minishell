@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 13:46:07 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:37:29 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/23 16:22:48 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	handle_unset(t_command *command, t_env *environment)
 {
-	int	i;
+	size_t	i;
 
 	i = 1;
 	while (command->args[i] != NULL)
@@ -26,7 +26,7 @@ void	handle_unset(t_command *command, t_env *environment)
 
 void	print_env(t_env *env)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (i < env->size)
@@ -38,8 +38,8 @@ void	print_env(t_env *env)
 
 void	unset_env_var(t_env *env, const char *key)
 {
-	int	i;
-	int	j;
+	size_t	i;
+	size_t	j;
 
 	i = 0;
 	while (i < env->size)

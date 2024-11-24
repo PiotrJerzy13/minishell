@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:39:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 14:41:59 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,28 +53,23 @@ void	export_env_var(t_env *environment, char *input, t_memories *memories)
 
 char	**env_to_char_array(t_env *environment)
 {
-	char	**env_array;
-	size_t	len;
-	int		i;
+	char	**env_array = malloc((environment->size + 1) * sizeof(char *));
 
-	i = 0;
-	env_array = malloc((environment->size + 1) * sizeof(char *));
 	if (!env_array)
 	{
+		perror("Failed to allocate environment array");
 		exit(EXIT_FAILURE);
 	}
-	while (i < environment->size)
+	for (size_t i = 0; i < environment->size; i++)
 	{
-		len = strlen(environment->pairs[i].key)
-			+ strlen(environment->pairs[i].value) + 2;
-		env_array[i] = malloc(len);
+		env_array[i] = malloc(strlen(environment->pairs[i].key) + strlen(environment->pairs[i].value) + 2);
 		if (!env_array[i])
 		{
+			perror("Failed to allocate environment string");
 			exit(EXIT_FAILURE);
 		}
-		snprintf(env_array[i], len, "%s=%s", environment->pairs[i].key,
-			environment->pairs[i].value);
-		i++;
+		snprintf(env_array[i], strlen(environment->pairs[i].key) + strlen(environment->pairs[i].value) + 2,
+			"%s=%s", environment->pairs[i].key, environment->pairs[i].value);
 	}
 	env_array[environment->size] = NULL;
 	return (env_array);
@@ -123,7 +118,7 @@ void	add_env_var(t_env *env, const char *key, const char *value,
 void	add_or_update_env_var(t_env *env, const char *key, const char *value,
 	t_memories *memories)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (i < env->size)
@@ -140,7 +135,7 @@ void	add_or_update_env_var(t_env *env, const char *key, const char *value,
 
 void	free_env_array(char **env_array)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (env_array[i] != NULL)
@@ -153,7 +148,7 @@ void	free_env_array(char **env_array)
 
 char	*get_env_value(const char *name, t_env *environment)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (i < environment->size)

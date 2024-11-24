@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:37:52 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 14:45:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,36 @@
 
 char	*find_executable_path(const char *command)
 {
-	char	*path_env;
-	char	*path;
-	char	*dir;
-	char	*full_path;
+	char	*path_env = getenv("PATH");
+	char	*path, *dir, *full_path;
 
-	path_env = getenv("PATH");
 	if (!path_env)
+	{
+		fprintf(stderr, "Error: PATH environment variable is not set.\n");
 		return (NULL);
+	}
 	path = strdup(path_env);
 	if (!path)
+	{
+		perror("strdup failed");
 		return (NULL);
+	}
 	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
-		asprintf(&full_path, "%s/%s", dir, command);
+		if (*dir == '\0')
+		{
+			dir = ".";
+		}
+		if (asprintf(&full_path, "%s/%s", dir, command) == -1)
+		{
+			perror("asprintf failed");
+			free(path);
+			return (NULL);
+		}
 		if (access(full_path, X_OK) == 0)
 		{
+			printf("Resolved path for command '%s': %s\n", command, full_path);
 			free(path);
 			return (full_path);
 		}

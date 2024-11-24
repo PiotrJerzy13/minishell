@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:42:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 13:04:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,11 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 	size_t	len;
 	ssize_t	read;
 
-	len = 0;
 	line = NULL;
+	len = 0;
 	printf("heredoc> ");
-	while (1)
+	while ((read = getline(&line, &len, stdin)) != -1)
 	{
-		read = getline(&line, &len, stdin);
-		if (read == -1)
-			break ;
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 		if (strcmp(line, delimiter) == 0)
@@ -73,9 +70,8 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 		append_heredoc_node(heredoc_list, line);
 		printf("heredoc> ");
 	}
-	if (read == -1)
-		free(line);
-	return (0);
+	free(line);
+	return (read == -1) ? -1 : 0;
 }
 
 void	handle_heredoc(t_token **current_token, t_command *current_command)
@@ -84,10 +80,16 @@ void	handle_heredoc(t_token **current_token, t_command *current_command)
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
 		current_command->heredoc_list = NULL;
+		printf("Collecting heredoc input for delimiter: %s\n",
+			(*current_token)->value);
 		if (collect_heredoc_input((*current_token)->value,
 				&current_command->heredoc_list) == -1)
 		{
 			fprintf(stderr, "Error collecting heredoc input\n");
 		}
+	}
+	else
+	{
+		fprintf(stderr, "Syntax error: Expected delimiter after <<\n");
 	}
 }

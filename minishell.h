@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:55:27 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 13:24:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 
 #define INITIAL_CAPACITY 128
+#define MAX_ARGS 128  // Adjust the number based on your requirements
 
 typedef struct s_heredoc_node
 {
@@ -48,8 +49,8 @@ typedef struct s_key_value
 typedef struct s_env
 {
 	t_key_value	*pairs;
-	int			size;
-	int			capacity;
+	size_t		size;
+	size_t		capacity;
 	t_memories	*memories;
 }	t_env;
 
@@ -82,6 +83,7 @@ typedef enum e_token_type
 	TOKEN_OUTPUT_REDIRECT,
 	TOKEN_APPEND_OUTPUT_REDIRECT,
 	TOKEN_HEREDOC,
+	TOKEN_DELIMITER,
 	TOKEN_FILENAME
 }	t_token_type;
 typedef struct s_token
@@ -97,6 +99,8 @@ typedef struct s_exec_context
 	int		*pipefd;
 	int		*last_exit_status;
 	t_env	*environment;
+	int		saved_stdin;
+	int		saved_stdout;
 }	t_exec_context;
 
 typedef struct s_token_context
@@ -175,7 +179,7 @@ int				collect_heredoc_input(const char *delimiter,
 char			*get_double_quoted_token(char **input_ptr, t_env *environment);
 char			*get_single_quoted_token(char **input_ptr);
 int				clear_output_redirect(const char *output_redirect,
-					const char *input_redirect, int *last_exit_status);
+					int *last_exit_status);
 void			restore_redirections(int saved_stdin, int saved_stdout);
 void			handle_unset(t_command *command, t_env *environment);
 int				setup_pipes(int *pipefd, int *last_exit_status);
@@ -242,3 +246,4 @@ int				handle_output_redirection(const char *output_redirect,
 					int append_mode, int *saved_stdout, int *last_exit_status);
 t_command_context	*create_command_context(t_shell_state *state);
 t_token_context	init_token_context(t_command_context *context);
+t_command		*create_new_command(t_memories *memories);

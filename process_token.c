@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:44:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 14:31:39 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,23 +65,24 @@ void	process_quoted_token(char **input, t_token_context *context)
 {
 	char	*token;
 
-	token = get_quoted_token(input, context->environment);
+	token = NULL;
+	if (**input == '"')
+	{
+		token = get_double_quoted_token(input, context->environment);
+	}
+	else if (**input == '\'')
+	{
+		token = get_single_quoted_token(input);
+	}
 	if (token)
 	{
-		if (context->expect_filename)
-		{
-			add_token(context->token_list, init_token(token,
-					TOKEN_FILENAME, context->memories));
-		}
-		else
-		{
-			add_token(context->token_list, init_token(token, TOKEN_ARGUMENT,
-					context->memories));
-		}
+		add_token(context->token_list, init_token(token,
+				context->expect_filename ? TOKEN_FILENAME : TOKEN_ARGUMENT,
+				context->memories));
 		free(token);
-		context->expect_filename = 0;
 	}
 }
+
 
 /**
  * handle_redirects - Handles input and output redirection tokens.
@@ -155,5 +156,9 @@ void	process_special_tokens(t_token **current_token,
 	else if ((*current_token)->type == TOKEN_PIPE && *current_command)
 	{
 		handle_pipe(current_command, arg_count);
+	}
+	else
+	{
+		printf("Unrecognized special token: %s\n", (*current_token)->value);
 	}
 }

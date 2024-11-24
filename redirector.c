@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 14:45:50 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/24 13:21:24 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,24 +16,29 @@ int	is_same_file(const char *file1, const char *file2)
 {
 	struct stat	stat1;
 	struct stat	stat2;
+	int			same;
 
+	printf("Checking if '%s' and '%s' are the same file.\n", file1, file2);
 	if (stat(file1, &stat1) == -1 || stat(file2, &stat2) == -1)
+	{
+		printf("Error: Could not stat files '%s' or '%s'.\n", file1, file2);
 		return (0);
-	return (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+	}
+	same = (stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+	printf("Result: %s\n", same ? "Same file" : "Different files");
+	return (same);
 }
 
-int	clear_output_redirect(const char *output_redirect,
-		const char *input_redirect, int *last_exit_status)
+int	clear_output_redirect(const char *output_redirect, int *last_exit_status)
 {
 	int	fd_out;
 
-	if (input_redirect && output_redirect
-		&& is_same_file(input_redirect, output_redirect))
+	if (output_redirect)
 	{
-		fd_out = open(output_redirect, O_WRONLY | O_TRUNC, 0644);
+		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd_out == -1)
 		{
-			perror("open failed in clear_output_redirect");
+			perror("Failed to create or truncate output file");
 			*last_exit_status = 1;
 			return (1);
 		}
@@ -43,12 +48,13 @@ int	clear_output_redirect(const char *output_redirect,
 }
 
 int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
-	int *last_exit_status)
+		int *last_exit_status)
 {
 	int	fd_in;
 
 	if (input_redirect)
 	{
+		printf("Handling input redirection from file: %s\n", input_redirect);
 		fd_in = open(input_redirect, O_RDONLY);
 		if (fd_in == -1)
 		{
@@ -64,38 +70,46 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 			*last_exit_status = 1;
 			return (1);
 		}
+		printf("Input redirection successfully set to '%s'.\n", input_redirect);
 		close(fd_in);
 	}
 	return (0);
 }
 
 int	handle_output_redirection(const char *output_redirect, int append_mode,
-			int *saved_stdout, int *last_exit_status)
+		int *saved_stdout, int *last_exit_status)
 {
-	int	fd_out;
-
-	if (output_redirect)
+	if (!output_redirect)
 	{
-		if (append_mode)
-			fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		else
-			fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (fd_out == -1)
-		{
-			perror("open failed for output redirection");
-			*last_exit_status = 1;
-			return (1);
-		}
-		*saved_stdout = dup(STDOUT_FILENO);
-		if (*saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
-		{
-			perror("dup failed for output redirection");
-			close(fd_out);
-			*last_exit_status = 1;
-			return (1);
-		}
-		close(fd_out);
+		printf("No output redirection specified.\n");
+		return (0);
 	}
+	printf("Handling output redirection for file: %s\n", output_redirect);
+	int fd_out;
+	if (append_mode)
+	{
+		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	}
+	else
+	{
+		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	}
+	if (fd_out == -1)
+	{
+		perror("open failed for output redirection");
+		*last_exit_status = 1;
+		return (1);
+	}
+	*saved_stdout = dup(STDOUT_FILENO);
+	if (*saved_stdout == -1 || dup2(fd_out, STDOUT_FILENO) == -1)
+	{
+		perror("dup failed for output redirection");
+		close(fd_out);
+		*last_exit_status = 1;
+		return (1);
+	}
+	printf("Output successfully redirected to '%s'.\n", output_redirect);
+	close(fd_out);
 	return (0);
 }
 
@@ -104,57 +118,71 @@ void	handle_redirections(t_token **current_token, t_command *current_command,
 {
 	char	*redirect;
 
+	if (!current_command)
+	{
+		printf("Error: current_command is NULL while handling redirections.\n");
+		return ;
+	}
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
 		redirect = strdup((*current_token)->value);
+		if (!redirect)
+		{
+			printf("Error: Failed to allocate memory for redirect.\n");
+			return ;
+		}
 		add_memory(memories, redirect);
+		printf("Setting redirection for file: %s\n", redirect);
 		if (append_mode)
 		{
 			current_command->output_redirect = redirect;
 			current_command->append_mode = 1;
 		}
-		else if ((*current_token - 1)->type == TOKEN_OUTPUT_REDIRECT)
+		else
 		{
 			current_command->output_redirect = redirect;
 		}
-		else if ((*current_token - 1)->type == TOKEN_INPUT_REDIRECT)
-		{
-			current_command->input_redirect = redirect;
-		}
+		printf("Updated current_command->output_redirect: %s\n",
+			current_command->output_redirect ? current_command->output_redirect : "(null)");
+	}
+	else
+	{
+		printf("Error: Expected a filename after redirection token.\n");
 	}
 }
-
-//  restore_redirections - Restores original stdin and stdout.
-
-//   This function reverts any changes to 
-//   back to their original file descriptors. 
-//  redirections (e.g., to a file or pipe) to ensure 
-// normal input/output resumes.
 
 void	restore_redirections(int saved_stdin, int saved_stdout)
 {
 	if (saved_stdin != -1)
 	{
+		printf("Restoring original stdin (fd: %d).\n", saved_stdin);
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
 			perror("Failed to restore stdin");
 		close(saved_stdin);
 	}
 	if (saved_stdout != -1)
 	{
+		printf("Restoring original stdout (fd: %d).\n", saved_stdout);
 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
 			perror("Failed to restore stdout");
 		close(saved_stdout);
 	}
 }
 
-void	handle_all_redirections(t_token **current_token,
-	t_command *current_command, t_memories *memories)
+void handle_all_redirections(t_token **current_token, t_command *current_command, t_memories *memories)
 {
 	int	append_mode;
 
 	append_mode = 0;
 	if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
+	{
 		append_mode = 1;
+		printf("Detected append redirection.\n");
+	}
+	else
+	{
+		printf("Detected output redirection.\n");
+	}
 	handle_redirections(current_token, current_command, memories, append_mode);
 }
