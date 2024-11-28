@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:33:34 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/11/28 14:38:05 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,12 @@ char	*find_executable_path(const char *command)
 	char	*dir;
 	char	*full_path;
 
+	if (strchr(command, '/'))
+	{
+		if (access(command, X_OK) == 0)
+			return (strdup(command));
+		return (NULL);
+	}
 	path_env = getenv("PATH");
 	if (!path_env)
 	{
@@ -35,9 +41,7 @@ char	*find_executable_path(const char *command)
 	while (dir != NULL)
 	{
 		if (*dir == '\0')
-		{
 			dir = ".";
-		}
 		if (asprintf(&full_path, "%s/%s", dir, command) == -1)
 		{
 			perror("asprintf failed");
