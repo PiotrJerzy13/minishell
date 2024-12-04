@@ -6,47 +6,63 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:29:29 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 12:00:32 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/**
-This code is needed for processing and dynamically building a string 
-result in scenarios where parts of an 
-input string need to be parsed, expanded, and combined into a final 
-string. Example echo "Hello, $USER!"
-**/
-void	append_to_result(char **result, const char *start, size_t length)
+int	validate_quotes(const char *input)
 {
-	*result = realloc(*result, strlen(*result) + length + 1);
-	if (!*result)
-		exit(EXIT_FAILURE);
-	strncat(*result, start, length);
+	int	single_quote;
+	int	double_quote;
+
+	single_quote = 0;
+	double_quote = 0;
+	while (*input)
+	{
+		if (*input == '\'' && double_quote == 0)
+			single_quote ^= 1;
+		else if (*input == '"' && single_quote == 0)
+			double_quote ^= 1;
+		input++;
+	}
+	if (single_quote || double_quote)
+	{
+		if (single_quote)
+			fprintf(stderr, "minishell: syntax error:\n");
+		if (double_quote)
+			fprintf(stderr, "minishell: syntax error:\n");
+		return (0);
+	}
+	return (1);
 }
 
 char	*get_user_input(void)
 {
 	char	*input;
-	char	*line;
 
-	input = NULL;
-	line = NULL;
-	if (isatty(fileno(stdin)))
-		input = readline("minishell> ");
-	else
+	input = readline("minishell> ");
+	if (!input)
 	{
-		line = get_next_line(fileno(stdin));
-		if (!line)
-			return (NULL);
-		input = ft_strtrim(line, "\n");
-		free(line);
+		printf("DEBUG: EOF detected in get_user_input.\n");
+		return (NULL);
+	}
+	if (*input == '\0')
+	{
+		free(input);
+		return ("");
+	}
+	if (!validate_quotes(input))
+	{
+		fprintf(stderr, "minishell: syntax error: unterminated quote\n");
+		free(input);
+		return ("");
 	}
 	return (input);
 }
 
-void	parse_input_to_commands(t_token *token_list, t_command **command_list,
+int	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	t_memories *memories)
 {
 	t_command	*command;
@@ -56,26 +72,33 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	command = NULL;
 	token = token_list;
 	arg_count = 0;
+	if (!token_list)
+		return (0);
 	while (token)
 	{
-		if (command == NULL && token->type == TOKEN_COMMAND)
+		if (!command && token->type == TOKEN_COMMAND)
 		{
 			command = initialize_command(token, command_list, memories);
 			if (!command)
 			{
-				printf("Error: Failed to initialize command.\n");
-				return ;
+				fprintf(stderr, "Error: Failed to initialize command.\n");
+				return (-1);
 			}
 			arg_count = 1;
 		}
-		else if ((token->type == TOKEN_ARGUMENT || token->type == TOKEN_COMMAND)
-			&& command)
+		else if ((token->type == TOKEN_ARGUMENT
+				|| token->type == TOKEN_COMMAND) && command)
 		{
 			add_argument_to_command(token, command, memories, &arg_count);
 		}
 		else
 		{
-			process_special_tokens(&token, &command, memories, &arg_count);
+			if (process_special_tokens(&token, &command,
+					memories, &arg_count) == -1)
+			{
+				fprintf(stderr, "Error: Failed to process special token.\n");
+				return (-1);
+			}
 		}
 		token = token->next;
 	}
@@ -83,6 +106,7 @@ void	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	{
 		command->args[arg_count] = NULL;
 	}
+	return (0);
 }
 
 t_command	*create_new_command(t_memories *memories)

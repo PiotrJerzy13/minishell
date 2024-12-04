@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:36:22 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 11:16:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,15 +92,14 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 	return (0);
 }
 
-void	handle_redirections(t_token **current_token, t_command *current_command,
-		t_memories *memories, int append_mode)
+int	handle_redirections(t_token **current_token, t_command *current_command,
+	t_memories *memories, int append_mode)
 {
 	char	*redirect;
 
 	if (!current_command)
 	{
-		printf("Error: current_command is NULL while handling redirections.\n");
-		return ;
+		return (-1);
 	}
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
@@ -108,8 +107,8 @@ void	handle_redirections(t_token **current_token, t_command *current_command,
 		redirect = strdup((*current_token)->value);
 		if (!redirect)
 		{
-			printf("Error: Failed to allocate memory for redirect.\n");
-			return ;
+			fprintf(stderr, "Error: Failed to allocate memory for redirect.\n");
+			return (-1);
 		}
 		add_memory(memories, redirect);
 		if (append_mode)
@@ -121,10 +120,11 @@ void	handle_redirections(t_token **current_token, t_command *current_command,
 		{
 			current_command->output_redirect = redirect;
 		}
+		return (0);
 	}
 	else
 	{
-		printf("Error: Expected a filename after redirection token.\n");
+		return (-1);
 	}
 }
 
@@ -144,18 +144,24 @@ void	restore_redirections(int saved_stdin, int saved_stdout)
 	}
 }
 
-void	handle_all_redirections(t_token **current_token,
-			t_command *current_command, t_memories *memories)
+int	handle_all_redirections(t_token **current_token, t_command *current_command, t_memories *memories)
 {
 	int	append_mode;
 
+	if (!current_token || !*current_token || !current_command || !memories)
+	{
+		return (-1);
+	}
 	append_mode = 0;
 	if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
 	{
 		append_mode = 1;
 	}
-	else
+	if (handle_redirections(current_token, current_command,
+			memories, append_mode) == -1)
 	{
+		fprintf(stderr, "Error handling redirection\n");
+		return (-1);
 	}
-	handle_redirections(current_token, current_command, memories, append_mode);
+	return (0);
 }

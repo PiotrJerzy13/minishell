@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:37:55 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 12:02:41 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,13 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 	}
 }
 
-void	handle_heredoc(t_token **current_token, t_command *current_command)
+int	handle_heredoc(t_token **current_token, t_command *current_command)
 {
+	if (!current_token || !*current_token || !current_command)
+	{
+		fprintf(stderr, "Error: Invalid arguments to handle_heredoc.\n");
+		return (-1);
+	}
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
@@ -97,10 +102,13 @@ void	handle_heredoc(t_token **current_token, t_command *current_command)
 				&current_command->heredoc_list) == -1)
 		{
 			fprintf(stderr, "Error collecting heredoc input\n");
+			return (-1);
 		}
 	}
 	else
 	{
 		fprintf(stderr, "Syntax error: Expected delimiter after <<\n");
+		return (-1);
 	}
+	return (0);
 }
