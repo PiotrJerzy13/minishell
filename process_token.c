@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 11:19:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 12:41:57 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void	handle_special_characters(char **input, t_token_context *context)
 }
 
 int	process_special_tokens(t_token **current_token, t_command **current_command,
-	t_memories *memories, int *arg_count)
+				t_memories *memories, int *arg_count)
 {
 	if ((*current_token)->type == TOKEN_HEREDOC && *current_command)
 	{
@@ -163,16 +163,27 @@ int	process_special_tokens(t_token **current_token, t_command **current_command,
 			|| (*current_token)->type == TOKEN_INPUT_REDIRECT)
 		&& *current_command)
 	{
-		if (handle_all_redirections(current_token,
-				*current_command, memories) == -1)
+		if (handle_all_redirections(current_token, *current_command,
+				memories) == -1)
 		{
 			fprintf(stderr, "Error: Failed to handle redirection.\n");
 			return (-1);
 		}
 	}
-	else if ((*current_token)->type == TOKEN_PIPE && *current_command)
+	else if ((*current_token)->type == TOKEN_PIPE)
 	{
+		if (!*current_command)
+		{
+			fprintf(stderr, "Error: Pipe '|' without preceding command.\n");
+			return (-1);
+		}
 		handle_pipe(current_command, arg_count);
+		if (!(*current_token)->next || (*current_token)->next->type
+			!= TOKEN_COMMAND)
+		{
+			fprintf(stderr, "Error: Pipe '|' without following command.\n");
+			return (-1);
+		}
 	}
 	else
 	{
