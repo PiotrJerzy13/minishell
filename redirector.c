@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 11:16:34 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 14:45:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int	clear_output_redirect(const char *output_redirect, int *last_exit_status)
 
 	if (output_redirect)
 	{
+		printf("DEBUG: Clearing output redirection: %s\n", output_redirect);
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd_out == -1)
 		{
@@ -58,7 +59,7 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 }
 
 int	handle_output_redirection(const char *output_redirect, int append_mode,
-		int *saved_stdout, int *last_exit_status)
+			int *saved_stdout, int *last_exit_status)
 {
 	int	fd_out;
 
@@ -66,13 +67,17 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 	{
 		return (0);
 	}
+	printf("DEBUG: Output redirection detected: %s\n", output_redirect);
+	printf("DEBUG: Append mode: %d\n", append_mode);
 	if (append_mode)
 	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		printf("DEBUG: File opened in append mode: %s\n", output_redirect);
 	}
 	else
 	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		printf("DEBUG: File opened in overwrite mode: %s\n", output_redirect);
 	}
 	if (fd_out == -1)
 	{
@@ -144,7 +149,8 @@ void	restore_redirections(int saved_stdin, int saved_stdout)
 	}
 }
 
-int	handle_all_redirections(t_token **current_token, t_command *current_command, t_memories *memories)
+int	handle_all_redirections(t_token **current_token, t_command *current_command,
+		t_memories *memories)
 {
 	int	append_mode;
 
@@ -156,9 +162,16 @@ int	handle_all_redirections(t_token **current_token, t_command *current_command,
 	if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
 	{
 		append_mode = 1;
+		printf("DEBUG: Append redirection detected: %s\n",
+			(*current_token)->value);
 	}
-	if (handle_redirections(current_token, current_command,
-			memories, append_mode) == -1)
+	else
+	{
+		printf("DEBUG: Overwrite redirection detected: %s\n",
+			(*current_token)->value);
+	}
+	if (handle_redirections(current_token, current_command, memories,
+			append_mode) == -1)
 	{
 		fprintf(stderr, "Error handling redirection\n");
 		return (-1);
