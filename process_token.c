@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 13:20:58 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 18:19:23 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,27 +29,33 @@ void	process_general_token(char **input, t_token_context *context)
 	char	*token;
 
 	start = *input;
-	while (**input && !isspace(**input) && **input != '|'
-		&& **input != '<' && **input != '>')
+	printf("DEBUG: Starting process_general_token with input: '%s'\n", *input);
+	while (**input && !isspace(**input) && **input != '|' && **input != '<'
+		&& **input != '>')
+	{
 		(*input)++;
+	}
 	if (*input > start)
 	{
 		token = strndup(start, *input - start);
 		if (context->expect_filename)
 		{
-			add_token(context->token_list, init_token(token,
-					TOKEN_FILENAME, context->memories));
+			printf("DEBUG: Adding TOKEN_FILENAME: '%s'\n", token);
+			add_token(context->token_list, init_token(token, TOKEN_FILENAME,
+					context->memories));
 		}
 		else
 		{
-			add_token(context->token_list, init_token(token,
-					TOKEN_COMMAND, context->memories));
+			printf("DEBUG: Adding TOKEN_COMMAND: '%s'\n", token);
+			add_token(context->token_list, init_token(token, TOKEN_COMMAND,
+					context->memories));
 		}
 		free(token);
 		context->expect_filename = 0;
 	}
 	handle_special_characters(input, context);
 }
+
 
 /**
  * process_quoted_token - Processes tokens enclosed in quotes.
@@ -93,37 +99,6 @@ void	process_quoted_token(char **input, t_token_context *context)
 }
 
 /**
- * handle_redirects - Handles input and output redirection tokens.
- *
- * This function processes redirection operators 
- * (`<`, `>`, `<<`, `>>`) and adds the
- * appropriate redirection tokens to the token list. 
- * It distinguishes between single and
- * double redirection operators (e.g., `>` vs. `>>`).
- */
-void	handle_redirects(char **input, t_token_context *context,
-			char redirect_char)
-{
-	t_token_info	info;
-
-	if (redirect_char == '<')
-	{
-		info.single_token = "<";
-		info.double_token = "<<";
-		info.type_single = TOKEN_INPUT_REDIRECT;
-		info.type_double = TOKEN_HEREDOC;
-	}
-	else
-	{
-		info.single_token = ">";
-		info.double_token = ">>";
-		info.type_single = TOKEN_OUTPUT_REDIRECT;
-		info.type_double = TOKEN_APPEND_OUTPUT_REDIRECT;
-	}
-	handle_token_creation(input, context, &info);
-}
-
-/**
  * handle_special_characters - Processes special shell characters.
  *
  * This function identifies and processes special 
@@ -136,15 +111,42 @@ void	handle_special_characters(char **input, t_token_context *context)
 {
 	if (**input == '|')
 	{
+		printf("DEBUG: Adding TOKEN_PIPE: '|'\n");
 		add_token(context->token_list, init_token("|",
 				TOKEN_PIPE, context->memories));
 		(*input)++;
 	}
-	else if (**input == '<' || **input == '>')
-		handle_redirects(input, context, **input);
+	else if (**input == '<')
+	{
+		printf("DEBUG: Tokenizing input redirection '<'\n");
+		add_token(context->token_list, init_token("<",
+				TOKEN_INPUT_REDIRECT, context->memories));
+		(*input)++;
+		context->expect_filename = 1;
+	}
+	else if (**input == '>')
+	{
+		if (*(*input + 1) == '>')
+		{
+			printf("DEBUG: Tokenizing append output redirection '>>'\n");
+			add_token(context->token_list, init_token(">>",
+					TOKEN_APPEND_OUTPUT_REDIRECT, context->memories));
+			(*input) += 2;
+		}
+		else
+		{
+			printf("DEBUG: Tokenizing output redirection '>'\n");
+			add_token(context->token_list, init_token(">",
+					TOKEN_OUTPUT_REDIRECT, context->memories));
+			(*input)++;
+		}
+		context->expect_filename = 1;
+	}
 	if (context->expect_filename && (**input == '\0' || **input == '|'
 			|| **input == '<' || **input == '>'))
+	{
 		*(context->last_exit_status) = 258;
+	}
 }
 
 int	process_special_tokens(t_token **current_token, t_command **current_command,

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 13:18:20 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 18:23:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,22 +70,4 @@ void	tokenize_input(char *input, t_token_context *context)
 			process_general_token(&input, context);
 		}
 	}
-}
-
-void	handle_token_creation(char **input, t_token_context *context,
-	t_token_info *info)
-{
-	if (*(*input + 1) == info->single_token[0])
-	{
-		add_token(context->token_list, init_token(info->double_token,
-				info->type_double, context->memories));
-		(*input) += 2;
-	}
-	else
-	{
-		add_token(context->token_list, init_token(info->single_token,
-				info->type_single, context->memories));
-		(*input)++;
-	}
-	context->expect_filename = 1;
 }

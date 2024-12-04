@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 11:22:36 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 17:50:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,8 +199,7 @@ t_command		*initialize_command(t_token *token,
 int				handle_all_redirections(t_token **current_token,
 					t_command *current_command, t_memories *memories);
 int				handle_redirections(t_token **current_token,
-					t_command *current_command, t_memories *memories,
-					int append_mode);
+					t_command *current_command, t_memories *memories);
 int				process_special_tokens(t_token **current_token,
 					t_command **current_command, t_memories *memories,
 					int *arg_count);

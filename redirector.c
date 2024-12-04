@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 14:45:33 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 18:21:01 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,39 +98,89 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 }
 
 int	handle_redirections(t_token **current_token, t_command *current_command,
-	t_memories *memories, int append_mode)
+	t_memories *memories)
 {
 	char	*redirect;
 
 	if (!current_command)
 	{
+		fprintf(stderr, "Error: No current command.\n");
 		return (-1);
 	}
-	*current_token = (*current_token)->next;
-	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
+	printf("DEBUG: Token type being processed: %d\n", (*current_token)->type);
+	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
 	{
-		redirect = strdup((*current_token)->value);
-		if (!redirect)
+		printf("DEBUG: Detected input redirection.\n");
+		*current_token = (*current_token)->next;
+		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 		{
-			fprintf(stderr, "Error: Failed to allocate memory for redirect.\n");
+			redirect = strdup((*current_token)->value);
+			if (!redirect)
+			{
+				fprintf(stderr, "Error: Failed to allocate memory.\n");
+				return (-1);
+			}
+			add_memory(memories, redirect);
+			printf("DEBUG: Handling input redirection: %s\n", redirect);
+			current_command->input_redirect = redirect;
+		}
+		else
+		{
+			fprintf(stderr, "Error: Expected filename.\n");
 			return (-1);
 		}
-		add_memory(memories, redirect);
-		if (append_mode)
+	}
+	else if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT)
+	{
+		printf("DEBUG: Detected output redirection.\n");
+		*current_token = (*current_token)->next;
+		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 		{
+			redirect = strdup((*current_token)->value);
+			if (!redirect)
+			{
+				fprintf(stderr, "Error: Failed to allocate memory.\n");
+				return (-1);
+			}
+			add_memory(memories, redirect);
+			current_command->output_redirect = redirect;
+			current_command->append_mode = 0;
+		}
+		else
+		{
+			fprintf(stderr, "Error: Expected filename.\n");
+			return (-1);
+		}
+	}
+	else if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
+	{
+		printf("DEBUG: Detected append output redirection.\n");
+		*current_token = (*current_token)->next;
+		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
+		{
+			redirect = strdup((*current_token)->value);
+			if (!redirect)
+			{
+				fprintf(stderr, "Error: Failed to allocate memory.\n");
+				return (-1);
+			}
+			add_memory(memories, redirect);
+			printf("DEBUG: Handling append output redirection: %s\n", redirect);
 			current_command->output_redirect = redirect;
 			current_command->append_mode = 1;
 		}
 		else
 		{
-			current_command->output_redirect = redirect;
+			fprintf(stderr, "Error: Expected filename.\n");
+			return (-1);
 		}
-		return (0);
 	}
 	else
 	{
+		fprintf(stderr, "Unexpected token: %d\n", (*current_token)->type);
 		return (-1);
 	}
+	return (0);
 }
 
 void	restore_redirections(int saved_stdin, int saved_stdout)
@@ -150,30 +200,39 @@ void	restore_redirections(int saved_stdin, int saved_stdout)
 }
 
 int	handle_all_redirections(t_token **current_token, t_command *current_command,
-		t_memories *memories)
+				t_memories *memories)
 {
-	int	append_mode;
-
 	if (!current_token || !*current_token || !current_command || !memories)
 	{
 		return (-1);
 	}
-	append_mode = 0;
-	if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
+	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
 	{
-		append_mode = 1;
-		printf("DEBUG: Append redirection detected: %s\n",
-			(*current_token)->value);
+		if (handle_redirections(current_token, current_command, memories) == -1)
+		{
+			fprintf(stderr, "Error handling input redirection\n");
+			return (-1);
+		}
+	}
+	else if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
+	{
+		if (handle_redirections(current_token, current_command, memories) == -1)
+		{
+			fprintf(stderr, "Error handling append output redirection\n");
+			return (-1);
+		}
+	}
+	else if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT)
+	{
+		if (handle_redirections(current_token, current_command, memories) == -1)
+		{
+			fprintf(stderr, "Error handling overwrite output redirection\n");
+			return (-1);
+		}
 	}
 	else
 	{
-		printf("DEBUG: Overwrite redirection detected: %s\n",
-			(*current_token)->value);
-	}
-	if (handle_redirections(current_token, current_command, memories,
-			append_mode) == -1)
-	{
-		fprintf(stderr, "Error handling redirection\n");
+		fprintf(stderr, "Error: Unexpected: %d\n", (*current_token)->type);
 		return (-1);
 	}
 	return (0);
