@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 18:08:05 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 16:29:31 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:11:59 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,6 @@ void	init_shell_state(t_shell_state *state)
 	state->last_exit_status = 0;
 	state->input = NULL;
 	state->memories.allocations = NULL;
-	state->memories.size = 0;
-	state->memories.capacity = 0;
-	state->environment.pairs = NULL;
-	state->environment.size = 0;
-	state->environment.capacity = 0;
 	state->environment.memories = &state->memories;
 }
 
@@ -35,7 +30,6 @@ int	initialize_shell_environment(t_memories *memories,
 		fprintf(stderr, "Failed to initialize shell environment\n");
 		return (-1);
 	}
-	signal(SIGQUIT, SIG_IGN);
 	init_memories(memories, environment, 10);
 	copy_environment_to_struct(env, environment, memories);
 	return (0);

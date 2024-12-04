@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:26:27 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 14:35:22 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ int	handle_environment_command(t_command *command, t_env *environment,
 }
 
 int	handle_builtin(t_command *command, t_env *environment, t_memories *memories,
-	int *exit_st)
+			int *exit_st)
 {
 	int	saved_stdin;
 	int	saved_stdout;
@@ -129,9 +129,18 @@ int	handle_builtin(t_command *command, t_env *environment, t_memories *memories,
 
 	saved_stdin = -1;
 	saved_stdout = -1;
-	if (clear_output_redirect(command->output_redirect, exit_st)
-		|| handle_input_redirection(command->input_redirect,
-			&saved_stdin, exit_st)
+	if (!command->append_mode
+		&& clear_output_redirect(command->output_redirect, exit_st))
+	{
+		printf("DEBUG: Calling clear_output_redirect for overwrite mode.\n");
+		restore_redirections(saved_stdin, saved_stdout);
+		return (1);
+	}
+	else
+	{
+		printf("DEBUG: Skipping clear_output_redirect for append mode.\n");
+	}
+	if (handle_input_redirection(command->input_redirect, &saved_stdin, exit_st)
 		|| handle_output_redirection(command->output_redirect,
 			command->append_mode, &saved_stdout, exit_st))
 	{

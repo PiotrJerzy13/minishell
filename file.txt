@@ -1,6 +1,0 @@
-ls
-lib
-mkmom
-gdt
-sss
-KKK

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 16:29:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 11:28:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,26 +33,31 @@ t_command_context	*create_command_context(t_shell_state *state)
 void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
+	int				parse_status;
 
-	if (*input)
+	if (!input || *input == '\0')
+		return ;
+	add_history(input);
+	token_context = init_token_context(context);
+	tokenize_input(input, &token_context);
+	parse_status = parse_input_to_commands(*(context->token_list),
+			context->command_list, context->memories);
+	if (parse_status == -1)
 	{
-		add_history(input);
-		token_context = init_token_context(context);
-		tokenize_input(input, &token_context);
-		parse_input_to_commands(*(context->token_list), context->command_list,
-			context->memories);
-		if (*(context->command_list))
-		{
-			if (handle_builtin(*(context->command_list), context->environment,
-					context->memories, context->last_exit_status) == 0)
-			{
-				execute_commands(*(context->command_list),
-					context->last_exit_status, context->environment);
-			}
-		}
-		*(context->command_list) = NULL;
-		*(context->token_list) = NULL;
+		fprintf(stderr, "Error: Failed to parse input.\n");
+		return ;
 	}
+	if (*(context->command_list))
+	{
+		if (handle_builtin(*(context->command_list), context->environment,
+				context->memories, context->last_exit_status) == 0)
+		{
+			execute_commands(*(context->command_list),
+				context->last_exit_status, context->environment);
+		}
+	}
+	*(context->command_list) = NULL;
+	*(context->token_list) = NULL;
 }
 
 int	main(int argc, char **argv, char **env)
@@ -72,9 +77,12 @@ int	main(int argc, char **argv, char **env)
 		state.input = get_user_input();
 		if (!state.input)
 		{
-			if (isatty(fileno(stdin)))
-				printf("exit\n");
+			printf("exit\n");
 			break ;
+		}
+		if (*state.input == '\0')
+		{
+			continue ;
 		}
 		process_commands(state.input, context);
 		free(state.input);

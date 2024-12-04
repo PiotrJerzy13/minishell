@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:24:29 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 11:22:36 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,9 +146,8 @@ void			init_memories(t_memories *memories, t_env *environment,
 					int env_capacity);
 void			add_memory(t_memories *memories, void *ptr);
 void			free_all_memories(t_memories *memories);
-void			parse_input_to_commands(t_token *token_list,
-					t_command **command_list,
-					t_memories *memories);
+int				parse_input_to_commands(t_token *token_list,
+					t_command **command_list, t_memories *memories);
 void			tokenize_input(char *input, t_token_context *context);
 void			skip_spaces(char **input);
 void			copy_environment_to_struct(char **env, t_env *environment,
@@ -176,7 +175,8 @@ void			unset_env_var(t_env *env, const char *key);
 void			add_token(t_token **head, t_token *new_token);
 int				collect_heredoc_input(const char *delimiter,
 					t_heredoc_node **heredoc_list);
-char			*get_double_quoted_token(char **input_ptr, t_env *environment);
+char			*get_double_quoted_token(char **input_ptr, t_env *environment,
+					t_memories *memories);
 char			*get_single_quoted_token(char **input_ptr);
 int				clear_output_redirect(const char *output_redirect,
 					int *last_exit_status);
@@ -196,12 +196,12 @@ void			handle_variable_expansion(char **input,
 void			process_quoted_token(char **input, t_token_context *context);
 t_command		*initialize_command(t_token *token,
 					t_command **command_list, t_memories *memories);
-void			handle_all_redirections(t_token **current_token,
+int				handle_all_redirections(t_token **current_token,
 					t_command *current_command, t_memories *memories);
-void			handle_redirections(t_token **current_token,
+int				handle_redirections(t_token **current_token,
 					t_command *current_command, t_memories *memories,
 					int append_mode);
-void			process_special_tokens(t_token **current_token,
+int				process_special_tokens(t_token **current_token,
 					t_command **current_command, t_memories *memories,
 					int *arg_count);
 void			init_shell_state(t_shell_state *state);
@@ -213,7 +213,7 @@ void			add_argument_to_command(t_token *current_token,
 					t_command *current_command, t_memories *memories,
 					int *arg_count);
 void			handle_pipe(t_command **current_command, int *arg_count);
-void			handle_heredoc(t_token **current_token,
+int				handle_heredoc(t_token **current_token,
 					t_command *current_command);
 void			handle_token_creation(char **input, t_token_context *context,
 					t_token_info *info);
