@@ -34,6 +34,12 @@ void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
 
+	// Check if PATH is unset and return immediately if it is
+    if (context->environment->path_unset == 1)
+    {
+        printf("ls: No such file or directory\n");
+        return;
+    }
 	if (*input)
 	{
 		add_history(input);

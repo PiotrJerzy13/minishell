@@ -44,6 +44,10 @@ void	unset_env_var(t_env *env, const char *key)
 	i = 0;
 	while (i < env->size)
 	{
+		if (strcmp(key, "PATH") == 0)
+            {
+                env->path_unset = 1; // Set the flag indicating PATH is unset
+            }
 		if (strcmp(env->pairs[i].key, key) == 0)
 		{
 			free(env->pairs[i].key);
