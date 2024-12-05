@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 16:08:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 12:59:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,9 @@ void	handle_pipe(t_command **current_command, int *arg_count)
 		(*current_command)->args[*arg_count] = NULL;
 		*current_command = NULL;
 		*arg_count = 0;
+	}
+	else
+	{
+		printf("Error: Pipe '|' without preceding command.\n");
 	}
 }

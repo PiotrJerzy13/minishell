@@ -1,6 +1,4 @@
-ls
-lib
-mkmom
-gdt
-sss
-KKK
+Kat
+Kat
+Kat
+Kat

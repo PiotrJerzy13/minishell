@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:20:42 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 13:21:10 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,27 +174,4 @@ int	bui_exit(char **args)
 		exit_code = atoi(args[1]);
 	}
 	exit(exit_code);
-}
-
-int	bui_pwd(t_env *env)
-{
-	size_t	i;
-
-	if (env == NULL || env->pairs == NULL)
-	{
-		fprintf(stderr, "pwd: PWD not set\n");
-		return (FAILURE);
-	}
-	i = 0;
-	while (i < env->size)
-	{
-		if (strncmp(env->pairs[i].key, "PWD", 3) == 0)
-		{
-			printf("%s\n", env->pairs[i].value);
-			return (SUCCESS);
-			break ;
-		}
-		i++;
-	}
-	return (FAILURE);
 }

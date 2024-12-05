@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 18:30:45 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 17:38:45 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:12:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ int	initialize_shell(void)
 	struct sigaction	sa_int;
 	struct termios		term;
 
+	signal(SIGQUIT, SIG_IGN);
 	sigemptyset(&sa_int.sa_mask);
 	sa_int.sa_handler = handle_sigint;
 	sa_int.sa_flags = SA_RESTART;

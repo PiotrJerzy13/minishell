@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 16:29:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/04 11:28:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,8 @@ t_command_context	*create_command_context(t_shell_state *state)
 void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
+	int				parse_status;
 
-	// Check if PATH is unset and return immediately if it is
-    if (context->environment->path_unset == 1)
-    {
-        printf("ls: No such file or directory\n");
-        return;
-    }
 	if (*input)
 	{
 		add_history(input);
@@ -78,9 +73,12 @@ int	main(int argc, char **argv, char **env)
 		state.input = get_user_input();
 		if (!state.input)
 		{
-			if (isatty(fileno(stdin)))
-				printf("exit\n");
+			printf("exit\n");
 			break ;
+		}
+		if (*state.input == '\0')
+		{
+			continue ;
 		}
 		process_commands(state.input, context);
 		free(state.input);
