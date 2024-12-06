@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_token.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 13:24:57 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:47:14 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void	process_general_token(char **input, t_token_context *context)
 	char	*token;
 
 	start = *input;
-	// printf("DEBUG: Starting process_general_token with input: '%s'\n", *input);
 	while (**input && !isspace(**input) && **input != '|' && **input != '<'
 		&& **input != '>')
 	{
@@ -46,7 +45,6 @@ void	process_general_token(char **input, t_token_context *context)
 		}
 		else
 		{
-			// printf("DEBUG: Adding TOKEN_COMMAND: '%s'\n", token);
 			add_token(context->token_list, init_token(token, TOKEN_COMMAND,
 					context->memories));
 		}
@@ -55,7 +53,6 @@ void	process_general_token(char **input, t_token_context *context)
 	}
 	handle_special_characters(input, context);
 }
-
 
 /**
  * process_quoted_token - Processes tokens enclosed in quotes.
@@ -118,10 +115,20 @@ void	handle_special_characters(char **input, t_token_context *context)
 	}
 	else if (**input == '<')
 	{
-		printf("DEBUG: Tokenizing input redirection '<'\n");
-		add_token(context->token_list, init_token("<",
-				TOKEN_INPUT_REDIRECT, context->memories));
-		(*input)++;
+		if (*(*input + 1) == '<')
+		{
+			printf("DEBUG: Tokenizing heredoc redirection '<<'\n");
+			add_token(context->token_list, init_token("<<",
+					TOKEN_HEREDOC, context->memories));
+			(*input) += 2;
+		}
+		else
+		{
+			printf("DEBUG: Tokenizing input redirection '<'\n");
+			add_token(context->token_list, init_token("<",
+					TOKEN_INPUT_REDIRECT, context->memories));
+			(*input)++;
+		}
 		context->expect_filename = 1;
 	}
 	else if (**input == '>')

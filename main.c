@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 13:17:22 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:46:42 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ t_command_context	*create_command_context(t_shell_state *state)
 void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
-	// int				parse_status;
+
 	if (context->environment->path_unset == 1)
 	{
 		printf("ls: No such file or directory\n");
