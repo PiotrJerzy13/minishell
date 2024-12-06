@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:15:17 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 15:22:13 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,52 @@ int	handle_simple_command(t_command *command, t_env *environment,
 	}
 	return (0);
 }
+
+// int	handle_simple_command(t_command *command, t_env *environment,
+// 	int *last_exit_status)
+// {
+// 	int saved_stdout = -1;
+
+// 	// Redirect stdout if part of a pipeline
+// 	if (command->is_pipe)
+// 	{
+// 		saved_stdout = dup(STDOUT_FILENO);
+// 		if (dup2(command->append_output, STDOUT_FILENO) == -1)
+// 		{
+// 			perror("dup2 failed for pipe output");
+// 			*last_exit_status = 1;
+// 			return (1);
+// 		}
+// 	}
+
+// 	if (strcmp(command->command, "echo") == 0)
+// 	{
+// 		bui_echo(command->args + 1);
+// 		*last_exit_status = 0;
+// 	}
+// 	else if (strcmp(command->command, "env") == 0)
+// 	{
+// 		print_env(environment);
+// 		*last_exit_status = 0;
+// 	}
+// 	else if (strcmp(command->command, "exit") == 0)
+// 	{
+// 		bui_exit(command->args + 1);
+// 		*last_exit_status = 0;
+// 		if (saved_stdout != -1)
+// 			dup2(saved_stdout, STDOUT_FILENO); // Restore stdout before exiting
+// 		return (-1);
+// 	}
+
+// 	// Restore stdout if it was redirected
+// 	if (saved_stdout != -1)
+// 	{
+// 		dup2(saved_stdout, STDOUT_FILENO);
+// 		close(saved_stdout);
+// 	}
+
+// 	return (1);
+// }
 
 void	print_declared_env(t_env *env)
 {

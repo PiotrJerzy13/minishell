@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 17:50:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 14:45:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ void			copy_environment_to_struct(char **env, t_env *environment,
 					t_memories *memories);
 void			add_or_update_env_var(t_env *env, const char *key,
 					const char *value, t_memories *memories);
-void			print_env(t_env *env);
+void	print_env(t_env *environment);
 void			export_env_var(t_env *environment, char *input,
 					t_memories *memories);
 int				bui_echo(char **args);
@@ -226,3 +226,5 @@ int				handle_output_redirection(const char *output_redirect,
 t_token_context	init_token_context(t_command_context *context);
 t_command		*create_new_command(t_memories *memories);
 int				validate_export_argument(const char *arg);
+int	handle_simple_command(t_command *command, t_env *environment,
+	int *last_exit_status);
