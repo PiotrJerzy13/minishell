@@ -55,6 +55,7 @@ typedef struct s_env
 	size_t		capacity;
 	int			cd_used_flag;
 	t_memories	*memories;
+	int			path_unset;
 }	t_env;
 
 typedef struct s_key_value_store

@@ -33,31 +33,32 @@ t_command_context	*create_command_context(t_shell_state *state)
 void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
-	int				parse_status;
-
-	if (!input || *input == '\0')
-		return ;
-	add_history(input);
-	token_context = init_token_context(context);
-	tokenize_input(input, &token_context);
-	parse_status = parse_input_to_commands(*(context->token_list),
-			context->command_list, context->memories);
-	if (parse_status == -1)
+	// int				parse_status;
+	// Check if PATH is unset and return immediately if it is
+    if (context->environment->path_unset == 1)
+    {
+        printf("ls: No such file or directory\n");
+        return;
+    }
+	if (*input)
 	{
-		fprintf(stderr, "Error: Failed to parse input.\n");
-		return ;
-	}
-	if (*(context->command_list))
-	{
-		if (handle_builtin(*(context->command_list), context->environment,
-				context->memories, context->last_exit_status) == 0)
+		add_history(input);
+		token_context = init_token_context(context);
+		tokenize_input(input, &token_context);
+		parse_input_to_commands(*(context->token_list), context->command_list,
+			context->memories);
+		if (*(context->command_list))
 		{
-			execute_commands(*(context->command_list),
-				context->last_exit_status, context->environment);
+			if (handle_builtin(*(context->command_list), context->environment,
+					context->memories, context->last_exit_status) == 0)
+			{
+				execute_commands(*(context->command_list),
+					context->last_exit_status, context->environment);
+			}
 		}
+		*(context->command_list) = NULL;
+		*(context->token_list) = NULL;
 	}
-	*(context->command_list) = NULL;
-	*(context->token_list) = NULL;
 }
 
 int	main(int argc, char **argv, char **env)
