@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:15:17 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 14:45:54 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 int	handle_simple_command(t_command *command, t_env *environment,
 	int *last_exit_status)
 {
+	int	exit_code;
+
 	if (strcmp(command->command, "echo") == 0)
 	{
 		bui_echo(command->args + 1);
@@ -29,6 +31,12 @@ int	handle_simple_command(t_command *command, t_env *environment,
 	}
 	else if (strcmp(command->command, "exit") == 0)
 	{
+		if (command->args[1])
+		{
+			exit_code = atoi(command->args[1]);
+			*last_exit_status = exit_code % 256;
+			return (-1);
+		}
 		bui_exit(command->args + 1);
 		*last_exit_status = 0;
 		return (-1);

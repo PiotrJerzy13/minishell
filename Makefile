@@ -1,8 +1,8 @@
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-# LDFLAGS = -lreadline  # Link with the readline library
-LDFLAGS= -L/usr/local/opt/readline/lib -lreadline
+LDFLAGS = -lreadline  # Link with the readline library
+# LDFLAGS= -L/usr/local/opt/readline/lib -lreadline
 CPPFLAGS= -I/usr/local/opt/readline/include
 OBJDIR = ./bin
 SRCS = main.c enviroment.c memories.c handle_commands.c expansions.c token_quotes.c commands.c token.c token_helper.c copy_enviroment.c builtin.c signals.c command_node.c redirector.c heredoc.c shell_initializer.c input_parser.c builtins_helper.c execute_command.c process_token.c execute_pipes.c
