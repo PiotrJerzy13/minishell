@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_token.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:19:23 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 13:24:57 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	process_general_token(char **input, t_token_context *context)
 	char	*token;
 
 	start = *input;
-	printf("DEBUG: Starting process_general_token with input: '%s'\n", *input);
+	// printf("DEBUG: Starting process_general_token with input: '%s'\n", *input);
 	while (**input && !isspace(**input) && **input != '|' && **input != '<'
 		&& **input != '>')
 	{
@@ -46,7 +46,7 @@ void	process_general_token(char **input, t_token_context *context)
 		}
 		else
 		{
-			printf("DEBUG: Adding TOKEN_COMMAND: '%s'\n", token);
+			// printf("DEBUG: Adding TOKEN_COMMAND: '%s'\n", token);
 			add_token(context->token_list, init_token(token, TOKEN_COMMAND,
 					context->memories));
 		}

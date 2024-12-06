@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins_helper.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 13:46:07 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/23 16:22:48 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 13:50:15 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,9 @@ void	unset_env_var(t_env *env, const char *key)
 	while (i < env->size)
 	{
 		if (strcmp(key, "PATH") == 0)
-            {
-                env->path_unset = 1; // Set the flag indicating PATH is unset
-            }
+		{
+			env->path_unset = 1; // Set the flag indicating PATH is unset
+		}
 		if (strcmp(env->pairs[i].key, key) == 0)
 		{
 			free(env->pairs[i].key);

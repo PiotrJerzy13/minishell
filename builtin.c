@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 13:21:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/06 13:36:46 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ int	bui_echo(char **args)
 
 	if (args == NULL || args[0] == NULL)
 	{
-		fprintf(stderr, "bui_echo: args is NULL\n");
+		fprintf(stderr, "\n");
 		return (1);
 	}
 	i = check_n_flag(args, &newline);
