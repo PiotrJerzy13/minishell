@@ -3,26 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/24 17:19:32 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/07 20:25:36 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/**
- * export_env_var - Adds or updates an environment variable 
- * in a custom environment structure.
- *
- * This function takes a string input in the format "KEY=VALUE" 
- * and updates the custom environment structure (t_env) 
- * by either adding a new key-value pair or updating an 
- * existing one. If the input is invalid (e.g., not in 
- * the correct format), an error 
- * message is displayed.
- */
 void	export_env_var(t_env *environment, char *input, t_memories *memories)
 {
 	char	*key;
@@ -76,7 +65,6 @@ void	update_env_var(t_env *env, int index, const char *value)
 		exit(EXIT_FAILURE);
 }
 
-//Used when you need to add a new key-value pair to the environment.
 void	add_env_var(t_env *env, const char *key, const char *value,
 	t_memories *memories)
 {

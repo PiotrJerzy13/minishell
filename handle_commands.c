@@ -6,7 +6,7 @@
 /*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 19:42:26 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/07 20:24:34 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,6 @@ int	handle_simple_command(t_command *command,
 		*last_exit_status = 0;
 		return (1);
 	}
-	// else if (strcmp(command->command, "env") == 0)
-	// {
-	// 	print_env(environment);
-	// 	*last_exit_status = 0;
-	// 	return (1);
-	// }
 	else if (strcmp(command->command, "exit") == 0)
 	{
 		if (command->args[1])
@@ -139,7 +133,6 @@ int	handle_builtin(t_command *command, t_env *environment,
 	saved_stdout = -1;
 	if (command->output_redirect && !command->append_mode)
 	{
-		printf("DEBUG: Calling clear_output_redirect for overwrite mode.\n");
 		if (clear_output_redirect(command->output_redirect, exit_st))
 		{
 			restore_redirections(saved_stdin, saved_stdout);

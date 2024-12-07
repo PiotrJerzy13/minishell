@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   expansions.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:07:21 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 13:24:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/07 20:24:54 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// Handle expanding environment variables and special constructs like $?
-// (representing the exit status of the last executed command).
 void	handle_exit_status_expansion(char **input, t_token_context *context)
 {
 	char	exit_status_str[12];
@@ -25,8 +23,6 @@ void	handle_exit_status_expansion(char **input, t_token_context *context)
 	*input += 2;
 }
 
-// This function decides how to handle variable expansion based on the 
-// character following the $ symbol.
 void	process_variable_expansion(char **input, t_token_context *context)
 {
 	if (*(*input + 1) == '?')
@@ -39,7 +35,6 @@ void	process_variable_expansion(char **input, t_token_context *context)
 	}
 }
 
-// This function processes standard variable expansions like $HOME or $PATH.
 void	handle_variable_expansion(char **input, t_token_context *context)
 {
 	char	*start;

@@ -3,26 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   process_token.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 16:47:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/07 20:22:45 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-/**
- * process_general_token - Processes general tokens (commands 
- * or filenames).
- *
- * This function parses a general token from the input string, 
- * which is any sequence
- * of non-whitespace characters not including special shell 
- * characters (`|`, `<`, `>`).
- * It identifies whether the token represents a command or 
- * a filename based on the 
- * context and adds it to the token list.
- */
+
 void	process_general_token(char **input, t_token_context *context)
 {
 	char	*start;
@@ -39,7 +28,6 @@ void	process_general_token(char **input, t_token_context *context)
 		token = strndup(start, *input - start);
 		if (context->expect_filename)
 		{
-			printf("DEBUG: Adding TOKEN_FILENAME: '%s'\n", token);
 			add_token(context->token_list, init_token(token, TOKEN_FILENAME,
 					context->memories));
 		}
@@ -53,17 +41,6 @@ void	process_general_token(char **input, t_token_context *context)
 	}
 	handle_special_characters(input, context);
 }
-
-/**
- * process_quoted_token - Processes tokens enclosed in quotes.
- *
- * This function handles quoted tokens (e.g., `"some text"` or
- *  `'some text'`) by extracting
- * the quoted content, performing any necessary expansions,
- *  and adding it to the token list
- * as either a `TOKEN_FILENAME` or a `TOKEN_ARGUMENT`, 
- * based on the context.
- */
 
 void	process_quoted_token(char **input, t_token_context *context)
 {
@@ -95,20 +72,10 @@ void	process_quoted_token(char **input, t_token_context *context)
 	}
 }
 
-/**
- * handle_special_characters - Processes special shell characters.
- *
- * This function identifies and processes special 
- * characters in the input, such as `|` (pipe)
- * and redirection operators (`<`, `>`). It adds 
- * the appropriate tokens to the token list and
- * handles context-specific behavior for filenames and errors.
- */
 void	handle_special_characters(char **input, t_token_context *context)
 {
 	if (**input == '|')
 	{
-		printf("DEBUG: Adding TOKEN_PIPE: '|'\n");
 		add_token(context->token_list, init_token("|",
 				TOKEN_PIPE, context->memories));
 		(*input)++;
@@ -117,14 +84,12 @@ void	handle_special_characters(char **input, t_token_context *context)
 	{
 		if (*(*input + 1) == '<')
 		{
-			printf("DEBUG: Tokenizing heredoc redirection '<<'\n");
 			add_token(context->token_list, init_token("<<",
 					TOKEN_HEREDOC, context->memories));
 			(*input) += 2;
 		}
 		else
 		{
-			printf("DEBUG: Tokenizing input redirection '<'\n");
 			add_token(context->token_list, init_token("<",
 					TOKEN_INPUT_REDIRECT, context->memories));
 			(*input)++;
@@ -135,14 +100,12 @@ void	handle_special_characters(char **input, t_token_context *context)
 	{
 		if (*(*input + 1) == '>')
 		{
-			printf("DEBUG: Tokenizing append output redirection '>>'\n");
 			add_token(context->token_list, init_token(">>",
 					TOKEN_APPEND_OUTPUT_REDIRECT, context->memories));
 			(*input) += 2;
 		}
 		else
 		{
-			printf("DEBUG: Tokenizing output redirection '>'\n");
 			add_token(context->token_list, init_token(">",
 					TOKEN_OUTPUT_REDIRECT, context->memories));
 			(*input)++;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input_parser.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 12:18:11 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/07 20:23:40 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ char	*get_user_input(void)
 	input = readline("minishell> ");
 	if (!input)
 	{
-		printf("DEBUG: EOF detected in get_user_input.\n");
 		return (NULL);
 	}
 	if (*input == '\0')
