@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   handle_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 14:45:54 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/07 19:42:26 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_simple_command(t_command *command, t_env *environment,
+int	handle_simple_command(t_command *command,
 	int *last_exit_status)
 {
 	int	exit_code;
@@ -23,12 +23,12 @@ int	handle_simple_command(t_command *command, t_env *environment,
 		*last_exit_status = 0;
 		return (1);
 	}
-	else if (strcmp(command->command, "env") == 0)
-	{
-		print_env(environment);
-		*last_exit_status = 0;
-		return (1);
-	}
+	// else if (strcmp(command->command, "env") == 0)
+	// {
+	// 	print_env(environment);
+	// 	*last_exit_status = 0;
+	// 	return (1);
+	// }
 	else if (strcmp(command->command, "exit") == 0)
 	{
 		if (command->args[1])
@@ -168,7 +168,7 @@ int	handle_builtin(t_command *command, t_env *environment,
 			return (1);
 		}
 	}
-	result = handle_simple_command(command, environment, exit_st)
+	result = handle_simple_command(command, exit_st)
 		|| handle_environment_command(command, environment, memories, exit_st);
 	if (!result)
 		*exit_st = 127;
