@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:24:34 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/08 18:11:51 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ int	handle_simple_command(t_command *command,
 		{
 			exit_code = atoi(command->args[1]);
 			*last_exit_status = exit_code % 256;
+			bui_exit(command->args + 1);
 			return (-1);
 		}
-		bui_exit(command->args + 1);
 		*last_exit_status = 0;
 		return (-1);
 	}
