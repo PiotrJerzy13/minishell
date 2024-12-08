@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirector.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:21:01 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/07 20:20:49 by piotr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ int	clear_output_redirect(const char *output_redirect, int *last_exit_status)
 
 	if (output_redirect)
 	{
-		printf("DEBUG: Clearing output redirection: %s\n", output_redirect);
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd_out == -1)
 		{
@@ -67,17 +66,13 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 	{
 		return (0);
 	}
-	printf("DEBUG: Output redirection detected: %s\n", output_redirect);
-	printf("DEBUG: Append mode: %d\n", append_mode);
 	if (append_mode)
 	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		printf("DEBUG: File opened in append mode: %s\n", output_redirect);
 	}
 	else
 	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		printf("DEBUG: File opened in overwrite mode: %s\n", output_redirect);
 	}
 	if (fd_out == -1)
 	{
@@ -107,10 +102,8 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 		fprintf(stderr, "Error: No current command.\n");
 		return (-1);
 	}
-	printf("DEBUG: Token type being processed: %d\n", (*current_token)->type);
 	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
 	{
-		printf("DEBUG: Detected input redirection.\n");
 		*current_token = (*current_token)->next;
 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 		{
@@ -121,7 +114,6 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 				return (-1);
 			}
 			add_memory(memories, redirect);
-			printf("DEBUG: Handling input redirection: %s\n", redirect);
 			current_command->input_redirect = redirect;
 		}
 		else
@@ -132,7 +124,6 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 	}
 	else if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT)
 	{
-		printf("DEBUG: Detected output redirection.\n");
 		*current_token = (*current_token)->next;
 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 		{
@@ -154,7 +145,6 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 	}
 	else if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
 	{
-		printf("DEBUG: Detected append output redirection.\n");
 		*current_token = (*current_token)->next;
 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 		{
@@ -165,7 +155,6 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 				return (-1);
 			}
 			add_memory(memories, redirect);
-			printf("DEBUG: Handling append output redirection: %s\n", redirect);
 			current_command->output_redirect = redirect;
 			current_command->append_mode = 1;
 		}
