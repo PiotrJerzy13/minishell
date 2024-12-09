@@ -6,29 +6,11 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:36:28 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:55:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-t_command_context	*create_command_context(t_shell_state *state)
-{
-	t_command_context	*context;
-
-	context = malloc(sizeof(t_command_context));
-	if (!context)
-	{
-		fprintf(stderr, "Error: Failed to allocate memory.\n");
-		exit(EXIT_FAILURE);
-	}
-	context->token_list = &state->token_list;
-	context->command_list = &state->command_list;
-	context->memories = &state->memories;
-	context->environment = &state->environment;
-	context->last_exit_status = &state->last_exit_status;
-	return (context);
-}
 
 t_token_context	init_token_context(t_command_context *context)
 {
@@ -40,6 +22,25 @@ t_token_context	init_token_context(t_command_context *context)
 	token_context.last_exit_status = context->last_exit_status;
 	token_context.expect_filename = 0;
 	return (token_context);
+}
+
+t_command_context	*create_command_context(t_shell_state *state)
+{
+	t_command_context	*context;
+
+	context = malloc(sizeof(t_command_context));
+	if (!context)
+	{
+		printf("Error: Failed to allocate memory.\n");
+		exit(EXIT_FAILURE);
+	}
+	context->token_list = &state->token_list;
+	context->command_list = &state->command_list;
+	context->memories = &state->memories;
+	context->environment = &state->environment;
+	context->last_exit_status = &state->last_exit_status;
+	add_memory(&state->memories, context);
+	return (context);
 }
 
 void	process_commands(char *input, t_command_context *context)
@@ -70,10 +71,30 @@ void	process_commands(char *input, t_command_context *context)
 	}
 }
 
+t_token_context	*create_token_context(t_shell_state *state)
+{
+	t_token_context	*context;
+
+	context = malloc(sizeof(t_token_context));
+	if (!context)
+	{
+		printf("Error: Failed to allocate token context\n");
+		exit(EXIT_FAILURE);
+	}
+	context->token_list = &state->token_list;
+	context->memories = &state->memories;
+	context->environment = &state->environment;
+	context->last_exit_status = &state->last_exit_status;
+	context->expect_filename = 0;
+	add_memory(&state->memories, context);
+	return (context);
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	t_shell_state		state;
-	t_command_context	*context;
+	t_command_context	*cmd_context;
+	t_token_context		*token_context;
 
 	(void)argc;
 	(void)argv;
@@ -81,20 +102,21 @@ int	main(int argc, char **argv, char **env)
 	if (initialize_shell_environment(&state.memories,
 			&state.environment, env) == -1)
 		return (EXIT_FAILURE);
-	context = create_command_context(&state);
+	cmd_context = create_command_context(&state);
+	token_context = create_token_context(&state);
 	while (1)
 	{
 		state.input = get_user_input();
 		if (!state.input)
-		{
 			break ;
-		}
 		if (*state.input == '\0')
+		{
+			add_memory(&state.memories, state.input);
 			continue ;
-		process_commands(state.input, context);
-		free(state.input);
+		}
+		add_memory(&state.memories, state.input);
+		process_commands(state.input, cmd_context);
 	}
 	free_all_memories(&state.memories);
-	free(context);
 	return (state.last_exit_status);
 }

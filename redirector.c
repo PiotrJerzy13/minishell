@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 15:19:31 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:48:09 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,86 +86,6 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 	return (0);
 }
 
-// int	handle_redirections(t_token **current_token, t_command *current_command,
-// 	t_memories *memories)
-// {
-// 	char	*redirect;
-
-// 	if (!current_command)
-// 	{
-// 		fprintf(stderr, "Error: No current command.\n");
-// 		return (-1);
-// 	}
-// 	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
-// 	{
-// 		*current_token = (*current_token)->next;
-// 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
-// 		{
-// 			redirect = strdup((*current_token)->value);
-// 			if (!redirect)
-// 			{
-// 				fprintf(stderr, "Error: Failed to allocate memory.\n");
-// 				return (-1);
-// 			}
-// 			add_memory(memories, redirect);
-// 			current_command->input_redirect = redirect;
-// 		}
-// 		else
-// 		{
-// 			fprintf(stderr, "Error: Expected filename.\n");
-// 			return (-1);
-// 		}
-// 	}
-// 	else if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT)
-// 	{
-// 		*current_token = (*current_token)->next;
-// 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
-// 		{
-// 			redirect = strdup((*current_token)->value);
-// 			if (!redirect)
-// 			{
-// 				fprintf(stderr, "Error: Failed to allocate memory.\n");
-// 				return (-1);
-// 			}
-// 			add_memory(memories, redirect);
-// 			current_command->output_redirect = redirect;
-// 			current_command->append_mode = 0;
-// 		}
-// 		else
-// 		{
-// 			fprintf(stderr, "Error: Expected filename.\n");
-// 			return (-1);
-// 		}
-// 	}
-// 	else if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
-// 	{
-// 		*current_token = (*current_token)->next;
-// 		if (*current_token && (*current_token)->type == TOKEN_FILENAME)
-// 		{
-// 			redirect = strdup((*current_token)->value);
-// 			if (!redirect)
-// 			{
-// 				fprintf(stderr, "Error: Failed to allocate memory.\n");
-// 				return (-1);
-// 			}
-// 			add_memory(memories, redirect);
-// 			current_command->output_redirect = redirect;
-// 			current_command->append_mode = 1;
-// 		}
-// 		else
-// 		{
-// 			fprintf(stderr, "Error: Expected filename.\n");
-// 			return (-1);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		fprintf(stderr, "Unexpected token: %d\n", (*current_token)->type);
-// 		return (-1);
-// 	}
-// 	return (0);
-// }
-
 int	handle_all_redirections(t_token **current_token, t_command *current_command,
 				t_memories *memories)
 {
@@ -187,7 +107,6 @@ int	handle_all_redirections(t_token **current_token, t_command *current_command,
 	{
 		if (handle_redirections(current_token, current_command, memories) == -1)
 		{
-			fprintf(stderr, "Error handling overwrite output redirection\n");
 			return (-1);
 		}
 	}

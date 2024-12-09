@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:11:23 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 15:30:06 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 23:02:12 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,14 @@ int	process_input_redirection(t_token **current_token,
 		redirect = strdup((*current_token)->value);
 		if (!redirect)
 		{
-			fprintf(stderr, "Error: Failed to allocate memory.\n");
+			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
 		add_memory(memories, redirect);
 		current_command->input_redirect = redirect;
 		return (0);
 	}
-	fprintf(stderr, "Error: Missing filename for input redirection.\n");
+	printf("Error: Missing filename for input redirection.\n");
 	return (-1);
 }
 
@@ -45,7 +45,7 @@ int	process_output_redirection(t_token **current_token,
 		redirect = strdup((*current_token)->value);
 		if (!redirect)
 		{
-			fprintf(stderr, "Error: Failed to allocate memory.\n");
+			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
 		add_memory(memories, redirect);
@@ -53,7 +53,7 @@ int	process_output_redirection(t_token **current_token,
 		current_command->append_mode = 0;
 		return (0);
 	}
-	fprintf(stderr, "Error: Missing filename for output redirection.\n");
+	printf("Error: Missing filename for output redirection.\n");
 	return (-1);
 }
 
@@ -68,7 +68,7 @@ int	process_append_redirection(t_token **current_token,
 		redirect = strdup((*current_token)->value);
 		if (!redirect)
 		{
-			fprintf(stderr, "Error: Failed to allocate memory.\n");
+			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
 		add_memory(memories, redirect);
@@ -76,7 +76,7 @@ int	process_append_redirection(t_token **current_token,
 		current_command->append_mode = 1;
 		return (0);
 	}
-	fprintf(stderr, "Error: Missing filename for append redirection.\n");
+	printf("Error: Missing filename for append redirection.\n");
 	return (-1);
 }
 
@@ -85,7 +85,7 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 {
 	if (!current_command)
 	{
-		fprintf(stderr, "Error: No current command to handle redirections.\n");
+		printf("Error: No current command to handle redirections.\n");
 		return (-1);
 	}
 	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
