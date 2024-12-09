@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins_helper.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 13:46:07 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:26:07 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/09 09:26:49 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,6 @@ void	handle_unset(t_command *command, t_env *environment)
 	while (command->args[i] != NULL)
 	{
 		unset_env_var(environment, command->args[i]);
-		i++;
-	}
-}
-
-void	print_env(t_env *env)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < env->size)
-	{
-		printf("%s=%s\n", env->pairs[i].key, env->pairs[i].value);
 		i++;
 	}
 }
@@ -63,4 +51,55 @@ void	unset_env_var(t_env *env, const char *key)
 		}
 		i++;
 	}
+}
+
+int	check_n_flag(char **args, int *newline)
+{
+	int	i;
+	int	j;
+
+	*newline = 1;
+	i = 0;
+	while (args[i])
+	{
+		if (args[i][0] == '-' && args[i][1] == 'n')
+		{
+			j = 1;
+			while (args[i][j] == 'n')
+				j++;
+			if (args[i][j] == '\0')
+			{
+				*newline = 0;
+				i++;
+			}
+			else
+				break ;
+		}
+		else
+			break ;
+	}
+	return (i);
+}
+
+int	change_directory(const char *path, char *old_pwd)
+{
+	if (chdir(path) != 0)
+	{
+		perror("cd");
+		free(old_pwd);
+		return (FAILURE);
+	}
+	return (SUCCESS);
+}
+
+char	*get_current_directory(void)
+{
+	char	*cwd;
+
+	cwd = getcwd(NULL, 0);
+	if (cwd == NULL)
+	{
+		perror("getcwd");
+	}
+	return (cwd);
 }

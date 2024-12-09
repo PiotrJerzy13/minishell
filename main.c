@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 16:46:42 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:36:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,18 @@ t_command_context	*create_command_context(t_shell_state *state)
 	return (context);
 }
 
+t_token_context	init_token_context(t_command_context *context)
+{
+	t_token_context	token_context;
+
+	token_context.token_list = context->token_list;
+	token_context.memories = context->memories;
+	token_context.environment = context->environment;
+	token_context.last_exit_status = context->last_exit_status;
+	token_context.expect_filename = 0;
+	return (token_context);
+}
+
 void	process_commands(char *input, t_command_context *context)
 {
 	t_token_context	token_context;
@@ -50,10 +62,8 @@ void	process_commands(char *input, t_command_context *context)
 		{
 			if (handle_builtin(*(context->command_list), context->environment,
 					context->memories, context->last_exit_status) == 0)
-			{
 				execute_commands(*(context->command_list),
 					context->last_exit_status, context->environment);
-			}
 		}
 		*(context->command_list) = NULL;
 		*(context->token_list) = NULL;
@@ -77,13 +87,10 @@ int	main(int argc, char **argv, char **env)
 		state.input = get_user_input();
 		if (!state.input)
 		{
-			printf("exit\n");
 			break ;
 		}
 		if (*state.input == '\0')
-		{
 			continue ;
-		}
 		process_commands(state.input, context);
 		free(state.input);
 	}

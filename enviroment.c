@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:25:36 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/09 09:29:08 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ char	**env_to_char_array(t_env *environment)
 				+ strlen(environment->pairs[i].value) + 2);
 		if (!env_array[i])
 		{
-			perror("Failed to allocate environment string");
 			exit(EXIT_FAILURE);
 		}
 		snprintf(env_array[i], strlen(environment->pairs[i].key)
@@ -101,33 +100,4 @@ void	add_or_update_env_var(t_env *env, const char *key, const char *value,
 		i++;
 	}
 	add_env_var(env, key, value, memories);
-}
-
-void	free_env_array(char **env_array)
-{
-	size_t	i;
-
-	i = 0;
-	while (env_array[i] != NULL)
-	{
-		free(env_array[i]);
-		i++;
-	}
-	free(env_array);
-}
-
-char	*get_env_value(const char *name, t_env *environment)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < environment->size)
-	{
-		if (strcmp(environment->pairs[i].key, name) == 0)
-		{
-			return (strdup(environment->pairs[i].value));
-		}
-		i++;
-	}
-	return (NULL);
 }

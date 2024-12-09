@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 16:26:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:28:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,4 +47,33 @@ void	copy_environment_to_struct(char **env, t_env *environment,
 		}
 		i++;
 	}
+}
+
+void	free_env_array(char **env_array)
+{
+	size_t	i;
+
+	i = 0;
+	while (env_array[i] != NULL)
+	{
+		free(env_array[i]);
+		i++;
+	}
+	free(env_array);
+}
+
+char	*get_env_value(const char *name, t_env *environment)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < environment->size)
+	{
+		if (strcmp(environment->pairs[i].key, name) == 0)
+		{
+			return (strdup(environment->pairs[i].value));
+		}
+		i++;
+	}
+	return (NULL);
 }

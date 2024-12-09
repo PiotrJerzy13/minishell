@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/08 18:11:51 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:30:03 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,26 +38,6 @@ int	handle_simple_command(t_command *command,
 	return (0);
 }
 
-void	print_declared_env(t_env *env)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < env->size)
-	{
-		if (strcmp(env->pairs[i].key, "OLDPWD") == 0 && env->cd_used_flag == 0)
-		{
-			printf("declare -x OLDPWD\n");
-		}
-		else
-		{
-			printf("declare -x %s=\"%s\"\n", env->pairs[i].key,
-				env->pairs[i].value);
-		}
-		i++;
-	}
-}
-
 int	validate_export_argument(const char *arg)
 {
 	if (!arg || strchr(arg, '=') == NULL)
@@ -66,24 +46,6 @@ int	validate_export_argument(const char *arg)
 		return (0);
 	}
 	return (1);
-}
-
-int	bui_export(t_env **env, char **args)
-{
-	int	i;
-
-	if (!args[1])
-	{
-		print_declared_env(*env);
-		return (SUCCESS);
-	}
-	i = 1;
-	while (args[i])
-	{
-		export_env_var(*env, args[i], (*env)->memories);
-		i++;
-	}
-	return (SUCCESS);
 }
 
 int	handle_environment_command(t_command *command, t_env *environment,

@@ -3,26 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/06 13:36:46 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:25:58 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*get_current_directory(void)
-{
-	char	*cwd;
-
-	cwd = getcwd(NULL, 0);
-	if (cwd == NULL)
-	{
-		perror("getcwd");
-	}
-	return (cwd);
-}
 
 const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 {
@@ -50,17 +38,6 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 	else
 		path = args[0];
 	return (path);
-}
-
-int	change_directory(const char *path, char *old_pwd)
-{
-	if (chdir(path) != 0)
-	{
-		perror("cd");
-		free(old_pwd);
-		return (FAILURE);
-	}
-	return (SUCCESS);
 }
 
 int	update_environment_variables(t_env *env, t_memories *mem, char *old_pwd)
@@ -100,57 +77,6 @@ int	bui_cd(char **args, t_env *env, t_memories *memories)
 		return (FAILURE);
 	}
 	return (update_environment_variables(env, memories, old_pwd));
-}
-
-int	check_n_flag(char **args, int *newline)
-{
-	int	i;
-	int	j;
-
-	*newline = 1;
-	i = 0;
-	while (args[i])
-	{
-		if (args[i][0] == '-' && args[i][1] == 'n')
-		{
-			j = 1;
-			while (args[i][j] == 'n')
-				j++;
-			if (args[i][j] == '\0')
-			{
-				*newline = 0;
-				i++;
-			}
-			else
-				break ;
-		}
-		else
-			break ;
-	}
-	return (i);
-}
-
-int	bui_echo(char **args)
-{
-	int	i;
-	int	newline;
-
-	if (args == NULL || args[0] == NULL)
-	{
-		fprintf(stderr, "\n");
-		return (1);
-	}
-	i = check_n_flag(args, &newline);
-	while (args[i])
-	{
-		printf("%s", args[i]);
-		if (args[i + 1])
-			printf(" ");
-		i++;
-	}
-	if (newline)
-		printf("\n");
-	return (0);
 }
 
 int	bui_exit(char **args)

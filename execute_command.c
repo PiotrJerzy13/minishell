@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/08 18:08:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:47:08 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,9 @@ void	add_argument_to_command(t_token *current_token,
 }
 
 void	execute_commands(t_command *command_list, int *last_exit_status,
-	t_env *environment)
+		t_env *environment)
+
+
 {
 	t_command		*current_command;
 	int				in_fd;
@@ -54,6 +56,7 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 	int				status;
 	t_heredoc_node	*node;
 	size_t				i;
+
 
 	current_command = command_list;
 	in_fd = STDIN_FILENO;
@@ -179,6 +182,8 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 				close(pipe_fd[0]);
 			if (strcmp(current_command->command, "env") == 0)
 			{
+
+				
 				i = 0;
 				while (i < environment->size)
 				{
@@ -195,32 +200,22 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 		}
 		signal(SIGQUIT, SIG_IGN);
 		if (in_fd != STDIN_FILENO)
-		{
 			close(in_fd);
-		}
 		if (current_command->next)
-		{
 			close(pipe_fd[1]);
-		}
-		if (current_command->next)
-		{
-			in_fd = pipe_fd[0];
-		}
-		else
-		{
-			in_fd = STDIN_FILENO;
-		}
+		in_fd = current_command->next ? pipe_fd[0] : STDIN_FILENO;
 		current_command = current_command->next;
-		while (wait(&status) > 0)
+	}
+	while (wait(&status) > 0)
+	{
+		if (WIFEXITED(status))
 		{
-			if (WIFEXITED(status))
-			{
-				*last_exit_status = WEXITSTATUS(status);
-			}
-			else if (WIFSIGNALED(status))
-			{
-				*last_exit_status = 128 + WTERMSIG(status);
-			}
+			*last_exit_status = WEXITSTATUS(status);
+		}
+		else if (WIFSIGNALED(status))
+		{
+			*last_exit_status = 128 + WTERMSIG(status);
+
 		}
 	}
 }

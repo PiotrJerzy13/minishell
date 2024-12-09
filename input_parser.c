@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input_parser.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:23:40 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/09 09:40:12 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,4 +126,20 @@ t_command	*create_new_command(t_memories *memories)
 	command->append_mode = 0;
 	command->next = NULL;
 	return (command);
+}
+
+void	restore_redirections(int saved_stdin, int saved_stdout)
+{
+	if (saved_stdin != -1)
+	{
+		if (dup2(saved_stdin, STDIN_FILENO) == -1)
+			perror("Failed to restore stdin");
+		close(saved_stdin);
+	}
+	if (saved_stdout != -1)
+	{
+		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+			perror("Failed to restore stdout");
+		close(saved_stdout);
+	}
 }
