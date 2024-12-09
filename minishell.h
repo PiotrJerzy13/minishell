@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 12:51:43 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 13:12:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,15 @@ typedef struct s_buffer_info
 	size_t		*capacity;
 	t_memories	*memories;
 }	t_buffer_info;
+
+typedef struct s_parse_context
+{
+	t_token		**token_ptr;
+	t_command	**command;
+	t_command	**command_list;
+	t_memories	*memories;
+	int			*arg_count;
+}	t_parse_context;
 
 // Function Declarations
 
