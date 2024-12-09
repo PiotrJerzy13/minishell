@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:47:08 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 10:37:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 	int				status;
 	t_heredoc_node	*node;
 	size_t				i;
-
 
 	current_command = command_list;
 	in_fd = STDIN_FILENO;
@@ -182,8 +181,6 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 				close(pipe_fd[0]);
 			if (strcmp(current_command->command, "env") == 0)
 			{
-
-				
 				i = 0;
 				while (i < environment->size)
 				{
@@ -215,7 +212,6 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 		else if (WIFSIGNALED(status))
 		{
 			*last_exit_status = 128 + WTERMSIG(status);
-
 		}
 	}
 }
