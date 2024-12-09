@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:35:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 12:51:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,14 @@ typedef struct s_command_context
 	t_env		*environment;
 	int			*last_exit_status;
 }	t_command_context;
+
+typedef struct s_buffer_info
+{
+	char		**buffer;
+	size_t		*length;
+	size_t		*capacity;
+	t_memories	*memories;
+}	t_buffer_info;
 
 // Function Declarations
 
