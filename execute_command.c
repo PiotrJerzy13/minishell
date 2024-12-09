@@ -44,6 +44,8 @@ void	add_argument_to_command(t_token *current_token,
 
 void	execute_commands(t_command *command_list, int *last_exit_status,
 		t_env *environment)
+
+
 {
 	t_command		*current_command;
 	int				in_fd;
@@ -53,6 +55,8 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 	int				fd_out;
 	int				status;
 	t_heredoc_node	*node;
+	size_t				i;
+
 
 	current_command = command_list;
 	in_fd = STDIN_FILENO;
@@ -178,12 +182,16 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 				close(pipe_fd[0]);
 			if (strcmp(current_command->command, "env") == 0)
 			{
-				for (size_t i = 0; i < environment->size; i++)
+
+				
+				i = 0;
+				while (i < environment->size)
 				{
 					if (environment->pairs[i].key
 						&& environment->pairs[i].value)
 						printf("%s=%s\n", environment->pairs[i].key,
 							environment->pairs[i].value);
+					i++;
 				}
 				exit(0);
 			}
@@ -207,6 +215,7 @@ void	execute_commands(t_command *command_list, int *last_exit_status,
 		else if (WIFSIGNALED(status))
 		{
 			*last_exit_status = 128 + WTERMSIG(status);
+
 		}
 	}
 }
