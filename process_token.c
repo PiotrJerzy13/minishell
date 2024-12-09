@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:32:50 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 13:43:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,124 +40,69 @@ void	process_general_token(char **input, t_token_context *context)
 	handle_special_characters(input, context);
 }
 
-void	process_quoted_token(char **input, t_token_context *context)
+int	handle_heredoc_token(t_token **current_token, t_command **current_command)
 {
-	char	*token;
-
-	token = NULL;
-	if (**input == '"')
+	if (!*current_command)
 	{
-		token = get_double_quoted_token(input, context->environment,
-				context->memories);
+		fprintf(stderr, "Error: Heredoc token without command.\n");
+		return (-1);
 	}
-	else if (**input == '\'')
+	if (handle_heredoc(current_token, *current_command) == -1)
 	{
-		token = get_single_quoted_token(input);
-	}
-	if (token)
-	{
-		if (context->expect_filename)
-		{
-			add_token(context->token_list, init_token(token, TOKEN_FILENAME,
-					context->memories));
-		}
-		else
-			add_token(context->token_list, init_token(token, TOKEN_ARGUMENT,
-					context->memories));
-		free(token);
-	}
-}
-
-void	handle_special_characters(char **input, t_token_context *context)
-{
-	if (**input == '|')
-	{
-		add_token(context->token_list, init_token("|",
-				TOKEN_PIPE, context->memories));
-		(*input)++;
-	}
-	else if (**input == '<')
-	{
-		if (*(*input + 1) == '<')
-		{
-			add_token(context->token_list, init_token("<<",
-					TOKEN_HEREDOC, context->memories));
-			(*input) += 2;
-		}
-		else
-		{
-			add_token(context->token_list, init_token("<",
-					TOKEN_INPUT_REDIRECT, context->memories));
-			(*input)++;
-		}
-		context->expect_filename = 1;
-	}
-	else if (**input == '>')
-	{
-		if (*(*input + 1) == '>')
-		{
-			add_token(context->token_list, init_token(">>",
-					TOKEN_APPEND_OUTPUT_REDIRECT, context->memories));
-			(*input) += 2;
-		}
-		else
-		{
-			add_token(context->token_list, init_token(">",
-					TOKEN_OUTPUT_REDIRECT, context->memories));
-			(*input)++;
-		}
-		context->expect_filename = 1;
-	}
-	if (context->expect_filename && (**input == '\0' || **input == '|'
-			|| **input == '<' || **input == '>'))
-	{
-		*(context->last_exit_status) = 258;
-	}
-}
-
-int	process_special_tokens(t_token **current_token, t_command **current_command,
-				t_memories *memories, int *arg_count)
-{
-	if ((*current_token)->type == TOKEN_HEREDOC && *current_command)
-	{
-		if (handle_heredoc(current_token, *current_command) == -1)
-		{
-			fprintf(stderr, "Error: Failed to handle heredoc.\n");
-			return (-1);
-		}
-	}
-	else if (((*current_token)->type == TOKEN_OUTPUT_REDIRECT
-			|| (*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT
-			|| (*current_token)->type == TOKEN_INPUT_REDIRECT)
-		&& *current_command)
-	{
-		if (handle_all_redirections(current_token, *current_command,
-				memories) == -1)
-		{
-			fprintf(stderr, "Error: Failed to handle redirection.\n");
-			return (-1);
-		}
-	}
-	else if ((*current_token)->type == TOKEN_PIPE)
-	{
-		if (!*current_command)
-		{
-			fprintf(stderr, "Error: Pipe '|' without preceding command.\n");
-			return (-1);
-		}
-		handle_pipe(current_command, arg_count);
-		if (!(*current_token)->next || (*current_token)->next->type
-			!= TOKEN_COMMAND)
-		{
-			fprintf(stderr, "Error: Pipe '|' without following command.\n");
-			return (-1);
-		}
-	}
-	else
-	{
-		fprintf(stderr, "Unrecognized special token: %s\n",
-			(*current_token)->value);
+		fprintf(stderr, "Error: Failed to handle heredoc.\n");
 		return (-1);
 	}
 	return (0);
+}
+
+int	handle_redirection_token(t_token **current_token,
+	t_command **current_command, t_memories *memories)
+{
+	if (!*current_command)
+	{
+		fprintf(stderr, "Error: Redirection token withoutcommand.\n");
+		return (-1);
+	}
+	if (handle_all_redirections(current_token, *current_command,
+			memories) == -1)
+	{
+		fprintf(stderr, "Error: Failed to handle redirection.\n");
+		return (-1);
+	}
+	return (0);
+}
+
+int	handle_pipe_token(t_token **current_token, t_command **current_command,
+	int *arg_count)
+{
+	if (!*current_command)
+	{
+		fprintf(stderr, "Error: Pipe '|' without preceding command.\n");
+		return (-1);
+	}
+	handle_pipe(current_command, arg_count);
+	if (!(*current_token)->next || (*current_token)->next->type
+		!= TOKEN_COMMAND)
+	{
+		fprintf(stderr, "Error: Pipe '|' without following command.\n");
+		return (-1);
+	}
+	return (0);
+}
+
+int	process_special_tokens(t_token **current_token, t_command **current_command,
+	t_memories *memories, int *arg_count)
+{
+	if ((*current_token)->type == TOKEN_HEREDOC)
+		return (handle_heredoc_token(current_token, current_command));
+	if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT
+		|| (*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT
+		|| (*current_token)->type == TOKEN_INPUT_REDIRECT)
+		return (handle_redirection_token(current_token, current_command,
+				memories));
+	if ((*current_token)->type == TOKEN_PIPE)
+		return (handle_pipe_token(current_token, current_command, arg_count));
+	fprintf(stderr, "Unrecognized special token: %s\n",
+		(*current_token)->value);
+	return (-1);
 }
