@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 15:38:09 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 17:29:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,14 @@ typedef struct s_parse_context
 	int			*arg_count;
 }	t_parse_context;
 
+typedef struct s_execution_context
+{
+	int		in_fd;
+	int		pipe_fd[2];
+	int		*last_exit_status;
+	t_env	*environment;
+}	t_execution_context;
+
 // Function Declarations
 
 // Memory Management
@@ -208,6 +216,8 @@ int			handle_heredoc(t_token **current_token, t_command *current_command);
 int			handle_all_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
 int			handle_simple_command(t_command *command, int *last_exit_status);
+int			setup_pipes(t_command *current_command, int *pipe_fd,
+				int *last_exit_status);
 
 // Command Execution
 void		execute_commands(t_command *command_list, int *last_exit_status,
@@ -219,6 +229,16 @@ int			handle_output_redirection(const char *output_redirect,
 void		restore_redirections(int saved_stdin, int saved_stdout);
 int			handle_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
+void		exe_command(t_command *command, t_env *environment,
+				int *last_exit_status);
+void		execute_child_process(t_command *current_command,
+				t_execution_context *context);
+void		handle_parent_process(t_command *current_command, int *in_fd,
+				int *pipe_fd);
+int			handle_heredoc2(t_command *current_command, int *in_fd,
+				int *last_exit_status);
+int			handle_input_redirection2(t_command *current_command, int in_fd);
+int			handle_output_redirection2(t_command *current_command);
 
 // File and Path Utilities
 char		*find_executable_path(const char *command);

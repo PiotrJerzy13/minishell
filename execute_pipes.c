@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 10:58:14 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 17:24:13 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,19 @@ int	bui_echo(char **args)
 	}
 	if (newline)
 		printf("\n");
+	return (0);
+}
+
+int	setup_pipes(t_command *current_command, int *pipe_fd, int *last_exit_status)
+{
+	if (current_command->next)
+	{
+		if (pipe(pipe_fd) == -1)
+		{
+			perror("Pipe creation failed");
+			*last_exit_status = 1;
+			return (-1);
+		}
+	}
 	return (0);
 }
