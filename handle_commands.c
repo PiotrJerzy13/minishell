@@ -6,14 +6,13 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:30:03 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 12:46:48 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_simple_command(t_command *command,
-	int *last_exit_status)
+int	handle_simple_command(t_command *command, int *last_exit_status)
 {
 	int	exit_code;
 
@@ -28,12 +27,16 @@ int	handle_simple_command(t_command *command,
 		if (command->args[1])
 		{
 			exit_code = atoi(command->args[1]);
+			if (exit_code < 0 || !isdigit(*command->args[1]))
+			{
+				fprintf(stderr, "exit: numeric argument required\n");
+				exit(255);
+			}
 			*last_exit_status = exit_code % 256;
-			bui_exit(command->args + 1);
-			return (-1);
+			exit(exit_code);
 		}
 		*last_exit_status = 0;
-		return (-1);
+		exit(0);
 	}
 	return (0);
 }
@@ -49,7 +52,7 @@ int	validate_export_argument(const char *arg)
 }
 
 int	handle_environment_command(t_command *command, t_env *environment,
-	t_memories *memories, int *last_exit_status)
+		t_memories *memories, int *last_exit_status)
 {
 	if (strcmp(command->command, "export") == 0)
 	{
@@ -68,7 +71,6 @@ int	handle_environment_command(t_command *command, t_env *environment,
 		}
 		else
 		{
-			fprintf(stderr, "unset: not enough arguments\n");
 			*last_exit_status = 1;
 		}
 		return (1);

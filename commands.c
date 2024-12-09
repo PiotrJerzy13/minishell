@@ -6,18 +6,55 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:38:02 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 10:58:21 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+char	*construct_and_check_path(const char *dir, const char *command)
+{
+	char	*full_path;
+
+	if (asprintf(&full_path, "%s/%s", dir, command) == -1)
+	{
+		perror("asprintf failed");
+		return (NULL);
+	}
+	if (access(full_path, X_OK) == 0)
+		return (full_path);
+	free(full_path);
+	return (NULL);
+}
+
+char	*find_in_path(const char *command, const char *path_env)
+{
+	char	*path;
+	char	*full_path;
+	char	*dir;
+
+	path = strdup(path_env);
+	full_path = NULL;
+	dir = strtok(path, ":");
+	while (dir != NULL)
+	{
+		if (*dir == '\0')
+			dir = ".";
+		full_path = construct_and_check_path(dir, command);
+		if (full_path)
+		{
+			free(path);
+			return (full_path);
+		}
+		dir = strtok(NULL, ":");
+	}
+	free(path);
+	return (NULL);
+}
+
 char	*find_executable_path(const char *command)
 {
 	char	*path_env;
-	char	*path;
-	char	*dir;
-	char	*full_path;
 
 	if (strchr(command, '/'))
 	{
@@ -27,59 +64,8 @@ char	*find_executable_path(const char *command)
 	}
 	path_env = getenv("PATH");
 	if (!path_env)
-	{
-		fprintf(stderr, "Error: PATH environment variable is not set.\n");
 		return (NULL);
-	}
-	path = strdup(path_env);
-	if (!path)
-	{
-		perror("strdup failed");
-		return (NULL);
-	}
-	dir = strtok(path, ":");
-	while (dir != NULL)
-	{
-		if (*dir == '\0')
-			dir = ".";
-		if (asprintf(&full_path, "%s/%s", dir, command) == -1)
-		{
-			perror("asprintf failed");
-			free(path);
-			return (NULL);
-		}
-		if (access(full_path, X_OK) == 0)
-		{
-			free(path);
-			return (full_path);
-		}
-		free(full_path);
-		dir = strtok(NULL, ":");
-	}
-	free(path);
-	return (NULL);
-}
-int	bui_echo(char **args)
-{
-	int	i;
-	int	newline;
-
-	if (args == NULL || args[0] == NULL)
-	{
-		fprintf(stderr, "\n");
-		return (1);
-	}
-	i = check_n_flag(args, &newline);
-	while (args[i])
-	{
-		printf("%s", args[i]);
-		if (args[i + 1])
-			printf(" ");
-		i++;
-	}
-	if (newline)
-		printf("\n");
-	return (0);
+	return (find_in_path(command, path_env));
 }
 
 void	print_declared_env(t_env *env)
