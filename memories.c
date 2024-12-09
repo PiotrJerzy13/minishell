@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/11/10 17:38:57 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:24:28 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	init_memories(t_memories *memories,
 
 int	is_in_memories(t_memories *memories, void *ptr)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (i < memories->size)
@@ -51,6 +51,14 @@ int	is_in_memories(t_memories *memories, void *ptr)
 
 void	add_memory(t_memories *memories, void *ptr)
 {
+	size_t	new_capacity;
+	void	**new_allocations;
+
+	if (!ptr)
+	{
+		printf("Warning: Attempted to add a NULL pointer.\n");
+		return ;
+	}
 	if (is_in_memories(memories, ptr))
 	{
 		printf("Warning: Pointer %p is already in memories.\n", ptr);
@@ -58,28 +66,62 @@ void	add_memory(t_memories *memories, void *ptr)
 	}
 	if (memories->size >= memories->capacity)
 	{
-		memories->capacity *= 2;
-		memories->allocations = realloc(memories->allocations,
-				memories->capacity * sizeof(void *));
-		if (!memories->allocations)
-		{
-			printf("Error: Failed to expand memory tracking.\n");
+		new_capacity = memories->capacity * 2;
+		new_allocations = realloc(memories->allocations,
+				new_capacity * sizeof(void *));
+		if (!new_allocations)
 			exit(EXIT_FAILURE);
-		}
+		memories->allocations = new_allocations;
+		memories->capacity = new_capacity;
 	}
+	memories->allocations[memories->size] = ptr;
+	memories->size++;
 }
 
 void	free_all_memories(t_memories *memories)
 {
-	int	i;
+	size_t	i;
+
+	i = 0;
+	if (!memories || !memories->allocations)
+	{
+		printf("Warning: Attempted to free an uninitialized memory.\n");
+		return ;
+	}
+	while (i < memories->size)
+	{
+		if (memories->allocations[i])
+		{
+			free(memories->allocations[i]);
+			memories->allocations[i] = NULL;
+		}
+		i++;
+	}
+	free(memories->allocations);
+	memories->allocations = NULL;
+	memories->size = 0;
+	memories->capacity = 0;
+}
+
+void	remove_memory(t_memories *memories, void *ptr)
+{
+	size_t	i;
+	size_t	j;
 
 	i = 0;
 	while (i < memories->size)
 	{
-		free(memories->allocations[i]);
+		if (memories->allocations[i] == ptr)
+		{
+			j = i;
+			while (j < memories->size - 1)
+			{
+				memories->allocations[j] = memories->allocations[j + 1];
+				j++;
+			}
+			memories->size--;
+			return ;
+		}
 		i++;
 	}
-	free(memories->allocations);
-	memories->size = 0;
-	memories->capacity = 0;
 }

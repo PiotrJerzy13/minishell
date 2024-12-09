@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 17:18:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 23:09:41 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ void	exe_command(t_command *command, t_env *environment,
 	char	**env_array;
 	char	*exec_path;
 
-	env_array = env_to_char_array(environment);
+	env_array = env_to_char_array(environment, environment->memories);
 	exec_path = find_executable_path(command->command);
 	if (!exec_path)
 	{
-		fprintf(stderr, "minishell: %s: command not found\n", command->command);
+		printf("minishell: %s: command not found\n", command->command);
 		*last_exit_status = 127;
 		free_env_array(env_array);
 		exit(127);

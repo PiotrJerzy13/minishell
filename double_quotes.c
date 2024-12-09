@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:33:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 15:45:48 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 23:13:53 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,17 @@ t_buffer_info	initialize_buffer_info(t_memories *memories)
 		perror("Memory allocation failed for buffer pointer");
 		exit(EXIT_FAILURE);
 	}
+	add_memory(memories, buf_info.buffer);
 	*buf_info.buffer = malloc(64);
 	if (!*buf_info.buffer)
-	{
-		perror("Memory allocation failed for buffer");
 		exit(EXIT_FAILURE);
-	}
+	add_memory(memories, *buf_info.buffer);
 	buf_info.length = malloc(sizeof(size_t));
 	buf_info.capacity = malloc(sizeof(size_t));
 	if (!buf_info.length || !buf_info.capacity)
-	{
 		exit(EXIT_FAILURE);
-	}
+	add_memory(memories, buf_info.length);
+	add_memory(memories, buf_info.capacity);
 	*buf_info.length = 0;
 	*buf_info.capacity = 64;
 	**buf_info.buffer = '\0';

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 17:29:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:24:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ typedef struct s_heredoc_node
 typedef struct s_memories
 {
 	void	**allocations;
-	int		size;
-	int		capacity;
+	size_t	size;
+	size_t	capacity;
 }	t_memories;
 
 typedef struct s_key_value
@@ -152,6 +152,8 @@ void		init_memories(t_memories *memories, t_env *environment,
 				int env_capacity);
 void		add_memory(t_memories *memories, void *ptr);
 void		free_all_memories(t_memories *memories);
+int			is_in_memories(t_memories *memories, void *ptr);
+void		remove_memory(t_memories *memories, void *ptr);
 
 // Environment Management
 void		copy_environment_to_struct(char **env, t_env *environment,
@@ -162,15 +164,16 @@ void		export_env_var(t_env *environment, char *input,
 				t_memories *memories);
 void		unset_env_var(t_env *env, const char *key);
 char		*get_env_value(const char *name, t_env *environment);
-char		**env_to_char_array(t_env *environment);
+void		update_env_var(t_env *env, int index, const char *value,
+				t_memories *memories);
 void		free_env_array(char **env_array);
 int			handle_environment_command(t_command *command, t_env *environment,
 				t_memories *memories, int *last_exit_status);
+char		**env_to_char_array(t_env *environment, t_memories *memories);
 
 // Built-in Commands
 int			bui_echo(char **args);
 int			bui_cd(char **args, t_env *env, t_memories *memories);
-int			bui_exit(char **args);
 int			handle_builtin(t_command *command, t_env *environment,
 				t_memories *memories, int *exit_st);
 void		handle_unset(t_command *command, t_env *environment);
@@ -212,7 +215,8 @@ void		add_argument_to_command(t_token *current_token,
 				t_command *current_command, t_memories *memories,
 				int *arg_count);
 void		handle_pipe(t_command **current_command, int *arg_count);
-int			handle_heredoc(t_token **current_token, t_command *current_command);
+int			handle_heredoc(t_token **current_token, t_command *current_command,
+				t_memories *memories);
 int			handle_all_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
 int			handle_simple_command(t_command *command, int *last_exit_status);

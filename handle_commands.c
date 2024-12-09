@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 14:59:46 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 23:03:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 			exit_code = atoi(command->args[1]);
 			if (exit_code < 0 || !isdigit(*command->args[1]))
 			{
-				fprintf(stderr, "exit: numeric argument required\n");
+				printf("exit: numeric argument required\n");
 				exit(255);
 			}
 			*last_exit_status = exit_code % 256;
@@ -45,7 +45,7 @@ int	validate_export_argument(const char *arg)
 {
 	if (!arg || strchr(arg, '=') == NULL)
 	{
-		fprintf(stderr, "export: `%s': not a valid identifier\n", arg);
+		printf("export: `%s': not a valid identifier\n", arg);
 		return (0);
 	}
 	return (1);

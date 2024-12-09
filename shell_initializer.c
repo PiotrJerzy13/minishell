@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 18:08:05 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:40:56 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:45:42 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ int	initialize_shell_environment(t_memories *memories,
 {
 	if (initialize_shell() == -1)
 	{
-		fprintf(stderr, "Failed to initialize shell environment\n");
 		return (-1);
 	}
 	init_memories(memories, environment, 10);

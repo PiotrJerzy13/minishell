@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 13:25:21 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:57:00 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ int	validate_quotes(const char *input)
 	if (single_quote || double_quote)
 	{
 		if (single_quote)
-			fprintf(stderr, "minishell: syntax error:\n");
+			printf("minishell: syntax error:\n");
 		if (double_quote)
-			fprintf(stderr, "minishell: syntax error:\n");
+			printf("minishell: syntax error:\n");
 		return (0);
 	}
 	return (1);
@@ -54,7 +54,7 @@ char	*get_user_input(void)
 	}
 	if (!validate_quotes(input))
 	{
-		fprintf(stderr, "minishell: syntax error: unterminated quote\n");
+		printf("minishell: syntax error: unterminated quote\n");
 		free(input);
 		return ("");
 	}
