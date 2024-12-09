@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 13:12:50 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 15:38:09 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,8 @@ void		unset_env_var(t_env *env, const char *key);
 char		*get_env_value(const char *name, t_env *environment);
 char		**env_to_char_array(t_env *environment);
 void		free_env_array(char **env_array);
+int			handle_environment_command(t_command *command, t_env *environment,
+				t_memories *memories, int *last_exit_status);
 
 // Built-in Commands
 int			bui_echo(char **args);
@@ -186,6 +188,8 @@ void		process_quoted_token(char **input, t_token_context *context);
 char		*get_double_quoted_token(char **input_ptr, t_env *environment,
 				t_memories *memories);
 char		*get_single_quoted_token(char **input_ptr);
+int			handle_redirections(t_token **current_token,
+				t_command *current_command, t_memories *memories);
 
 // Token Helpers
 t_token		*init_token(char *value, t_token_type type, t_memories *memories);
@@ -203,6 +207,7 @@ void		handle_pipe(t_command **current_command, int *arg_count);
 int			handle_heredoc(t_token **current_token, t_command *current_command);
 int			handle_all_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
+int			handle_simple_command(t_command *command, int *last_exit_status);
 
 // Command Execution
 void		execute_commands(t_command *command_list, int *last_exit_status,
@@ -212,6 +217,8 @@ int			handle_input_redirection(const char *input_redirect,
 int			handle_output_redirection(const char *output_redirect,
 				int append_mode, int *saved_stdout, int *last_exit_status);
 void		restore_redirections(int saved_stdin, int saved_stdout);
+int			handle_redirections(t_token **current_token,
+				t_command *current_command, t_memories *memories);
 
 // File and Path Utilities
 char		*find_executable_path(const char *command);
@@ -229,3 +236,5 @@ t_command	*create_new_command(t_memories *memories);
 int			process_special_tokens(t_token **current_token,
 				t_command **current_command, t_memories *memories,
 				int *arg_count);
+void		append_to_buffer(t_buffer_info *buf_info, const char *start,
+				size_t segment_len);

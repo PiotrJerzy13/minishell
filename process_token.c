@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 13:43:00 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 15:41:04 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	handle_redirection_token(t_token **current_token,
 {
 	if (!*current_command)
 	{
-		fprintf(stderr, "Error: Redirection token withoutcommand.\n");
+		fprintf(stderr, "Error: Redirection token without command.\n");
 		return (-1);
 	}
 	if (handle_all_redirections(current_token, *current_command,

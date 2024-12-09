@@ -1,5 +1,3 @@
-Kill
-Kill
-Kill
+/Users/pwojnaro/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Library/Apple/usr/bin:/Users/pwojnaro/.brew/bin
 lib
-Kat
+KOO

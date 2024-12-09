@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 14:11:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 12:57:47 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 15:33:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,83 +54,83 @@ void	append_to_buffer(t_buffer_info *buf_info, const char *start,
 	(*(buf_info->buffer))[*buf_info->length] = '\0';
 }
 
-char	*get_double_quoted_token(char **input_ptr, t_env *environment,
-		t_memories *memories)
-{
-	char			*start;
-	char			*end;
-	char			*var_name;
-	char			*value;
-	t_buffer_info	buf_info;
+// char	*get_double_quoted_token(char **input_ptr, t_env *environment,
+// 		t_memories *memories)
+// {
+// 	char			*start;
+// 	char			*end;
+// 	char			*var_name;
+// 	char			*value;
+// 	t_buffer_info	buf_info;
 
-	buf_info.buffer = malloc(sizeof(char *));
-	if (!buf_info.buffer)
-	{
-		perror("Memory allocation failed");
-		exit(EXIT_FAILURE);
-	}
-	*buf_info.buffer = malloc(64);
-	if (!*buf_info.buffer)
-	{
-		perror("Memory allocation failed");
-		exit(EXIT_FAILURE);
-	}
-	buf_info.length = malloc(sizeof(size_t));
-	buf_info.capacity = malloc(sizeof(size_t));
-	if (!buf_info.length || !buf_info.capacity)
-	{
-		perror("Memory allocation failed");
-		exit(EXIT_FAILURE);
-	}
-	*buf_info.length = 0;
-	*buf_info.capacity = 64;
-	buf_info.memories = memories;
-	**buf_info.buffer = '\0';
-	start = *input_ptr + 1;
-	end = start;
-	while (*end && *end != '"')
-	{
-		if (*end == '$')
-		{
-			if (end > start)
-			{
-				append_to_buffer(&buf_info, start, end - start);
-			}
-			end++;
-			start = end;
-			while (isalnum(*end) || *end == '_')
-				end++;
-			var_name = strndup(start, end - start);
-			if (!var_name)
-			{
-				perror("Memory allocation failed for variable name");
-				exit(EXIT_FAILURE);
-			}
-			value = get_env_value(var_name, environment);
-			free(var_name);
-			if (value)
-			{
-				append_to_buffer(&buf_info, value, strlen(value));
-				free(value);
-			}
-			start = end;
-		}
-		else
-		{
-			end++;
-		}
-	}
-	if (end > start)
-	{
-		append_to_buffer(&buf_info, start, end - start);
-	}
-	if (*end == '"')
-	{
-		*input_ptr = end + 1;
-	}
-	else
-	{
-		*input_ptr = end;
-	}
-	return (*buf_info.buffer);
-}
+// 	buf_info.buffer = malloc(sizeof(char *));
+// 	if (!buf_info.buffer)
+// 	{
+// 		perror("Memory allocation failed");
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	*buf_info.buffer = malloc(64);
+// 	if (!*buf_info.buffer)
+// 	{
+// 		perror("Memory allocation failed");
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	buf_info.length = malloc(sizeof(size_t));
+// 	buf_info.capacity = malloc(sizeof(size_t));
+// 	if (!buf_info.length || !buf_info.capacity)
+// 	{
+// 		perror("Memory allocation failed");
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	*buf_info.length = 0;
+// 	*buf_info.capacity = 64;
+// 	buf_info.memories = memories;
+// 	**buf_info.buffer = '\0';
+// 	start = *input_ptr + 1;
+// 	end = start;
+// 	while (*end && *end != '"')
+// 	{
+// 		if (*end == '$')
+// 		{
+// 			if (end > start)
+// 			{
+// 				append_to_buffer(&buf_info, start, end - start);
+// 			}
+// 			end++;
+// 			start = end;
+// 			while (isalnum(*end) || *end == '_')
+// 				end++;
+// 			var_name = strndup(start, end - start);
+// 			if (!var_name)
+// 			{
+// 				perror("Memory allocation failed for variable name");
+// 				exit(EXIT_FAILURE);
+// 			}
+// 			value = get_env_value(var_name, environment);
+// 			free(var_name);
+// 			if (value)
+// 			{
+// 				append_to_buffer(&buf_info, value, strlen(value));
+// 				free(value);
+// 			}
+// 			start = end;
+// 		}
+// 		else
+// 		{
+// 			end++;
+// 		}
+// 	}
+// 	if (end > start)
+// 	{
+// 		append_to_buffer(&buf_info, start, end - start);
+// 	}
+// 	if (*end == '"')
+// 	{
+// 		*input_ptr = end + 1;
+// 	}
+// 	else
+// 	{
+// 		*input_ptr = end;
+// 	}
+// 	return (*buf_info.buffer);
+// }
