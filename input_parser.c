@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 12:36:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:40:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 13:25:21 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,50 +61,60 @@ char	*get_user_input(void)
 	return (input);
 }
 
+int	process_token(t_parse_context *context)
+{
+	t_token	*token;
+
+	token = *(context->token_ptr);
+	if (!(*(context->command)) && token->type == TOKEN_COMMAND)
+	{
+		*(context->command) = initialize_command(token, context->command_list,
+				context->memories);
+		if (!(*(context->command)))
+			return (-1);
+		*(context->arg_count) = 1;
+	}
+	else if ((token->type == TOKEN_ARGUMENT || token->type == TOKEN_COMMAND)
+		&& *(context->command))
+	{
+		add_argument_to_command(token, *(context->command), context->memories,
+			context->arg_count);
+	}
+	else
+	{
+		if (process_special_tokens(context->token_ptr, context->command,
+				context->memories, context->arg_count) == -1)
+			return (-1);
+	}
+	return (0);
+}
+
 int	parse_input_to_commands(t_token *token_list, t_command **command_list,
 	t_memories *memories)
 {
-	t_command	*command;
-	t_token		*token;
-	int			arg_count;
+	t_command		*command;
+	t_token			*token;
+	int				arg_count;
+	t_parse_context	context;
 
 	command = NULL;
 	token = token_list;
 	arg_count = 0;
 	if (!token_list)
 		return (0);
+	context.token_ptr = &token;
+	context.command = &command;
+	context.command_list = command_list;
+	context.memories = memories;
+	context.arg_count = &arg_count;
 	while (token)
 	{
-		if (!command && token->type == TOKEN_COMMAND)
-		{
-			command = initialize_command(token, command_list, memories);
-			if (!command)
-			{
-				fprintf(stderr, "Error: Failed to initialize command.\n");
-				return (-1);
-			}
-			arg_count = 1;
-		}
-		else if ((token->type == TOKEN_ARGUMENT
-				|| token->type == TOKEN_COMMAND) && command)
-		{
-			add_argument_to_command(token, command, memories, &arg_count);
-		}
-		else
-		{
-			if (process_special_tokens(&token, &command,
-					memories, &arg_count) == -1)
-			{
-				fprintf(stderr, "Error: Failed to process special token.\n");
-				return (-1);
-			}
-		}
+		if (process_token(&context) == -1)
+			return (-1);
 		token = token->next;
 	}
 	if (command)
-	{
 		command->args[arg_count] = NULL;
-	}
 	return (0);
 }
 
@@ -126,20 +136,4 @@ t_command	*create_new_command(t_memories *memories)
 	command->append_mode = 0;
 	command->next = NULL;
 	return (command);
-}
-
-void	restore_redirections(int saved_stdin, int saved_stdout)
-{
-	if (saved_stdin != -1)
-	{
-		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-			perror("Failed to restore stdin");
-		close(saved_stdin);
-	}
-	if (saved_stdout != -1)
-	{
-		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-			perror("Failed to restore stdout");
-		close(saved_stdout);
-	}
 }

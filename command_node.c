@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 15:24:01 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 09:27:39 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 13:10:15 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,20 @@ t_command	*initialize_command(t_token *token,
 		current->next = new_command;
 	}
 	return (new_command);
+}
+
+void	restore_redirections(int saved_stdin, int saved_stdout)
+{
+	if (saved_stdin != -1)
+	{
+		if (dup2(saved_stdin, STDIN_FILENO) == -1)
+			perror("Failed to restore stdin");
+		close(saved_stdin);
+	}
+	if (saved_stdout != -1)
+	{
+		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+			perror("Failed to restore stdout");
+		close(saved_stdout);
+	}
 }

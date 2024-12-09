@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 12:46:48 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 14:59:46 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ int	validate_export_argument(const char *arg)
 	return (1);
 }
 
-int	handle_environment_command(t_command *command, t_env *environment,
-		t_memories *memories, int *last_exit_status)
+int	handle_env_var_commands(t_command *command, t_env *environment,
+	int *last_exit_status)
 {
 	if (strcmp(command->command, "export") == 0)
 	{
@@ -75,6 +75,12 @@ int	handle_environment_command(t_command *command, t_env *environment,
 		}
 		return (1);
 	}
+	return (0);
+}
+
+int	handle_directory_commands(t_command *command, t_env *environment,
+	t_memories *memories, int *last_exit_status)
+{
 	if (strcmp(command->command, "cd") == 0)
 	{
 		if (bui_cd(command->args + 1, environment, memories) == FAILURE)
@@ -86,49 +92,13 @@ int	handle_environment_command(t_command *command, t_env *environment,
 	return (0);
 }
 
-int	handle_builtin(t_command *command, t_env *environment,
-	t_memories *memories, int *exit_st)
+int	handle_environment_command(t_command *command, t_env *environment,
+	t_memories *memories, int *last_exit_status)
 {
-	int	saved_stdin;
-	int	saved_stdout;
-	int	result;
-
-	saved_stdin = -1;
-	saved_stdout = -1;
-	if (command->output_redirect && !command->append_mode)
-	{
-		if (clear_output_redirect(command->output_redirect, exit_st))
-		{
-			restore_redirections(saved_stdin, saved_stdout);
-			return (1);
-		}
-	}
-	else if (command->output_redirect && command->append_mode)
-	{
-		printf("DEBUG: Skipping clear_output_redirect for append mode.\n");
-	}
-	if (command->input_redirect)
-	{
-		if (handle_input_redirection(command->input_redirect,
-				&saved_stdin, exit_st))
-		{
-			restore_redirections(saved_stdin, saved_stdout);
-			return (1);
-		}
-	}
-	if (command->output_redirect)
-	{
-		if (handle_output_redirection(command->output_redirect,
-				command->append_mode, &saved_stdout, exit_st))
-		{
-			restore_redirections(saved_stdin, saved_stdout);
-			return (1);
-		}
-	}
-	result = handle_simple_command(command, exit_st)
-		|| handle_environment_command(command, environment, memories, exit_st);
-	if (!result)
-		*exit_st = 127;
-	restore_redirections(saved_stdin, saved_stdout);
-	return (result);
+	if (handle_env_var_commands(command, environment, last_exit_status))
+		return (1);
+	if (handle_directory_commands(command, environment, memories,
+			last_exit_status))
+		return (1);
+	return (0);
 }
