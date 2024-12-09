@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirector.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:20:49 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/09 09:34:49 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,17 +63,11 @@ int	handle_output_redirection(const char *output_redirect, int append_mode,
 	int	fd_out;
 
 	if (!output_redirect)
-	{
 		return (0);
-	}
 	if (append_mode)
-	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	}
 	else
-	{
 		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	}
 	if (fd_out == -1)
 	{
 		perror("open failed for output redirection");
@@ -172,22 +166,6 @@ int	handle_redirections(t_token **current_token, t_command *current_command,
 	return (0);
 }
 
-void	restore_redirections(int saved_stdin, int saved_stdout)
-{
-	if (saved_stdin != -1)
-	{
-		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-			perror("Failed to restore stdin");
-		close(saved_stdin);
-	}
-	if (saved_stdout != -1)
-	{
-		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-			perror("Failed to restore stdout");
-		close(saved_stdout);
-	}
-}
-
 int	handle_all_redirections(t_token **current_token, t_command *current_command,
 				t_memories *memories)
 {
@@ -198,18 +176,12 @@ int	handle_all_redirections(t_token **current_token, t_command *current_command,
 	if ((*current_token)->type == TOKEN_INPUT_REDIRECT)
 	{
 		if (handle_redirections(current_token, current_command, memories) == -1)
-		{
-			fprintf(stderr, "Error handling input redirection\n");
 			return (-1);
-		}
 	}
 	else if ((*current_token)->type == TOKEN_APPEND_OUTPUT_REDIRECT)
 	{
 		if (handle_redirections(current_token, current_command, memories) == -1)
-		{
-			fprintf(stderr, "Error handling append output redirection\n");
 			return (-1);
-		}
 	}
 	else if ((*current_token)->type == TOKEN_OUTPUT_REDIRECT)
 	{
@@ -220,9 +192,6 @@ int	handle_all_redirections(t_token **current_token, t_command *current_command,
 		}
 	}
 	else
-	{
-		fprintf(stderr, "Error: Unexpected: %d\n", (*current_token)->type);
 		return (-1);
-	}
 	return (0);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_token.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:22:45 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/09 09:32:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,8 @@ void	process_general_token(char **input, t_token_context *context)
 					context->memories));
 		}
 		else
-		{
 			add_token(context->token_list, init_token(token, TOKEN_COMMAND,
 					context->memories));
-		}
 		free(token);
 		context->expect_filename = 0;
 	}
@@ -64,10 +62,8 @@ void	process_quoted_token(char **input, t_token_context *context)
 					context->memories));
 		}
 		else
-		{
 			add_token(context->token_list, init_token(token, TOKEN_ARGUMENT,
 					context->memories));
-		}
 		free(token);
 	}
 }

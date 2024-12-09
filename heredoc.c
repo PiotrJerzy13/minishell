@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 12:02:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:30:43 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,22 +69,16 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list)
 			line[read - 1] = '\0';
 		}
 		if (strcmp(line, delimiter) == 0)
-		{
 			break ;
-		}
 		append_heredoc_node(heredoc_list, line);
 		printf("heredoc> ");
 		read = getline(&line, &len, stdin);
 	}
 	free(line);
 	if (read == -1)
-	{
 		return (-1);
-	}
 	else
-	{
 		return (0);
-	}
 }
 
 int	handle_heredoc(t_token **current_token, t_command *current_command)

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 18:08:05 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/03 18:11:59 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/09 09:40:56 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,4 @@ int	initialize_shell_environment(t_memories *memories,
 	init_memories(memories, environment, 10);
 	copy_environment_to_struct(env, environment, memories);
 	return (0);
-}
-
-t_token_context	init_token_context(t_command_context *context)
-{
-	t_token_context	token_context;
-
-	token_context.token_list = context->token_list;
-	token_context.memories = context->memories;
-	token_context.environment = context->environment;
-	token_context.last_exit_status = context->last_exit_status;
-	token_context.expect_filename = 0;
-	return (token_context);
 }
