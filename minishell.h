@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:24:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 14:16:25 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ typedef struct s_env
 	t_key_value	*pairs;
 	size_t		size;
 	size_t		capacity;
-	int			cd_used_flag;
+	int			cd_flag;
 	t_memories	*memories;
 	int			path_unset;
 }	t_env;
@@ -262,3 +262,13 @@ int			process_special_tokens(t_token **current_token,
 				int *arg_count);
 void		append_to_buffer(t_buffer_info *buf_info, const char *start,
 				size_t segment_len);
+
+
+//==============================================================================
+
+// helper_functions.c
+
+int			ft_atoi(const char *str);
+int			ft_strcmp(const char *first_str, const char *second_str);
+char		*ft_strchr(const char *s, int c);
+char		*ft_strtok(char *str, const char *delim);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_pipes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 17:24:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:59:02 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,17 @@ void	handle_pipe(t_command **current_command, int *arg_count)
 	}
 }
 
+void	handle_echo_with_pid(const char *arg)
+{
+	const char	*dollar_pid;
+
+	dollar_pid = "$$";
+	if (ft_strcmp(arg, dollar_pid))
+	{
+		printf("%d", getpid());
+	}
+}
+
 int	bui_echo(char **args)
 {
 	int	i;
@@ -38,12 +49,17 @@ int	bui_echo(char **args)
 		return (1);
 	}
 	i = check_n_flag(args, &newline);
-	while (args[i])
+	if (args[1] && ft_strcmp(args[1], "$$"))
+		handle_echo_with_pid(args[1]);
+	else
 	{
-		printf("%s", args[i]);
-		if (args[i + 1])
-			printf(" ");
-		i++;
+		while (args[i])
+		{
+			printf("%s", args[i]);
+			if (args[i + 1])
+				printf(" ");
+			i++;
+		}
 	}
 	if (newline)
 		printf("\n");

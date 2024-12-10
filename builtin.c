@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:20:27 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:58:04 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 {
 	const char	*path;
 
-	if (args[0] == NULL || strcmp(args[0], "~") == 0)
+	if (args[0] == NULL || ft_strcmp(args[0], "~") == 0)
 	{
 		path = get_env_value("HOME", env);
 		if (path == NULL)
@@ -25,7 +25,7 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 			return (free(old_pwd), NULL);
 		}
 	}
-	else if (strcmp(args[0], "-") == 0)
+	else if (ft_strcmp(args[0], "-") == 0)
 	{
 		path = get_env_value("OLDPWD", env);
 		if (path == NULL)
