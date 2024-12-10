@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:49:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 17:33:51 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 21:29:52 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	write_heredoc_to_pipe(t_heredoc_node *node, int pipe_fd)
 {
 	while (node)
 	{
-		if (write(pipe_fd, node->line, strlen(node->line)) == -1
+		if (write(pipe_fd, node->line, ft_strlen(node->line)) == -1
 			|| write(pipe_fd, "\n", 1) == -1)
 		{
 			perror("Write to heredoc pipe failed");

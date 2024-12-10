@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 18:28:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 19:34:26 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:21:45 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,4 +88,18 @@ void	handle_variable_expansion(char **input, t_token_context *context)
 		add_token(context->token_list, init_token("",
 				TOKEN_ARGUMENT, context->memories));
 	}
+}
+
+int	setup_pipes(t_command *current_command, int *pipe_fd, int *last_exit_status)
+{
+	if (current_command->next)
+	{
+		if (pipe(pipe_fd) == -1)
+		{
+			perror("Pipe creation failed");
+			*last_exit_status = 1;
+			return (-1);
+		}
+	}
+	return (0);
 }

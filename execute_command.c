@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 17:30:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:39:02 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,10 @@ void	exe_command(t_command *command, t_env *environment,
 	{
 		printf("minishell: %s: command not found\n", command->command);
 		*last_exit_status = 127;
-		free_env_array(env_array);
 		exit(127);
 	}
 	execve(exec_path, command->args, env_array);
 	perror("execve failed");
-	free_env_array(env_array);
 	exit(1);
 }
 

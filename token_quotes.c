@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 14:11:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 12:34:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:33:38 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ char	*get_single_quoted_token(char **input_ptr, t_memories *memories)
 }
 
 void	append_to_buffer(t_buffer_info *buf_info, const char *start,
-			size_t segment_len)
+		size_t segment_len)
 {
 	char	*new_buffer;
 
@@ -44,14 +44,30 @@ void	append_to_buffer(t_buffer_info *buf_info, const char *start,
 			exit(EXIT_FAILURE);
 		}
 		ft_memcpy(new_buffer, *(buf_info->buffer), *(buf_info->length));
-		free(*(buf_info->buffer));
+		if (is_in_memories(buf_info->memories, *(buf_info->buffer)))
+			remove_memory(buf_info->memories, *(buf_info->buffer));
 		*(buf_info->buffer) = new_buffer;
-		if (!is_in_memories(buf_info->memories, new_buffer))
-		{
-			add_memory(buf_info->memories, new_buffer);
-		}
+		add_memory(buf_info->memories, new_buffer);
 	}
 	ft_memcpy(*(buf_info->buffer) + *(buf_info->length), start, segment_len);
 	*(buf_info->length) += segment_len;
 	(*(buf_info->buffer))[*buf_info->length] = '\0';
+}
+
+char	*get_env_value(const char *name, t_env *environment,
+	t_memories *memories)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < environment->size)
+	{
+		if (ft_strcmp(environment->pairs[i].key, name) == 0)
+		{
+			return (ft_strndup(environment->pairs[i].value,
+					ft_strlen(environment->pairs[i].value), memories));
+		}
+		i++;
+	}
+	return (NULL);
 }

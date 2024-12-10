@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:23:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:08:02 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,12 @@ t_token	*init_token(char *value, t_token_type type, t_memories *memories)
 		exit(EXIT_FAILURE);
 	}
 	add_memory(memories, new_token);
-	new_token->value = strdup(value);
-	add_memory(memories, new_token->value);
+	new_token->value = ft_strndup(value, ft_strlen(value), memories);
+	if (!new_token->value)
+	{
+		printf("Error: Failed to allocate memory for token value.\n");
+		exit(EXIT_FAILURE);
+	}
 	new_token->type = type;
 	new_token->next = NULL;
 	return (new_token);
@@ -57,6 +61,12 @@ void	tokenize_input(char *input, t_token_context *context)
 		skip_spaces(&input);
 		if (*input == '\0')
 			break ;
+		if (*input == '$' && *(input + 1) == '\0')
+			printf("$");
+		if (*input == '$' && *(input + 1) == '$')
+		{
+			handle_echo_with_pid(input);
+		}
 		if (*input == '$')
 		{
 			process_variable_expansion(&input, context);

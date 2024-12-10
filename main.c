@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 19:54:16 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:41:34 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,25 +69,6 @@ void	process_commands(char *input, t_command_context *context)
 		*(context->command_list) = NULL;
 		*(context->token_list) = NULL;
 	}
-}
-
-t_token_context	*create_token_context(t_shell_state *state)
-{
-	t_token_context	*context;
-
-	context = malloc(sizeof(t_token_context));
-	if (!context)
-	{
-		printf("Error: Failed to allocate token context\n");
-		exit(EXIT_FAILURE);
-	}
-	context->token_list = &state->token_list;
-	context->memories = &state->memories;
-	context->environment = &state->environment;
-	context->last_exit_status = &state->last_exit_status;
-	context->expect_filename = 0;
-	add_memory(&state->memories, context);
-	return (context);
 }
 
 int	main(int argc, char **argv, char **env)

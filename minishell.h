@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 15:35:02 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 19:56:20 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:31:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,13 +169,12 @@ char		*get_env_value(const char *name, t_env *environment,
 				t_memories *memories);
 void		update_env_var(t_env *env, int index, const char *value,
 				t_memories *memories);
-void		free_env_array(char **env_array);
 int			handle_environment_command(t_command *command, t_env *environment,
 				t_memories *memories, int *last_exit_status);
 char		**env_to_char_array(t_env *environment, t_memories *memories);
 
 // Built-in Commands
-int			bui_echo(char **args);
+int			bui_echo(char **args, t_memories *memories);
 int			bui_cd(char **args, t_env *env, t_memories *memories);
 int			handle_builtin(t_command *command, t_env *environment,
 				t_memories *memories, int *exit_st);
@@ -222,7 +221,8 @@ int			handle_heredoc(t_token **current_token, t_command *current_command,
 				t_memories *memories);
 int			handle_all_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
-int			handle_simple_command(t_command *command, int *last_exit_status);
+int			handle_simple_command(t_command *command, int *last_exit_status,
+				t_memories *memories);
 int			setup_pipes(t_command *current_command, int *pipe_fd,
 				int *last_exit_status);
 
@@ -284,3 +284,4 @@ void		int_to_string(int number, char *buffer);
 void		handle_variable_expansion(char **input, t_token_context *context);
 int			count_digits(int number);
 void		convert_positive_int_to_string(int number, char *buffer);
+void		handle_echo_with_pid(const char *arg);

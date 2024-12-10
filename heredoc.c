@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:03:16 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 21:28:06 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,12 @@ t_heredoc_node	*create_heredoc_node(const char *line, t_memories *memories)
 		return (NULL);
 	}
 	add_memory(memories, node);
-	node->line = strdup(line);
+	node->line = ft_strndup(line, ft_strlen(line), memories);
 	if (!node->line)
 	{
 		perror("Error allocating memory for line");
-		free(node);
 		return (NULL);
 	}
-	add_memory(memories, node->line);
 	node->next = NULL;
 	return (node);
 }

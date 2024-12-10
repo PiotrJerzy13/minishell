@@ -6,19 +6,48 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 15:26:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:55:37 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 21:39:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_simple_command(t_command *command, int *last_exit_status)
+// int	handle_simple_command(t_command *command, int *last_exit_status)
+// {
+// 	int	exit_code;
+
+// 	if (ft_strcmp(command->command, "echo") == 0)
+// 	{
+// 		bui_echo(command->args + 1,);
+// 		*last_exit_status = 0;
+// 		return (1);
+// 	}
+// 	else if (ft_strcmp(command->command, "exit") == 0)
+// 	{
+// 		if (command->args[1])
+// 		{
+// 			exit_code = ft_atoi(command->args[1]);
+// 			if (exit_code < 0 || !ft_isdigit(*command->args[1]))
+// 			{
+// 				printf("exit: numeric argument required\n");
+// 				exit(255);
+// 			}
+// 			*last_exit_status = exit_code % 256;
+// 			exit(exit_code);
+// 		}
+// 		*last_exit_status = 0;
+// 		exit(0);
+// 	}
+// 	return (0);
+// }
+int	handle_simple_command(t_command *command, int *last_exit_status,
+		t_memories *memories)
 {
 	int	exit_code;
 
 	if (ft_strcmp(command->command, "echo") == 0)
 	{
-		bui_echo(command->args + 1);
+		bui_echo(command->args + 1, memories);
 		*last_exit_status = 0;
 		return (1);
 	}

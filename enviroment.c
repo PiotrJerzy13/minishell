@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 19:24:51 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:09:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,12 @@ void	update_env_var(t_env *env, int index, const char *value,
 {
 	if (is_in_memories(memories, env->pairs[index].value))
 		remove_memory(memories, env->pairs[index].value);
-	free(env->pairs[index].value);
-	env->pairs[index].value = strdup(value);
+	env->pairs[index].value = ft_strndup(value, ft_strlen(value), memories);
 	if (!env->pairs[index].value)
 	{
 		perror("Failed to update environment variable value");
 		exit(EXIT_FAILURE);
 	}
-	add_memory(memories, env->pairs[index].value);
 }
 
 void	add_env_var(t_env *env, const char *key, const char *value,
@@ -70,18 +68,23 @@ void	add_env_var(t_env *env, const char *key, const char *value,
 {
 	size_t		new_capacity;
 	t_key_value	*new_pairs;
+	size_t		i;
 
+	i = 0;
 	if (env->size >= env->capacity)
 	{
 		new_capacity = env->capacity * 2;
-		new_pairs = realloc(env->pairs, new_capacity * sizeof(t_key_value));
+		new_pairs = malloc(new_capacity * sizeof(t_key_value));
 		if (!new_pairs)
 			exit(EXIT_FAILURE);
-		if (is_in_memories(memories, env->pairs))
-			remove_memory(memories, env->pairs);
+		while (i < env->size)
+		{
+			new_pairs[i] = env->pairs[i];
+			i++;
+		}
+		add_memory(memories, new_pairs);
 		env->pairs = new_pairs;
 		env->capacity = new_capacity;
-		add_memory(memories, env->pairs);
 	}
 	env->pairs[env->size].key = ft_strndup(key, ft_strlen(key), memories);
 	env->pairs[env->size].value = ft_strndup(value, ft_strlen(value), memories);

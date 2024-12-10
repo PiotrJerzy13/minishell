@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_pipes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:59:02 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:11:32 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,48 +34,86 @@ void	handle_echo_with_pid(const char *arg)
 	dollar_pid = "$$";
 	if (ft_strcmp(arg, dollar_pid))
 	{
+		printf("%d\n", getpid());
+	}
+	if (ft_strcmp(arg, dollar_pid) == 0)
+	{
 		printf("%d", getpid());
 	}
 }
 
-int	bui_echo(char **args)
+char	*process_escape_sequences(const char *input, t_memories *memories)
+{
+	size_t	len;
+	char	*result;
+	char	*dst;
+
+	len = ft_strlen(input);
+	result = malloc(len + 1);
+	if (!result)
+		return (NULL);
+	add_memory(memories, result);
+	dst = result;
+	while (*input)
+	{
+		if (*input == '\\' && (*(input + 1) == 'n' || *(input + 1) == 't'))
+		{
+			if (*(input + 1) == 'n')
+				*dst++ = '\n';
+			else if (*(input + 1) == 't')
+				*dst++ = '\t';
+			input += 2;
+		}
+		else
+			*dst++ = *input++;
+	}
+	*dst = '\0';
+	return (result);
+}
+
+void	process_echo_arguments(char **args, int start_index,
+		int escape_sequences, t_memories *memories)
+{
+	char	*processed_arg;
+	int		i;
+
+	i = start_index;
+	while (args[i])
+	{
+		if (escape_sequences)
+			processed_arg = process_escape_sequences(args[i], memories);
+		else
+			processed_arg = args[i];
+		if (processed_arg)
+			printf("%s", processed_arg);
+		if (args[i + 1])
+			printf(" ");
+		i++;
+	}
+}
+
+int	bui_echo(char **args, t_memories *memories)
 {
 	int	i;
 	int	newline;
 
-	if (args == NULL || args[0] == NULL)
+	if (!args || !args[0])
 	{
-		fprintf(stderr, "\n");
+		printf("\n");
 		return (1);
 	}
 	i = check_n_flag(args, &newline);
-	if (args[1] && ft_strcmp(args[1], "$$"))
+	if (ft_strcmp(args[0], "-e") == 0)
+	{
+		process_echo_arguments(args, i + 1, 1, memories);
+		printf("\n");
+		return (0);
+	}
+	if (args[1] && ft_strcmp(args[0], "$$") == 0)
 		handle_echo_with_pid(args[1]);
 	else
-	{
-		while (args[i])
-		{
-			printf("%s", args[i]);
-			if (args[i + 1])
-				printf(" ");
-			i++;
-		}
-	}
+		process_echo_arguments(args, i, 0, memories);
 	if (newline)
 		printf("\n");
-	return (0);
-}
-
-int	setup_pipes(t_command *current_command, int *pipe_fd, int *last_exit_status)
-{
-	if (current_command->next)
-	{
-		if (pipe(pipe_fd) == -1)
-		{
-			perror("Pipe creation failed");
-			*last_exit_status = 1;
-			return (-1);
-		}
-	}
 	return (0);
 }

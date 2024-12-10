@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 14:57:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 15:08:56 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 21:41:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	execute_builtin_command(t_command *command, t_env *environment,
 {
 	int	result;
 
-	result = handle_simple_command(command, exit_st)
+	result = handle_simple_command(command, exit_st, memories)
 		|| handle_environment_command(command, environment, memories, exit_st);
 	if (!result)
 		*exit_st = 127;
