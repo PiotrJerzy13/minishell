@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:00:00 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:03:48 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:54:16 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ int	main(int argc, char **argv, char **env)
 {
 	t_shell_state		state;
 	t_command_context	*cmd_context;
-	t_token_context		*token_context;
 
 	(void)argc;
 	(void)argv;
@@ -103,19 +102,13 @@ int	main(int argc, char **argv, char **env)
 			&state.environment, env) == -1)
 		return (EXIT_FAILURE);
 	cmd_context = create_command_context(&state);
-	token_context = create_token_context(&state);
-	while (1)
+	state.input = get_user_input();
+	while (state.input)
 	{
-		state.input = get_user_input();
-		if (!state.input)
-			break ;
-		if (*state.input == '\0')
-		{
-			add_memory(&state.memories, state.input);
-			continue ;
-		}
 		add_memory(&state.memories, state.input);
-		process_commands(state.input, cmd_context);
+		if (*state.input != '\0')
+			process_commands(state.input, cmd_context);
+		state.input = get_user_input();
 	}
 	free_all_memories(&state.memories);
 	return (state.last_exit_status);

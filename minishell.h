@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 15:35:02 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:35:13 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:56:20 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,8 @@ void		add_or_update_env_var(t_env *env, const char *key,
 void		export_env_var(t_env *environment, char *input,
 				t_memories *memories);
 void		unset_env_var(t_env *env, const char *key);
-char		*get_env_value(const char *name, t_env *environment);
+char		*get_env_value(const char *name, t_env *environment,
+				t_memories *memories);
 void		update_env_var(t_env *env, int index, const char *value,
 				t_memories *memories);
 void		free_env_array(char **env_array);
@@ -247,7 +248,7 @@ int			handle_input_redirection2(t_command *current_command, int in_fd);
 int			handle_output_redirection2(t_command *current_command);
 
 // File and Path Utilities
-char		*find_executable_path(const char *command);
+char		*find_executable_path(const char *command, t_memories *memories);
 int			clear_output_redirect(const char *output_redirect,
 				int *last_exit_status);
 char		*get_current_directory(void);
@@ -269,10 +270,17 @@ char		*str_concat(const char *key, const char *value,
 size_t		ft_strlen(const char *str);
 int			ft_isspace(char c);
 int			ft_isalnum(char c);
+int			ft_isdigit(char c);
 
 // helper_functions.c
 
 int			ft_atoi(const char *str);
 int			ft_strcmp(const char *first_str, const char *second_str);
 char		*ft_strchr(const char *s, int c);
-// char		*ft_strtok(char *str, const char *delim);
+char		*ft_strtok(char *str, const char *delim);
+char		*ft_strcat(char *dest, const char *src);
+char		*ft_strcpy(char *dest, const char *src);
+void		int_to_string(int number, char *buffer);
+void		handle_variable_expansion(char **input, t_token_context *context);
+int			count_digits(int number);
+void		convert_positive_int_to_string(int number, char *buffer);

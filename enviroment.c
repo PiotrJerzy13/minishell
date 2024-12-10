@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:28:48 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:24:51 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ void	export_env_var(t_env *environment, char *input, t_memories *memories)
 
 	if (!validate_export_argument(input))
 		return ;
-	key = strtok(input, "=");
-	value = strtok(NULL, "=");
+	key = ft_strtok(input, "=");
+	value = ft_strtok(NULL, "=");
 	if (key && value)
 		add_or_update_env_var(environment, key, value, memories);
 	else
@@ -66,32 +66,27 @@ void	update_env_var(t_env *env, int index, const char *value,
 }
 
 void	add_env_var(t_env *env, const char *key, const char *value,
-			t_memories *memories)
+	t_memories *memories)
 {
+	size_t		new_capacity;
 	t_key_value	*new_pairs;
 
 	if (env->size >= env->capacity)
 	{
-		env->capacity *= 2;
-		new_pairs = realloc(env->pairs, env->capacity * sizeof(t_key_value));
+		new_capacity = env->capacity * 2;
+		new_pairs = realloc(env->pairs, new_capacity * sizeof(t_key_value));
 		if (!new_pairs)
-		{
-			perror("Failed to resize environment");
 			exit(EXIT_FAILURE);
-		}
 		if (is_in_memories(memories, env->pairs))
 			remove_memory(memories, env->pairs);
 		env->pairs = new_pairs;
+		env->capacity = new_capacity;
 		add_memory(memories, env->pairs);
 	}
-	env->pairs[env->size].key = strdup(key);
-	env->pairs[env->size].value = strdup(value);
+	env->pairs[env->size].key = ft_strndup(key, ft_strlen(key), memories);
+	env->pairs[env->size].value = ft_strndup(value, ft_strlen(value), memories);
 	if (!env->pairs[env->size].key || !env->pairs[env->size].value)
-	{
 		exit(EXIT_FAILURE);
-	}
-	add_memory(memories, env->pairs[env->size].key);
-	add_memory(memories, env->pairs[env->size].value);
 	env->size++;
 }
 

@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 11:45:32 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 12:58:47 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 18:29:21 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,23 @@ char	*ft_strndup(const char *s, size_t n, t_memories *memories)
 	if (memories)
 		add_memory(memories, new_str);
 	return (new_str);
+}
+
+char	*ft_strcat(char *dest, const char *src)
+{
+	char	*dest_ptr;
+
+	dest_ptr = dest;
+	while (*dest_ptr != '\0')
+	{
+		dest_ptr++;
+	}
+	while (*src != '\0')
+	{
+		*dest_ptr = *src;
+		dest_ptr++;
+		src++;
+	}
+	*dest_ptr = '\0';
+	return (dest);
 }

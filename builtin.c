@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:58:04 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:22:25 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 
 	if (args[0] == NULL || ft_strcmp(args[0], "~") == 0)
 	{
-		path = get_env_value("HOME", env);
+		path = get_env_value("HOME", env, env->memories);
 		if (path == NULL)
 		{
 			printf("cd: HOME not set\n");
@@ -27,7 +27,7 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 	}
 	else if (ft_strcmp(args[0], "-") == 0)
 	{
-		path = get_env_value("OLDPWD", env);
+		path = get_env_value("OLDPWD", env, env->memories);
 		if (path == NULL)
 		{
 			printf("cd: OLDPWD not set\n");

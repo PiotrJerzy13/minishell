@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   double_quotes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:33:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:17:24 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:45:46 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,23 +41,22 @@ t_buffer_info	initialize_buffer_info(t_memories *memories)
 }
 
 void	process_variable(char **start, char **end, t_buffer_info *buf_info,
-			t_env *environment)
+	t_env *environment)
 {
 	char	*var_name;
 	char	*value;
 
 	(*end)++;
 	*start = *end;
-	while (isalnum(**end) || **end == '_')
+	while (ft_isalnum(**end) || **end == '_')
 		(*end)++;
-	var_name = strndup(*start, *end - *start);
+	var_name = ft_strndup(*start, *end - *start, buf_info->memories);
 	if (!var_name)
 	{
 		perror("Memory allocation failed for variable name");
 		exit(EXIT_FAILURE);
 	}
-	value = get_env_value(var_name, environment);
-	free(var_name);
+	value = get_env_value(var_name, environment, buf_info->memories);
 	if (value)
 	{
 		append_to_buffer(buf_info, value, strlen(value));
@@ -68,7 +67,7 @@ void	process_variable(char **start, char **end, t_buffer_info *buf_info,
 
 int	handle_dollar_pid(char **input_ptr, t_buffer_info *buf_info)
 {
-	if (strncmp(*input_ptr + 1, "$$", 2) == 0)
+	if (ft_strcmp(*input_ptr + 1, "$$") == 0)
 	{
 		append_to_buffer(buf_info, "$$", 2);
 		*input_ptr += 3;
@@ -77,8 +76,16 @@ int	handle_dollar_pid(char **input_ptr, t_buffer_info *buf_info)
 	return (0);
 }
 
+void	process_dollar_in_double_quotes(char **start, char **end,
+	t_buffer_info *buf_info, t_env *environment)
+{
+	if (*end > *start)
+		append_to_buffer(buf_info, *start, *end - *start);
+	process_variable(start, end, buf_info, environment);
+}
+
 char	*get_double_quoted_token(char **input_ptr, t_env *environment,
-			t_memories *memories)
+	t_memories *memories)
 {
 	char			*start;
 	char			*end;
@@ -92,11 +99,8 @@ char	*get_double_quoted_token(char **input_ptr, t_env *environment,
 	while (*end && *end != '"')
 	{
 		if (*end == '$')
-		{
-			if (end > start)
-				append_to_buffer(&buf_info, start, end - start);
-			process_variable(&start, &end, &buf_info, environment);
-		}
+			process_dollar_in_double_quotes(&start, &end, &buf_info,
+				environment);
 		else
 			end++;
 	}

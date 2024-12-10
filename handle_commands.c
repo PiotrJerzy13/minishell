@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 15:26:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:26:44 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:55:37 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 		if (command->args[1])
 		{
 			exit_code = ft_atoi(command->args[1]);
-			if (exit_code < 0 || !isdigit(*command->args[1]))
+			if (exit_code < 0 || !ft_isdigit(*command->args[1]))
 			{
 				printf("exit: numeric argument required\n");
 				exit(255);

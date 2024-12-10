@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 12:37:00 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:49:18 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,32 +49,60 @@ int	is_in_memories(t_memories *memories, void *ptr)
 	return (0);
 }
 
+// void	add_memory(t_memories *memories, void *ptr)
+// {
+// 	size_t	new_capacity;
+// 	void	**new_allocations;
+// 	size_t	i;
+
+// 	i = 0;
+// 	if (!ptr)
+// 		return ;
+// 	if (is_in_memories(memories, ptr))
+// 		return ;
+// 	if (memories->size >= memories->capacity)
+// 	{
+// 		new_capacity = memories->capacity * 2;
+// 		new_allocations = malloc(new_capacity * sizeof(void *));
+// 		if (!new_allocations)
+// 			exit(EXIT_FAILURE);
+// 		while (i < memories->size)
+// 		{
+// 			new_allocations[i] = memories->allocations[i];
+// 			i++;
+// 		}
+// 		free(memories->allocations);
+// 		memories->allocations = new_allocations;
+// 		memories->capacity = new_capacity;
+// 	}
+// 	memories->allocations[memories->size] = ptr;
+// 	memories->size++;
+// }
 void	add_memory(t_memories *memories, void *ptr)
 {
 	size_t	new_capacity;
 	void	**new_allocations;
+	size_t	i;
 
-	if (!ptr)
-	{
-		printf("Warning: Attempted to add a NULL pointer.\n");
+	i = 0;
+	if (!ptr || is_in_memories(memories, ptr))
 		return ;
-	}
-	if (is_in_memories(memories, ptr))
-	{
-		return ;
-	}
 	if (memories->size >= memories->capacity)
 	{
 		new_capacity = memories->capacity * 2;
-		new_allocations = realloc(memories->allocations,
-				new_capacity * sizeof(void *));
+		new_allocations = malloc(new_capacity * sizeof(void *));
 		if (!new_allocations)
 			exit(EXIT_FAILURE);
+		while (i < memories->size)
+		{
+			new_allocations[i] = memories->allocations[i];
+			i++;
+		}
+		free(memories->allocations);
 		memories->allocations = new_allocations;
 		memories->capacity = new_capacity;
 	}
-	memories->allocations[memories->size] = ptr;
-	memories->size++;
+	memories->allocations[memories->size++] = ptr;
 }
 
 void	free_all_memories(t_memories *memories)

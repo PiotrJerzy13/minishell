@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:09:41 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 17:30:13 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	exe_command(t_command *command, t_env *environment,
 	char	*exec_path;
 
 	env_array = env_to_char_array(environment, environment->memories);
-	exec_path = find_executable_path(command->command);
+	exec_path = find_executable_path(command->command, environment->memories);
 	if (!exec_path)
 	{
 		printf("minishell: %s: command not found\n", command->command);
@@ -37,8 +37,13 @@ void	add_argument_to_command(t_token *current_token,
 	t_command *current_command,
 	t_memories *memories, int *arg_count)
 {
-	current_command->args[*arg_count] = strdup(current_token->value);
-	add_memory(memories, current_command->args[*arg_count]);
+	current_command->args[*arg_count] = ft_strndup(current_token->value,
+			ft_strlen(current_token->value), memories);
+	if (!current_command->args[*arg_count])
+	{
+		perror("Error: Failed to allocate memory for argument.");
+		return ;
+	}
 	(*arg_count)++;
 }
 

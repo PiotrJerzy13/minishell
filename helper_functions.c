@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 14:59:41 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 14:59:57 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 17:24:49 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,27 +64,31 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
+int	ft_isdigit(char c)
+{
+	return (c >= '0' && c <= '9');
+}
+
 char	*ft_strtok(char *str, const char *delim)
 {
-	static char	*current_pos;
-	char		*start;
+	static char	*saved_str;
+	char		*token_start;
 
-	current_pos = NULL;
 	if (str != NULL)
-		current_pos = str;
-	if (current_pos == NULL)
+		saved_str = str;
+	if (saved_str == NULL || *saved_str == '\0')
 		return (NULL);
-	while (*current_pos != '\0' && ft_strchr(delim, *current_pos) != NULL)
-		current_pos++;
-	if (*current_pos == '\0')
+	while (*saved_str && ft_strchr(delim, *saved_str))
+		saved_str++;
+	if (*saved_str == '\0')
 		return (NULL);
-	start = current_pos;
-	while (*current_pos != '\0' && ft_strchr(delim, *current_pos) == NULL)
-		current_pos++;
-	if (*current_pos != '\0')
+	token_start = saved_str;
+	while (*saved_str && !ft_strchr(delim, *saved_str))
+		saved_str++;
+	if (*saved_str)
 	{
-		*current_pos = '\0';
-		current_pos++;
+		*saved_str = '\0';
+		saved_str++;
 	}
-	return (start);
+	return (token_start);
 }
