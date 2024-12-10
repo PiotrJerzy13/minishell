@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 11:52:37 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:28:48 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ void	export_env_var(t_env *environment, char *input, t_memories *memories)
 
 	if (!validate_export_argument(input))
 		return ;
-	key = ft_strtok(input, "=");
-	value = ft_strtok(NULL, "=");
+	key = strtok(input, "=");
+	value = strtok(NULL, "=");
 	if (key && value)
 		add_or_update_env_var(environment, key, value, memories);
 	else

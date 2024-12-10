@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:36:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 14:15:40 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:29:23 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ char	*find_in_path(const char *command, const char *path_env)
 
 	path = strdup(path_env);
 	full_path = NULL;
-	dir = ft_strtok(path, ":");
+	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
 		if (*dir == '\0')
@@ -46,7 +46,7 @@ char	*find_in_path(const char *command, const char *path_env)
 			free(path);
 			return (full_path);
 		}
-		dir = ft_strtok(NULL, ":");
+		dir = strtok(NULL, ":");
 	}
 	free(path);
 	return (NULL);
