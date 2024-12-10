@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 22:42:42 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:17:10 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ void	process_shlvl(char *key, char **value, t_memories *memories)
 	if (ft_strcmp(key, "SHLVL") == 0)
 	{
 		shlvl = ft_atoi(*value);
-		free(*value);
 		shlvl++;
 		*value = int_to_string_with_memory(shlvl, memories);
 		if (!*value)

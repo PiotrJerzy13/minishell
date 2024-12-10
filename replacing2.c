@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 18:28:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 22:21:45 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:16:47 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ void	handle_variable_expansion(char **input, t_token_context *context)
 	{
 		add_token(context->token_list, init_token(value,
 				TOKEN_ARGUMENT, context->memories));
-		free(value);
 	}
 	else
 	{

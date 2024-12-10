@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:00:27 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:16:53 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ void	process_general_token(char **input, t_token_context *context)
 		else
 			add_token(context->token_list, init_token(token, TOKEN_COMMAND,
 					context->memories));
-		free(token);
 		context->expect_filename = 0;
 	}
 	handle_special_characters(input, context);
