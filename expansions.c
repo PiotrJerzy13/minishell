@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansions.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: piotr <piotr@student.42.fr>                +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:07:21 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/07 20:24:54 by piotr            ###   ########.fr       */
+/*   Updated: 2024/12/10 13:18:39 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,23 +43,19 @@ void	handle_variable_expansion(char **input, t_token_context *context)
 
 	(*input)++;
 	start = *input;
-	while (isalnum(**input) || **input == '_')
+	while (ft_isalnum(**input) || **input == '_')
 		(*input)++;
-	token = strndup(start, *input - start);
+	token = ft_strndup(start, *input - start, context->memories);
 	value = get_env_value(token, context->environment);
 	if (value != NULL)
 	{
 		add_token(context->token_list, init_token(value,
 				TOKEN_ARGUMENT, context->memories));
+		free(value);
 	}
 	else
 	{
 		add_token(context->token_list, init_token("",
 				TOKEN_ARGUMENT, context->memories));
-	}
-	free(token);
-	if (value != NULL)
-	{
-		free(value);
 	}
 }

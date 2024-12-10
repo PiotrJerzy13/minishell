@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:11:23 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:02:12 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:03:56 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,13 @@ int	process_input_redirection(t_token **current_token,
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
-		redirect = strdup((*current_token)->value);
+		redirect = ft_strndup((*current_token)->value,
+				ft_strlen((*current_token)->value), memories);
 		if (!redirect)
 		{
 			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
-		add_memory(memories, redirect);
 		current_command->input_redirect = redirect;
 		return (0);
 	}
@@ -42,13 +42,13 @@ int	process_output_redirection(t_token **current_token,
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
-		redirect = strdup((*current_token)->value);
+		redirect = ft_strndup((*current_token)->value,
+				ft_strlen((*current_token)->value), memories);
 		if (!redirect)
 		{
 			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
-		add_memory(memories, redirect);
 		current_command->output_redirect = redirect;
 		current_command->append_mode = 0;
 		return (0);
@@ -65,13 +65,13 @@ int	process_append_redirection(t_token **current_token,
 	*current_token = (*current_token)->next;
 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
 	{
-		redirect = strdup((*current_token)->value);
+		redirect = ft_strndup((*current_token)->value,
+				ft_strlen((*current_token)->value), memories);
 		if (!redirect)
 		{
 			printf("Error: Failed to allocate memory.\n");
 			return (-1);
 		}
-		add_memory(memories, redirect);
 		current_command->output_redirect = redirect;
 		current_command->append_mode = 1;
 		return (0);
