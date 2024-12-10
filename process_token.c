@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:54:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:00:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@ void	process_general_token(char **input, t_token_context *context)
 	char	*token;
 
 	start = *input;
-	while (**input && !isspace(**input) && **input != '|' && **input != '<'
+	while (**input && !ft_isspace(**input) && **input != '|' && **input != '<'
 		&& **input != '>')
 	{
 		(*input)++;
 	}
 	if (*input > start)
 	{
-		token = strndup(start, *input - start);
+		token = ft_strndup(start, *input - start, context->memories);
 		if (context->expect_filename)
 		{
 			add_token(context->token_list, init_token(token, TOKEN_FILENAME,

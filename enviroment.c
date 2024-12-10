@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:10:19 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 11:52:37 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,10 @@ char	**env_to_char_array(t_env *environment, t_memories *memories)
 	add_memory(memories, env_array);
 	while (i < environment->size)
 	{
-		env_array[i] = malloc(strlen(environment->pairs[i].key)
-				+ strlen(environment->pairs[i].value) + 2);
+		env_array[i] = str_concat(environment->pairs[i].key,
+				environment->pairs[i].value, "=", memories);
 		if (!env_array[i])
-		{
 			exit(EXIT_FAILURE);
-		}
-		snprintf(env_array[i], strlen(environment->pairs[i].key)
-			+ strlen(environment->pairs[i].value) + 2,
-			"%s=%s", environment->pairs[i].key, environment->pairs[i].value);
 		add_memory(memories, env_array[i]);
 		i++;
 	}

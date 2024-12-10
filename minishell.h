@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:24:35 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:10:23 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,8 @@ void		add_memory(t_memories *memories, void *ptr);
 void		free_all_memories(t_memories *memories);
 int			is_in_memories(t_memories *memories, void *ptr);
 void		remove_memory(t_memories *memories, void *ptr);
+void		*ft_memcpy(void *dest, const void *src, size_t n);
+char		*ft_strndup(const char *s, size_t n, t_memories *memories);
 
 // Environment Management
 void		copy_environment_to_struct(char **env, t_env *environment,
@@ -198,7 +200,7 @@ void		handle_variable_expansion(char **input, t_token_context *context);
 void		process_quoted_token(char **input, t_token_context *context);
 char		*get_double_quoted_token(char **input_ptr, t_env *environment,
 				t_memories *memories);
-char		*get_single_quoted_token(char **input_ptr);
+char		*get_single_quoted_token(char **input_ptr, t_memories *memories);
 int			handle_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
 
@@ -262,3 +264,8 @@ int			process_special_tokens(t_token **current_token,
 				int *arg_count);
 void		append_to_buffer(t_buffer_info *buf_info, const char *start,
 				size_t segment_len);
+char		*str_concat(const char *key, const char *value,
+				const char *delimiter, t_memories *memories);
+size_t		ft_strlen(const char *str);
+int			ft_isspace(char c);
+int			ft_isalnum(char c);
