@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_command2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 17:18:53 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 17:24:22 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:58:45 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void	execute_child_process(t_command *current_command,
 	if (setup_redirections(current_command, context->in_fd) == -1)
 		exit(1);
 	handle_pipe_redirection3(current_command, context);
-	if (strcmp(current_command->command, "env") == 0)
+	if (ft_strcmp(current_command->command, "env") == 0)
 	{
 		execute_env_command(context);
 	}

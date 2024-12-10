@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 15:39:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:58:47 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 14:00:03 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ int	collect_heredoc_input(const char *delimiter, t_heredoc_node **heredoc_list,
 	{
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
-		if (strcmp(line, delimiter) == 0)
+		if (ft_strcmp(line, delimiter) == 0)
 			break ;
 		append_heredoc_node(heredoc_list, line, memories);
 		printf("heredoc> ");

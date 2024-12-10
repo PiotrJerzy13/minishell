@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   copy_enviroment.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 16:58:15 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:24:52 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 14:04:48 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ void	process_shlvl(char *key, char **value)
 {
 	int	shlvl;
 
-	if (strcmp(key, "SHLVL") == 0)
+	if (ft_strcmp(key, "SHLVL") == 0)
 	{
-		shlvl = atoi(*value);
+		shlvl = ft_atoi(*value);
 		free(*value);
 		shlvl++;
 		*value = malloc(12);
@@ -38,7 +38,7 @@ void	copy_environment_to_struct(char **env, t_env *environment,
 	i = 0;
 	while (env[i])
 	{
-		equal_sign = strchr(env[i], '=');
+		equal_sign = ft_strchr(env[i], '=');
 		if (equal_sign)
 		{
 			key = strndup(env[i], equal_sign - env[i]);
@@ -76,7 +76,7 @@ char	*get_env_value(const char *name, t_env *environment)
 	i = 0;
 	while (i < environment->size)
 	{
-		if (strcmp(environment->pairs[i].key, name) == 0)
+		if (ft_strcmp(environment->pairs[i].key, name) == 0)
 		{
 			return (strdup(environment->pairs[i].value));
 		}
