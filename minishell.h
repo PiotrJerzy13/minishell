@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 15:00:37 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:00:37 by pwojnaro         ###   ########.fr       */    
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ typedef struct s_env
 	t_key_value	*pairs;
 	size_t		size;
 	size_t		capacity;
-	int			cd_used_flag;
+	int			cd_flag;
 	t_memories	*memories;
 	int			path_unset;
 }	t_env;

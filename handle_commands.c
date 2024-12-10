@@ -3,10 +3,11 @@
 /*                                                        :::      ::::::::   */
 /*   handle_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
 /*   Updated: 2024/12/10 15:05:55 by pwojnaro         ###   ########.fr       */
+/*  
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +23,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 		*last_exit_status = 0;
 		return (1);
 	}
-	else if (strcmp(command->command, "exit") == 0)
+	else if (ft_strcmp(command->command, "exit") == 0)
 	{
 		if (command->args[1])
 		{

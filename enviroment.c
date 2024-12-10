@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:44:08 by pwojnaro          #+#    #+#             */
 /*   Updated: 2024/12/10 11:52:37 by pwojnaro         ###   ########.fr       */
@@ -19,8 +19,8 @@ void	export_env_var(t_env *environment, char *input, t_memories *memories)
 
 	if (!validate_export_argument(input))
 		return ;
-	key = strtok(input, "=");
-	value = strtok(NULL, "=");
+	key = ft_strtok(input, "=");
+	value = ft_strtok(NULL, "=");
 	if (key && value)
 		add_or_update_env_var(environment, key, value, memories);
 	else
@@ -103,7 +103,7 @@ void	add_or_update_env_var(t_env *env, const char *key, const char *value,
 	i = 0;
 	while (i < env->size)
 	{
-		if (strcmp(env->pairs[i].key, key) == 0)
+		if (ft_strcmp(env->pairs[i].key, key) == 0)
 		{
 			update_env_var(env, i, value, memories);
 			return ;

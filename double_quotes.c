@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   double_quotes.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:33:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:13:53 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:17:24 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,17 @@ void	process_variable(char **start, char **end, t_buffer_info *buf_info,
 	*start = *end;
 }
 
+int	handle_dollar_pid(char **input_ptr, t_buffer_info *buf_info)
+{
+	if (strncmp(*input_ptr + 1, "$$", 2) == 0)
+	{
+		append_to_buffer(buf_info, "$$", 2);
+		*input_ptr += 3;
+		return (1);
+	}
+	return (0);
+}
+
 char	*get_double_quoted_token(char **input_ptr, t_env *environment,
 			t_memories *memories)
 {
@@ -76,6 +87,8 @@ char	*get_double_quoted_token(char **input_ptr, t_env *environment,
 	buf_info = initialize_buffer_info(memories);
 	start = *input_ptr + 1;
 	end = start;
+	if (handle_dollar_pid(input_ptr, &buf_info))
+		return (*buf_info.buffer);
 	while (*end && *end != '"')
 	{
 		if (*end == '$')

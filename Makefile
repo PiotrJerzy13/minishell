@@ -9,6 +9,7 @@ input_parser.c builtins_helper.c execute_command.c process_token.c execute_pipes
 handle_special_char.c handle_builtins.c handle_redirections.c double_quotes.c execution.c execute_command2.c replacing.c \
 helper_functions.c
 
+
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
 # Name of the executable
