@@ -6,33 +6,12 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:11:23 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:36:20 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:03:56 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// int	process_input_redirection(t_token **current_token,
-// 		t_command *current_command, t_memories *memories)
-// {
-// 	char	*redirect;
-
-// 	*current_token = (*current_token)->next;
-// 	if (*current_token && (*current_token)->type == TOKEN_FILENAME)
-// 	{
-// 		redirect = strdup((*current_token)->value);
-// 		if (!redirect)
-// 		{
-// 			printf("Error: Failed to allocate memory.\n");
-// 			return (-1);
-// 		}
-// 		add_memory(memories, redirect);
-// 		current_command->input_redirect = redirect;
-// 		return (0);
-// 	}
-// 	printf("Error: Missing filename for input redirection.\n");
-// 	return (-1);
-// }
 int	process_input_redirection(t_token **current_token,
 		t_command *current_command, t_memories *memories)
 {

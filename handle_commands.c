@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 12:07:25 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 23:03:18 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:05:55 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 {
 	int	exit_code;
 
-	if (strcmp(command->command, "echo") == 0)
+	if (ft_strcmp(command->command, "echo") == 0)
 	{
 		bui_echo(command->args + 1);
 		*last_exit_status = 0;
@@ -26,7 +26,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 	{
 		if (command->args[1])
 		{
-			exit_code = atoi(command->args[1]);
+			exit_code = ft_atoi(command->args[1]);
 			if (exit_code < 0 || !isdigit(*command->args[1]))
 			{
 				printf("exit: numeric argument required\n");
@@ -43,7 +43,7 @@ int	handle_simple_command(t_command *command, int *last_exit_status)
 
 int	validate_export_argument(const char *arg)
 {
-	if (!arg || strchr(arg, '=') == NULL)
+	if (!arg || ft_strchr(arg, '=') == NULL)
 	{
 		printf("export: `%s': not a valid identifier\n", arg);
 		return (0);
@@ -54,7 +54,7 @@ int	validate_export_argument(const char *arg)
 int	handle_env_var_commands(t_command *command, t_env *environment,
 	int *last_exit_status)
 {
-	if (strcmp(command->command, "export") == 0)
+	if (ft_strcmp(command->command, "export") == 0)
 	{
 		if (bui_export(&environment, command->args) == FAILURE)
 			*last_exit_status = 1;
@@ -62,7 +62,7 @@ int	handle_env_var_commands(t_command *command, t_env *environment,
 			*last_exit_status = 0;
 		return (1);
 	}
-	if (strcmp(command->command, "unset") == 0)
+	if (ft_strcmp(command->command, "unset") == 0)
 	{
 		if (command->args[1] != NULL)
 		{
@@ -81,7 +81,7 @@ int	handle_env_var_commands(t_command *command, t_env *environment,
 int	handle_directory_commands(t_command *command, t_env *environment,
 	t_memories *memories, int *last_exit_status)
 {
-	if (strcmp(command->command, "cd") == 0)
+	if (ft_strcmp(command->command, "cd") == 0)
 	{
 		if (bui_cd(command->args + 1, environment, memories) == FAILURE)
 			*last_exit_status = 2;

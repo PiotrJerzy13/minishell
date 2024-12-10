@@ -6,7 +6,8 @@ OBJDIR = ./bin
 SRCS = main.c enviroment.c memories.c handle_commands.c expansions.c token_quotes.c commands.c token.c \
 token_helper.c copy_enviroment.c builtin.c signals.c command_node.c redirector.c heredoc.c shell_initializer.c \
 input_parser.c builtins_helper.c execute_command.c process_token.c execute_pipes.c handle_special_token.c \
-handle_special_char.c handle_builtins.c handle_redirections.c double_quotes.c execution.c execute_command2.c replacing.c
+handle_special_char.c handle_builtins.c handle_redirections.c double_quotes.c execution.c execute_command2.c replacing.c \
+helper_functions.c
 
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 

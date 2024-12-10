@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:10:23 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:00:37 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,3 +269,10 @@ char		*str_concat(const char *key, const char *value,
 size_t		ft_strlen(const char *str);
 int			ft_isspace(char c);
 int			ft_isalnum(char c);
+
+// helper_functions.c
+
+int			ft_atoi(const char *str);
+int			ft_strcmp(const char *first_str, const char *second_str);
+char		*ft_strchr(const char *s, int c);
+char		*ft_strtok(char *str, const char *delim);
