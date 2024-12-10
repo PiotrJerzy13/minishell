@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   memories.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:24:28 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 20:03:16 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,11 @@ void	add_memory(t_memories *memories, void *ptr)
 		printf("Warning: Attempted to add a NULL pointer.\n");
 		return ;
 	}
-	if (is_in_memories(memories, ptr))
-	{
-		printf("Warning: Pointer %p is already in memories.\n", ptr);
-		return ;
-	}
+	// if (is_in_memories(memories, ptr))
+	// {
+	// 	printf("Warning: Pointer %p is already in memories.\n", ptr);
+	// 	return ;
+	// }
 	if (memories->size >= memories->capacity)
 	{
 		new_capacity = memories->capacity * 2;

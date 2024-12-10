@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 13:37:13 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 14:16:25 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:47:10 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,3 +272,5 @@ int			ft_atoi(const char *str);
 int			ft_strcmp(const char *first_str, const char *second_str);
 char		*ft_strchr(const char *s, int c);
 char		*ft_strtok(char *str, const char *delim);
+
+void		handle_echo_with_pid(const char *arg);

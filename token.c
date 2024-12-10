@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/04 18:23:04 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/10 20:26:42 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,12 @@ void	tokenize_input(char *input, t_token_context *context)
 		skip_spaces(&input);
 		if (*input == '\0')
 			break ;
+		if (*input == '$' && *(input + 1) == '\0')
+			printf("$");
+		if (*input == '$' && *(input + 1) == '$')
+		{
+			handle_echo_with_pid(input);
+		}
 		if (*input == '$')
 		{
 			process_variable_expansion(&input, context);

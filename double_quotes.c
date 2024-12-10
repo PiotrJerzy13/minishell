@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:33:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:17:24 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/10 20:17:36 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,12 @@ int	handle_dollar_pid(char **input_ptr, t_buffer_info *buf_info)
 	{
 		append_to_buffer(buf_info, "$$", 2);
 		*input_ptr += 3;
+		return (1);
+	}
+	else if (strncmp(*input_ptr + 1, "$", 1) == 0)
+	{
+		append_to_buffer(buf_info, "$", 1);
+		*input_ptr += 2;
 		return (1);
 	}
 	return (0);
