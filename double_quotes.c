@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:33:14 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 23:32:15 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:26:59 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,45 +75,6 @@ int	handle_dollar_pid(char **input_ptr, t_buffer_info *buf_info)
 	return (0);
 }
 
-// void	process_dollar_in_double_quotes(char **start, char **end,
-// 	t_buffer_info *buf_info, t_env *environment)
-// {
-// 	if (*end > *start)
-// 		append_to_buffer(buf_info, *start, *end - *start);
-// 	process_variable(start, end, buf_info, environment);
-// }
-
-// char	*get_double_quoted_token(char **input_ptr, t_env *environment,
-// 			t_memories *memories)
-// {
-// 	char			*start;
-// 	char			*end;
-// 	t_buffer_info	buf_info;
-
-// 	buf_info = initialize_buffer_info(memories);
-// 	start = *input_ptr + 1;
-// 	end = start;
-// 	if (handle_dollar_pid(input_ptr, &buf_info))
-// 		return (*buf_info.buffer);
-// 	while (*end && *end != '"')
-// 	{
-// 		if (*end == '$')
-// 		{
-// 			if (end > start)
-// 				append_to_buffer(&buf_info, start, end - start);
-// 			process_variable(&start, &end, &buf_info, environment);
-// 		}
-// 		else
-// 			end++;
-// 	}
-// 	if (end > start)
-// 		append_to_buffer(&buf_info, start, end - start);
-// 	if (*end == '"')
-// 		*input_ptr = end + 1;
-// 	else
-// 		*input_ptr = end;
-// 	return (*buf_info.buffer);
-// }
 void	process_double_quoted_content(char **start, char **end,
 	t_buffer_info *buf_info, t_env *environment)
 {

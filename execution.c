@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 15:49:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 21:29:52 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:43:35 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,9 @@ int	handle_input_redirection2(t_command *current_command, int in_fd)
 {
 	int	fd_in;
 
+	fd_in = open(current_command->input_redirect, O_RDONLY);
 	if (current_command->input_redirect)
 	{
-		fd_in = open(current_command->input_redirect, O_RDONLY);
 		if (fd_in == -1)
 		{
 			perror("Failed to open input file");

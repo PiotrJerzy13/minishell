@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 17:09:48 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/11 00:16:53 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:37:36 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	process_general_token(char **input, t_token_context *context)
 {
-	char	*start;
-	char	*token;
+	const char		*start;
+	const char		*token;
 
 	start = *input;
 	while (**input && !ft_isspace(**input) && **input != '|' && **input != '<'

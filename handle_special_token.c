@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 13:40:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/11 00:17:00 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:40:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	process_quoted_token(char **input, t_token_context *context)
 {
-	char	*token;
+	const char	*token;
 
 	token = NULL;
 	if (**input == '"')

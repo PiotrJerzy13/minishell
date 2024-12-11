@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 15:49:26 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 21:27:30 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 01:20:23 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	init_memories(t_memories *memories, t_env *environment,
 	add_memory(memories, environment->pairs);
 }
 
-int	is_in_memories(t_memories *memories, void *ptr)
+int	is_in_memories(t_memories *memories, const void *ptr)
 {
 	size_t	i;
 
@@ -107,16 +107,19 @@ void	free_all_memories(t_memories *memories)
 	memories->capacity = 0;
 }
 
-void	remove_memory(t_memories *memories, void *ptr)
+void	remove_memory(t_memories *memories, const void *ptr)
 {
 	size_t	i;
 	size_t	j;
 
 	i = 0;
+	if (!memories || !memories->allocations)
+		return ;
 	while (i < memories->size)
 	{
 		if (memories->allocations[i] == ptr)
 		{
+			memories->allocations[i] = NULL;
 			j = i;
 			while (j < memories->size - 1)
 			{

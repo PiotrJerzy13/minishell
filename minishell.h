@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 15:35:02 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 23:31:33 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:46:21 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,8 +152,8 @@ void		init_memories(t_memories *memories, t_env *environment,
 				int env_capacity);
 void		add_memory(t_memories *memories, void *ptr);
 void		free_all_memories(t_memories *memories);
-int			is_in_memories(t_memories *memories, void *ptr);
-void		remove_memory(t_memories *memories, void *ptr);
+int			is_in_memories(t_memories *memories, const void *ptr);
+void		remove_memory(t_memories *memories, const void *ptr);
 void		*ft_memcpy(void *dest, const void *src, size_t n);
 char		*ft_strndup(const char *s, size_t n, t_memories *memories);
 
@@ -165,7 +165,7 @@ void		add_or_update_env_var(t_env *env, const char *key,
 void		export_env_var(t_env *environment, char *input,
 				t_memories *memories);
 void		unset_env_var(t_env *env, const char *key);
-char		*get_env_value(const char *name, t_env *environment,
+char		*get_env_value(const char *name, const t_env *environment,
 				t_memories *memories);
 void		update_env_var(t_env *env, int index, const char *value,
 				t_memories *memories);
@@ -205,7 +205,8 @@ int			handle_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
 
 // Token Helpers
-t_token		*init_token(char *value, t_token_type type, t_memories *memories);
+t_token		*init_token(const char *value, t_token_type type,
+				t_memories *memories);
 void		add_token(t_token **head, t_token *new_token);
 
 // Command Parsing
@@ -213,7 +214,7 @@ int			parse_input_to_commands(t_token *token_list,
 				t_command **command_list, t_memories *memories);
 t_command	*initialize_command(t_token *token, t_command **command_list,
 				t_memories *memories);
-void		add_argument_to_command(t_token *current_token,
+void		add_argument_to_command(const t_token *current_token,
 				t_command *current_command, t_memories *memories,
 				int *arg_count);
 void		handle_pipe(t_command **current_command, int *arg_count);
@@ -223,7 +224,7 @@ int			handle_all_redirections(t_token **current_token,
 				t_command *current_command, t_memories *memories);
 int			handle_simple_command(t_command *command, int *last_exit_status,
 				t_memories *memories);
-int			setup_pipes(t_command *current_command, int *pipe_fd,
+int			setup_pipes(const t_command *current_command, int *pipe_fd,
 				int *last_exit_status);
 
 // Command Execution
@@ -240,7 +241,7 @@ void		exe_command(t_command *command, t_env *environment,
 				int *last_exit_status);
 void		execute_child_process(t_command *current_command,
 				t_execution_context *context);
-void		handle_parent_process(t_command *current_command, int *in_fd,
+void		handle_parent_process(const t_command *current_command, int *in_fd,
 				int *pipe_fd);
 int			handle_heredoc2(t_command *current_command, int *in_fd,
 				int *last_exit_status);

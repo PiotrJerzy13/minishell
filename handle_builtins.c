@@ -6,13 +6,13 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 14:57:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 21:41:07 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:41:33 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_redirections2(t_command *command, int *saved_stdin,
+int	handle_redirections2(const t_command *command, int *saved_stdin,
 		int *saved_stdout, int *exit_st)
 {
 	if (command->output_redirect && !command->append_mode)

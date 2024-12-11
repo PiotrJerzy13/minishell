@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_command2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 17:18:53 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 13:58:45 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:45:22 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	handle_pipe_redirection3(t_command *current_command,
 	}
 }
 
-void	execute_env_command(t_execution_context *context)
+void	execute_env_command(const t_execution_context *context)
 {
 	size_t	i;
 
@@ -70,7 +70,7 @@ void	execute_child_process(t_command *current_command,
 	exit(*context->last_exit_status);
 }
 
-void	handle_parent_process(t_command *current_command, int *in_fd,
+void	handle_parent_process(const t_command *current_command, int *in_fd,
 			int *pipe_fd)
 {
 	if (*in_fd != STDIN_FILENO)

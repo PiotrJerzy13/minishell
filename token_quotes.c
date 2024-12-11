@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 14:11:59 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 23:33:38 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:30:13 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void	append_to_buffer(t_buffer_info *buf_info, const char *start,
 	(*(buf_info->buffer))[*buf_info->length] = '\0';
 }
 
-char	*get_env_value(const char *name, t_env *environment,
+char	*get_env_value(const char *name, const t_env *environment,
 	t_memories *memories)
 {
 	size_t	i;

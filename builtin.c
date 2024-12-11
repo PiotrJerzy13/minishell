@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:20:56 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/11 00:06:10 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:27:44 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,22 +40,6 @@ const char	*determine_target_path(char **args, t_env *env, char *old_pwd)
 	return (path);
 }
 
-// int	update_environment_variables(t_env *env, t_memories *mem, char *old_pwd)
-// {
-// 	char	*new_pwd;
-
-// 	new_pwd = get_current_directory();
-// 	if (new_pwd == NULL)
-// 	{
-// 		free(old_pwd);
-// 		return (FAILURE);
-// 	}
-// 	add_or_update_env_var(env, "OLDPWD", old_pwd, mem);
-// 	add_or_update_env_var(env, "PWD", new_pwd, mem);
-// 	free(old_pwd);
-// 	free(new_pwd);
-// 	return (SUCCESS);
-// }
 int	update_environment_variables(t_env *env, t_memories *mem, char *old_pwd)
 {
 	char	*new_pwd;

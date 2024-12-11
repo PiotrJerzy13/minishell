@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:34:40 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 22:39:02 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:46:07 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	exe_command(t_command *command, t_env *environment,
 	exit(1);
 }
 
-void	add_argument_to_command(t_token *current_token,
+void	add_argument_to_command(const t_token *current_token,
 	t_command *current_command,
 	t_memories *memories, int *arg_count)
 {

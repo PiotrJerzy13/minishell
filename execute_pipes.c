@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 14:50:33 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 23:11:32 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:44:27 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,8 @@ char	*process_escape_sequences(const char *input, t_memories *memories)
 void	process_echo_arguments(char **args, int start_index,
 		int escape_sequences, t_memories *memories)
 {
-	char	*processed_arg;
-	int		i;
+	const char	*processed_arg;
+	int			i;
 
 	i = start_index;
 	while (args[i])

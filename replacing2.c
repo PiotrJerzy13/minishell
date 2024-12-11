@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 18:28:51 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/11 00:16:47 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:33:50 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,9 @@ void	int_to_string(int number, char *buffer)
 
 void	handle_variable_expansion(char **input, t_token_context *context)
 {
-	char	*start;
-	char	*token;
-	char	*value;
+	const char	*start;
+	const char	*token;
+	char		*value;
 
 	(*input)++;
 	start = *input;
@@ -89,7 +89,8 @@ void	handle_variable_expansion(char **input, t_token_context *context)
 	}
 }
 
-int	setup_pipes(t_command *current_command, int *pipe_fd, int *last_exit_status)
+int	setup_pipes(const t_command *current_command, int *pipe_fd,
+		int *last_exit_status)
 {
 	if (current_command->next)
 	{

@@ -6,13 +6,13 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 14:55:57 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/10 22:08:02 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:31:10 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_token	*init_token(char *value, t_token_type type, t_memories *memories)
+t_token	*init_token(const char *value, t_token_type type, t_memories *memories)
 {
 	t_token	*new_token;
 

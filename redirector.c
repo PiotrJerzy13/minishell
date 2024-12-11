@@ -6,7 +6,7 @@
 /*   By: pwojnaro <pwojnaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 12:29:24 by pwojnaro          #+#    #+#             */
-/*   Updated: 2024/12/09 22:48:09 by pwojnaro         ###   ########.fr       */
+/*   Updated: 2024/12/11 00:36:25 by pwojnaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ int	clear_output_redirect(const char *output_redirect, int *last_exit_status)
 {
 	int	fd_out;
 
+	fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (output_redirect)
 	{
-		fd_out = open(output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd_out == -1)
 		{
 			perror("Failed to create or truncate output file");
@@ -35,9 +35,9 @@ int	handle_input_redirection(const char *input_redirect, int *saved_stdin,
 {
 	int	fd_in;
 
+	fd_in = open(input_redirect, O_RDONLY);
 	if (input_redirect)
 	{
-		fd_in = open(input_redirect, O_RDONLY);
 		if (fd_in == -1)
 		{
 			perror("open failed for input redirection");
